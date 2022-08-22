@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap');
+
+.log {
+  background: rgba(255, 177, 177, 0.79);
+  float: center;
+  border-radius: 15px;
+  border: 2px solid rgba(255, 0, 0, 0.21);
+  padding: 20px;
+  font-size: 16px;
+  font-family: 'Oxygen', sans-serif;
+}
+.nav-bar-icon {
+  opacity: 0.5;
+  padding: 15px;
+  padding-top:15px;
+}
+
+.info-icon {
+  margin-top: 15px;
+  margin-left: 65%;
+}
+
+.profile-button {
+  border: none;
+  font-size: 20px;
+  background:none;
+  font-family: 'Oxygen', sans-serif;
+  font-weight: bold;
+  color: #230960;
+}
+
+.logged-in-navbar p {
+  color: #230960;
+  font-size: 20px;
+  margin: 0px;
+  padding: 0px;
+}
+
+.logged-in-navbar {
+  display: flex;
+  min-height: 3%;
+  max-height: 5%;
+  flex-direction: row;
+}
