@@ -1,0 +1,64 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap');
+
+.grid {
+    display: grid;
+    grid-template-columns: 20% 80%;
+}
+.NavigationContainer {
+    padding: 10px;
+    margin-top: 100px;
+}
+.LinksContainer {
+    color: #8C8C8C;
+    font-size: 20px;
+    display: grid;
+    grid-template-rows: 40px 40px 40px 40px 40px;
+    grid-row-gap: 8%;
+    height: 320px;;
+}
+
+.LinksContainer img {
+    height: 20px;
+    width: 20px;
+    vertical-align: middle;
+}
+
+.inactive {
+    color: #8C8C8C;
+    text-decoration: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.active {
+    color:black;
+    text-decoration: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    position: sticky;
+}
+.active .id {
+    filter: brightness(30%)
+}
+.inactive .selected-img {
+    display: none;
+    height: 30px;
+    width: 5px;
+
+}
+
+.active .selected-img {
+    display: relative;
+    height: 30px;
+    width: 5px;
+    margin-left: -10px;
+    margin-right: 5px;
+}
+
+.nav-link {
+    color: black;
+}
+.activeStyle {
+    color:#000000;
+}
