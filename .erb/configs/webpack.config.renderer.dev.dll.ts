@@ -23,11 +23,12 @@ const configuration: webpack.Configuration = {
 
   target: 'electron-renderer',
 
-  externals: ['fsevents', 'crypto-browserify', 'firebase'],
+  externals: ['fsevents', 'crypto-browserify'],
 
   /**
    * Use `module` from `webpack.config.renderer.dev.js`
    */
+  // eslint-disable-next-line
   module: require('./webpack.config.renderer.dev').default.module,
 
   entry: {

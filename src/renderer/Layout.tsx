@@ -1,24 +1,19 @@
+import * as React from 'react';
 import './Layout.css';
-import { useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
-import { AuthContext } from 'context/AuthContext';
-import Navigation from './Navigation';
-import { LoggedInNavBar } from '../components/loggedInNavBar';
-import { auth } from '../provider/firebaseSetup';
+import { Navigation } from './Navigation';
+import { Navbar } from '../components/Navbar';
 
-//sets layout of each page after being signed in
+type Props = {
+  children: React.ReactNode;
+};
 
-const Layout = ({ children }: any) => {
-  const navigate = useNavigate();
-  const user = useContext(AuthContext);
-  const signOut = async () => {
-    await auth.signOut().then(() => {
-      navigate('/');
-    });
-  };
+/**
+ * Sets layout of each page after being signed in.
+ */
+export function Layout({ children }: Props): JSX.Element {
   return (
     <>
-      <LoggedInNavBar username={user.currentUser?.displayName} email={user.currentUser?.email} logOut={signOut} />
+      <Navbar />
       <div className="grid">
         <div>
           <Navigation />
@@ -27,5 +22,4 @@ const Layout = ({ children }: any) => {
       </div>
     </>
   );
-};
-export default Layout;
+}

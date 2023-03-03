@@ -6,13 +6,14 @@ import logs from '../../assets/logs.png';
 import selected from '../../assets/selected.png';
 import setup from '../../assets/setup.png';
 
-const Navigation = () => {
+export function Navigation(): JSX.Element {
   return (
     <div className="NavigationContainer">
       <div className="LinksContainer">
         <NavLink
-          to="/dashboard" //navigate to each page using routes defined in App.tsx
-          className={({ isActive }) => (isActive ? 'active' : 'inactive')} //if active, uses class active, if not, uses inactive
+          to="/dashboard" // navigate to each page using routes defined in App.tsx
+          // if active, uses class active, if not, uses inactive
+          className={({ isActive }) => (isActive ? 'active' : 'inactive')}
         >
           <img className="selected-img" alt="selected" src={selected} />
           Run your model <img className="id" alt="runmodel" src={runmodel} />
@@ -41,5 +42,4 @@ const Navigation = () => {
       </div>
     </div>
   );
-};
-export default Navigation;
+}

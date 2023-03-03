@@ -185,10 +185,7 @@ ipcMain.handle('run/model', async (event, args) => {
   - type: FunctionComponent
   - takes in data (log info & array) as props
   - returns formatted log component
-- loggedInNavBar.tsx
-  - type: FunctionComponent
-  - takes in user info and Firebase logout function as props
-  - when user is logged in
+- Navbar.tsx
 - loggedOutNavbar
   - type: FunctionComponent
   - when user is logged out

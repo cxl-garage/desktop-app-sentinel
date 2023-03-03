@@ -1,16 +1,17 @@
-import { Channels } from 'main/preload';
-
 declare global {
   interface Window {
     electron: {
-      ipcRenderer: {
-        sendMessage(channel: Channels, args: unknown[]): void;
-        on(
-          channel: string,
-          func: (...args: unknown[]) => void
-        ): (() => void) | undefined;
-        once(channel: string, func: (...args: unknown[]) => void): void;
-      };
+      FindOrgModels: (arg: any) => Promise<any>;
+      RunModel: (arg?: any) => Promise<any>;
+      WriteUserInputJson: (arg: any) => Promise<any>;
+      SelectInputFolder: () => Promise<any>;
+      SelectOutputFolder: () => Promise<any>;
+      ReadLogFile: () => Promise<any>;
+      ReadUpdate: () => Promise<any>;
+      ReadResults: () => Promise<any>;
+      ReadModels: () => Promise<any>;
+      OpenWindow: (arg: any) => Promise<any>;
+      CountFiles: (arg: any) => Promise<any>;
     };
   }
 }

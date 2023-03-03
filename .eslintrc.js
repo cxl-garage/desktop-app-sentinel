@@ -1,18 +1,44 @@
 module.exports = {
-  extends: 'erb',
-  rules: {
-    // A temporary hack related to IDE not resolving correct package.json
-    'import/no-extraneous-dependencies': 'off',
-    'import/no-unresolved': 'error',
-    // Since React 17 and typescript 4.1 you can safely disable the rule
-    'react/react-in-jsx-scope': 'off',
-  },
+  root: true,
+  extends: ['erb', 'plugin:@typescript-eslint/recommended'],
+  plugins: ['@typescript-eslint'],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
-    project: './tsconfig.json',
-    tsconfigRootDir: __dirname,
+    project: 'tsconfig.json',
     createDefaultProgram: true,
+  },
+  rules: {
+    '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
+    '@typescript-eslint/explicit-function-return-type': [
+      'error',
+      {
+        allowExpressions: true,
+      },
+    ],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      },
+    ],
+    '@typescript-eslint/no-shadow': 'error',
+    '@typescript-eslint/no-inferrable-types': 'off',
+    'import/extensions': 'off',
+    'import/no-extraneous-dependencies': 'off',
+    'import/no-import-module-exports': 'off',
+    'import/no-unresolved': 'off',
+    'import/prefer-default-export': 'off',
+    'react/function-component-definition': [
+      'error',
+      {
+        namedComponents: 'function-declaration',
+        unnamedComponents: 'arrow-function',
+      },
+    ],
+    'react/jsx-filename-extension': 'off',
+    'react/react-in-jsx-scope': 'off',
   },
   settings: {
     'import/resolver': {
