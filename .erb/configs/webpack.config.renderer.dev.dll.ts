@@ -28,7 +28,6 @@ const configuration: webpack.Configuration = {
   /**
    * Use `module` from `webpack.config.renderer.dev.js`
    */
-  // eslint-disable-next-line
   module: require('./webpack.config.renderer.dev').default.module,
 
   entry: {

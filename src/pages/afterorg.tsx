@@ -119,7 +119,7 @@ export function AfterOrgInput(): JSX.Element {
         alert(
           `ERROR: check logs: ${pythonResponse}`, // if there are errors, alert
         );
-        navigate('/dashboard'); // navigate to dashboard
+        navigate('/run-mode'); // navigate to run-model page
       }
     }
   };

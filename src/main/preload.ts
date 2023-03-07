@@ -25,6 +25,7 @@ const WINDOW_API = {
 };
 
 // exposes window api to renderer
+console.log('exposing in main world');
 contextBridge.exposeInMainWorld('electron', WINDOW_API);
 
 // python reqs using reqs.py

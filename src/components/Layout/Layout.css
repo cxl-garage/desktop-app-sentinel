@@ -1,0 +1,63 @@
+@import 'https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap';
+
+.grid {
+  display: grid;
+  grid-template-columns: 20% 80%;
+}
+
+.navigation-container {
+  margin-top: 100px;
+  padding: 10px;
+}
+
+.links-container {
+  color: #8c8c8c;
+  display: grid;
+  font-size: 20px;
+  grid-row-gap: 8%;
+  grid-template-rows: 40px 40px 40px 40px 40px;
+  height: 320px;
+}
+
+.links-container img {
+  height: 20px;
+  vertical-align: middle;
+  width: 20px;
+}
+
+.inactive {
+  color: #8c8c8c;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  text-decoration: none;
+}
+
+.active {
+  color: black;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  position: sticky;
+  text-decoration: none;
+}
+
+.active .id {
+  filter: brightness(30%);
+}
+
+.inactive .selected-img {
+  display: none;
+  height: 30px;
+  width: 5px;
+}
+
+.active .selected-img {
+  display: relative;
+  height: 30px;
+  margin-left: -10px;
+  margin-right: 5px;
+  width: 5px;
+}
+
+.nav-link {
+  color: black;
+}

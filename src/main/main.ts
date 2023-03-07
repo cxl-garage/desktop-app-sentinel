@@ -95,6 +95,7 @@ function openLogs(): Promise<any> {
 }
 
 ipcMain.handle('read/log-file', async (): Promise<any> => {
+  console.log('here we are!!!');
   try {
     const data = await openLogs();
     console.log(`handle: ${data}`); // Testing
@@ -325,7 +326,7 @@ const installExtensions = async (): Promise<any> => {
     .catch(console.log);
 };
 
-const createWindow = async (): Promise<void> => {
+async function createWindow(): Promise<void> {
   if (isDebug) {
     await installExtensions();
   }
@@ -380,7 +381,7 @@ const createWindow = async (): Promise<void> => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
-};
+}
 
 /**
  * Add event listeners...

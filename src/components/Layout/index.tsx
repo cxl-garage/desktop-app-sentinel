@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './Layout.css';
 import { Navigation } from './Navigation';
-import { Navbar } from '../components/Navbar';
+import { Navbar } from '../Navbar';
 
 type Props = {
   children: React.ReactNode;
