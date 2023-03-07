@@ -1,7 +1,4 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { PythonShell } from 'python-shell';
-
-const pyshellreqs = new PythonShell('./src/py/reqs.py');
 
 export type Channels = ['ipc-example', 'mainChannel'];
 
@@ -25,16 +22,4 @@ const WINDOW_API = {
 };
 
 // exposes window api to renderer
-console.log('exposing in main world');
 contextBridge.exposeInMainWorld('electron', WINDOW_API);
-
-// python reqs using reqs.py
-pyshellreqs.on('message', function (message: any) {
-  console.log(message);
-});
-pyshellreqs.end(function (err: any) {
-  if (err) {
-    throw err;
-  }
-  console.log('requirements installed');
-});

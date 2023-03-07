@@ -326,6 +326,23 @@ const installExtensions = async (): Promise<any> => {
     .catch(console.log);
 };
 
+/*
+// TODO: uncomment this block and encapsulate it in an endpoint when we are
+// ready to test the dependency installation
+
+const pyshellreqs = new PythonShell('./src/py/reqs.py');
+// python reqs using reqs.py
+pyshellreqs.on('message', function (message: any) {
+  console.log(message);
+});
+pyshellreqs.end(function (err: any) {
+  if (err) {
+    throw err;
+  }
+  console.log('requirements installed');
+});
+*/
+
 async function createWindow(): Promise<void> {
   if (isDebug) {
     await installExtensions();

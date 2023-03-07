@@ -5,12 +5,12 @@ import {
   Navigate,
 } from 'react-router-dom';
 import './App.css';
-import { Results } from 'pages/results';
-import { Setup } from 'pages/setup';
-import { RunModelView } from 'components/RunModelView';
+import { LogsView } from '../components/LogsView';
+import { Results } from '../pages/results';
+import { Setup } from '../pages/setup';
+import { RunModelView } from '../components/RunModelView';
 import { Layout } from '../components/Layout';
 import { AfterOrgInput } from '../pages/afterorg';
-import { Logs } from '../pages/logs';
 
 /**
  * All the routes
@@ -33,7 +33,7 @@ export default function App(): JSX.Element {
           path="/logs"
           element={
             <Layout>
-              <Logs />
+              <LogsView />
             </Layout>
           }
         />
