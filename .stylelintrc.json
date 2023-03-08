@@ -1,9 +1,14 @@
 {
   "extends": "stylelint-config-standard-scss",
-  "plugins": ["stylelint-order"],
+  "plugins": ["stylelint-order", "stylelint-selector-bem-pattern"],
   "rules": {
     "alpha-value-notation": "number",
     "color-function-notation": "legacy",
-    "order/properties-alphabetical-order": true
+    "order/properties-alphabetical-order": true,
+    "selector-class-pattern": null,
+    "plugin/selector-bem-pattern": {
+      "preset": "bem",
+      "implicitComponents": true
+    }
   }
 }

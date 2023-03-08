@@ -1,13 +1,12 @@
 import * as React from 'react';
-import '../renderer/App.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-import './css/dashboard.css';
 import ReactLoading from 'react-loading';
 import importfrom from '../../assets/importfrom.svg';
 import model from '../../assets/model.svg';
 import saveto from '../../assets/saveto.svg';
 import confidencethreshold from '../../assets/confidencethreshold.svg';
 import outputstyle from '../../assets/outputstyle.svg';
+import './css/AfterOrgInput.css';
 
 export function AfterOrgInput(): JSX.Element {
   const [values, setValues] = React.useState<Record<string, string>>({}); // values of all user inputs below
@@ -39,7 +38,7 @@ export function AfterOrgInput(): JSX.Element {
   // setting values
   const logInput = async (): Promise<void> => {
     try {
-      const response = await window.electron.SelectInputFolder();
+      const response = await window.SentinelDesktopService.selectInputFolder();
       setValues({ ...values, 'Import from': response });
     } catch (e) {
       alert(e);
@@ -50,7 +49,7 @@ export function AfterOrgInput(): JSX.Element {
   // sets values and output folder state
   const logOutput = async (): Promise<void> => {
     try {
-      const response = await window.electron.SelectOutputFolder();
+      const response = await window.SentinelDesktopService.selectOutputFolder();
       setValues({ ...values, 'Save to': response });
     } catch (e) {
       alert(e);
@@ -93,7 +92,7 @@ export function AfterOrgInput(): JSX.Element {
   // RunModel: runs python script of the specified model from userInput.json
   // async function to await the backend function
   const runModel = async (): Promise<any> => {
-    const modelResults = await window.electron.RunModel();
+    const modelResults = await window.SentinelDesktopService.runModel();
     return modelResults;
   };
 
@@ -106,7 +105,7 @@ export function AfterOrgInput(): JSX.Element {
       alert('Input model please');
     } else {
       setIsLoading(true); // loading the results of running the python script
-      window.electron.WriteUserInputJson(JSON.stringify(values)); // populate Inputs.json with user inputs from this page
+      window.SentinelDesktopService.writeUserInputJson(JSON.stringify(values)); // populate Inputs.json with user inputs from this page
       const modelResults = await runModel(); // the results of running the model, if prints finished it means it ran correctly
       pythonResponse = modelResults; // results of python shell running
       setIsLoading(false);
@@ -128,7 +127,7 @@ export function AfterOrgInput(): JSX.Element {
     // reads the models from Models.json and turns the models into an array
     // populates model list on first render
     const populateModels = async (): Promise<void> => {
-      const data = await window.electron.ReadModels();
+      const data = await window.SentinelDesktopService.readModels();
       const array = JSON.parse(data);
       setModels(array[0].models);
     };
@@ -137,11 +136,11 @@ export function AfterOrgInput(): JSX.Element {
   }, [firstRender]);
 
   return isLoading ? (
-    <div className="is-loading">
+    <div className="AfterOrgInput__is-loading">
       <h1>Loading results...</h1>
       <br />
       <ReactLoading
-        className="loading"
+        className="AfterOrgInput__loading"
         type="spin"
         color="#21CF05"
         height={100}
@@ -151,36 +150,36 @@ export function AfterOrgInput(): JSX.Element {
   ) : (
     <>
       <h1>Model Notebook</h1>
-      <form className="model-notebook-container">
-        <div className="model-notebook-labels-container">
-          <div className="vl" />
-          <div className="labels">
+      <form className="AfterOrgInput__model-notebook-container">
+        <div className="AfterOrgInput__model-notebook-labels-container">
+          <div className="AfterOrgInput__vl" />
+          <div className="AfterOrgInput__labels">
             <img alt="" src={model} height="40" width="40" />
             {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label htmlFor="Model">Models</label>
           </div>
-          <div className="labels">
+          <div className="AfterOrgInput__labels">
             <img alt="" src={importfrom} />
             {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label htmlFor="Importfrom">Import from</label>
           </div>
-          <div className="labels">
+          <div className="AfterOrgInput__labels">
             <img alt="" src={saveto} />
             {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label htmlFor="Saveto">Save to</label>
           </div>
-          <div className="labels">
+          <div className="AfterOrgInput__labels">
             <img alt="" src={confidencethreshold} height="40" width="40" />
             {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label htmlFor="Confidencethreshold">Confidence threshold</label>
           </div>
-          <div className="labels">
+          <div className="AfterOrgInput__labels">
             <img alt="" src={outputstyle} height="40" width="40" />
             {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label htmlFor="Outputstyle">Output style</label>
           </div>
         </div>
-        <div className="model-notebook-inputs-container">
+        <div className="AfterOrgInput__model-notebook-inputs-container">
           <input
             name="Model"
             id="Model"
@@ -219,9 +218,9 @@ export function AfterOrgInput(): JSX.Element {
             placeholder="Output style"
           />
         </div>
-        <div className="model-container-buttons">
+        <div className="AfterOrgInput__model-container-buttons">
           <select
-            className="model-select"
+            className="AfterOrgInput__model-select"
             id="Model"
             name="Model"
             onChange={onModelChange}
@@ -231,7 +230,7 @@ export function AfterOrgInput(): JSX.Element {
           </select>
           <button
             type="button"
-            className="model-select"
+            className="AfterOrgInput__model-select"
             onClick={handleClickImport}
           >
             Choose folder
@@ -253,7 +252,7 @@ export function AfterOrgInput(): JSX.Element {
           />
           <button
             type="button"
-            className="model-select"
+            className="AfterOrgInput__model-select"
             onClick={handleClickExport}
           >
             Choose folder
@@ -276,7 +275,7 @@ export function AfterOrgInput(): JSX.Element {
           />
           <input
             type="number"
-            className="confidence-thresh-button"
+            className="AfterOrgInput__confidence-thresh-button"
             value={
               values['Confidence threshold'] === undefined
                 ? 40
@@ -284,7 +283,7 @@ export function AfterOrgInput(): JSX.Element {
             }
           />
           <select
-            className="output-style-select"
+            className="AfterOrgInput__output-style-select"
             id="Output style"
             name="Outputstyle"
             onChange={onChange}
@@ -297,7 +296,11 @@ export function AfterOrgInput(): JSX.Element {
           </select>
         </div>
       </form>
-      <button type="button" className="start-button" onClick={onSubmit}>
+      <button
+        type="button"
+        className="AfterOrgInput__start-button"
+        onClick={onSubmit}
+      >
         Start
       </button>
     </>

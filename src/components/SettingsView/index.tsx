@@ -1,10 +1,9 @@
-import './css/dashboard.css';
-import docker from '../../assets/docker.png';
+import './SettingsView.css';
+import docker from '../../../assets/docker.png';
 
-// open window from browser
-export function Setup(): JSX.Element {
+export function SettingsView(): JSX.Element {
   const handleClick = (): void => {
-    window.electron.OpenWindow(
+    window.SentinelDesktopService.openWindow(
       'https://www.docker.com/products/docker-desktop/',
     );
   };
@@ -12,15 +11,15 @@ export function Setup(): JSX.Element {
   return (
     <>
       <h1>Setup</h1>
-      <div className="setup">
-        <p>
+      <div className="SettingsView">
+        <p className="SettingsView__p">
           Click below to download docker desktop for your computer, open it, and
           sign in!
         </p>
         <button type="button" onClick={handleClick}>
           <img
             src={docker}
-            className="setup-img"
+            className="SettingsView__docker-img"
             height="100"
             width="400"
             alt="Download docker desktop"

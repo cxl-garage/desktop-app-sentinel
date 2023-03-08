@@ -1,29 +1,21 @@
-import * as React from 'react';
-import '../renderer/App.css';
-import './css/dashboard.css';
-import { LogComponent } from '../LogComponent';
+import { useQuery } from '@tanstack/react-query';
+import { LogComponent } from './LogComponent';
+
+const READ_LOG_QUERY = ['logfile'];
 
 export function LogsView(): JSX.Element {
-  const [logs, setLogs] = React.useState([]);
-
-  // read log file (see main.ts for function definition)
-  // setLogs is setting logs from data of reading file in ipcMain
-  React.useEffect(() => {
-    async function readLogFile(): Promise<void> {
-      const data = await window.electron.ReadLogFile();
-      setLogs(data);
-    }
-
-    readLogFile();
-  }, []);
+  const { data: logs } = useQuery({
+    queryFn: window.SentinelDesktopService.readLogFile,
+    queryKey: READ_LOG_QUERY,
+  });
 
   return (
     <>
       <h1>Logs</h1>
-      <div className="logs-div">
+      <div className="LogsView__log-component-wrapper">
         <LogComponent data={logs} />
       </div>
-      <button type="button" className="start-button">
+      <button type="button" className="LogsView__start-button">
         Contact support
       </button>
     </>

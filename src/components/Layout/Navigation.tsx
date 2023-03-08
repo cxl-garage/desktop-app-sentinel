@@ -7,14 +7,24 @@ import setup from '../../../assets/setup.png';
 
 export function Navigation(): JSX.Element {
   return (
-    <div className="navigation-container">
-      <div className="links-container">
+    <div className="Navigation">
+      <div className="Navigation__links-container">
         <NavLink
           to="/run-model"
-          className={({ isActive }) => (isActive ? 'active' : 'inactive')}
+          className={({ isActive }) =>
+            isActive ? 'Navigation__active' : 'Navigation__inactive'
+          }
         >
-          <img className="selected-img" alt="selected" src={selected} />
-          <img className="id" alt="runmodel" src={runmodel} />
+          <img
+            className="Navigation__img Navigation__selected-img"
+            alt="selected"
+            src={selected}
+          />
+          <img
+            className="Navigation__img Navigation__id"
+            alt="runmodel"
+            src={runmodel}
+          />
           Run your model
         </NavLink>
 
@@ -22,8 +32,16 @@ export function Navigation(): JSX.Element {
           to="/logs"
           className={({ isActive }) => (isActive ? 'active' : 'inactive')}
         >
-          <img className="selected-img" alt="selected" src={selected} />
-          <img className="id" alt="logs" src={logs} />
+          <img
+            className="Navigation__img Navigation__selected-img"
+            alt="selected"
+            src={selected}
+          />
+          <img
+            className="Navigation__img Navigation__id"
+            alt="logs"
+            src={logs}
+          />
           Logs
         </NavLink>
 
@@ -31,8 +49,16 @@ export function Navigation(): JSX.Element {
           to="/past-results"
           className={({ isActive }) => (isActive ? 'active' : 'inactive')}
         >
-          <img className="selected-img" alt="selected" src={selected} />
-          <img className="id" alt="runmodel" src={runmodel} />
+          <img
+            className="Navigation__img Navigation__selected-img"
+            alt="selected"
+            src={selected}
+          />
+          <img
+            className="Navigation__img Navigation__id"
+            alt="runmodel"
+            src={runmodel}
+          />
           Past results
         </NavLink>
 
@@ -40,8 +66,16 @@ export function Navigation(): JSX.Element {
           to="/more-models"
           className={({ isActive }) => (isActive ? 'active' : 'inactive')}
         >
-          <img className="selected-img" alt="selected" src={selected} />
-          <img className="id" alt="runmodel" src={runmodel} />
+          <img
+            className="Navigation__img Navigation__selected-img"
+            alt="selected"
+            src={selected}
+          />
+          <img
+            className="Navigation__img Navigation__id"
+            alt="runmodel"
+            src={runmodel}
+          />
           More models
         </NavLink>
 
@@ -49,8 +83,16 @@ export function Navigation(): JSX.Element {
           to="/settings"
           className={({ isActive }) => (isActive ? 'active' : 'inactive')}
         >
-          <img className="selected-img" alt="selected" src={selected} />
-          <img className="id" alt="setup" src={setup} />
+          <img
+            className="Navigation__img Navigation__selected-img"
+            alt="selected"
+            src={selected}
+          />
+          <img
+            className="Navigation__img Navigation__id"
+            alt="setup"
+            src={setup}
+          />
           Settings
         </NavLink>
       </div>

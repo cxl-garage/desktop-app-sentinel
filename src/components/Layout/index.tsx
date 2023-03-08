@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './Layout.css';
 import { Navigation } from './Navigation';
-import { Navbar } from '../Navbar';
+import { Navbar } from './Navbar';
 
 type Props = {
   children: React.ReactNode;
@@ -12,14 +12,14 @@ type Props = {
  */
 export function Layout({ children }: Props): JSX.Element {
   return (
-    <>
+    <div className="Layout">
       <Navbar />
-      <div className="grid">
+      <div className="Layout__grid">
         <div>
           <Navigation />
         </div>
         <div>{children}</div>
       </div>
-    </>
+    </div>
   );
 }

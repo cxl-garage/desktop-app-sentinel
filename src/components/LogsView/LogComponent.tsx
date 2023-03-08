@@ -1,6 +1,5 @@
-import '../renderer/App.css';
-import './css/components.css';
-import log from '../../assets/log.svg';
+import './LogComponent.css';
+import log from '../../../assets/log.svg';
 
 type Props = {
   data: string[] | null | undefined;
@@ -8,7 +7,7 @@ type Props = {
 
 export function LogComponent({ data }: Props): JSX.Element {
   return (
-    <div className="log">
+    <div className="LogComponent">
       <img src={log} alt="log" />
       <p>{data}</p>
     </div>

@@ -6,7 +6,7 @@
 /* quick fix for importing fonts */
 @import 'https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap';
 
-body {
+.App {
   align-items: center;
   font-family: Oxygen, sans-serif;
   height: 954px;
