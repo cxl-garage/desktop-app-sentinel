@@ -6,6 +6,10 @@ type Props = {
   title?: string;
 };
 
+/**
+ * A Card component. This is a thin wrapper around the And Design Card
+ * component.
+ */
 export function Card({ children, title }: Props): JSX.Element {
   return <AntCard title={title}>{children}</AntCard>;
 }
