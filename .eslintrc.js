@@ -30,6 +30,7 @@ module.exports = {
     'import/no-import-module-exports': 'off',
     'import/no-unresolved': 'off',
     'import/prefer-default-export': 'off',
+    'react/require-default-props': 'off',
     'react/function-component-definition': [
       'error',
       {

@@ -1,3 +1,3 @@
 export function RunModelView(): JSX.Element {
-  return <p>RunModel view </p>;
+  return <p>RunModel view</p>;
 }
