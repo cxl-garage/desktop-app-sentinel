@@ -130,11 +130,8 @@
     "react-dom": "^18.2.0",
     "react-loading": "^2.0.3",
     "react-papaparse": "^4.1.0",
-    "react-redux": "^8.0.5",
     "react-router-dom": "^6.8.2",
     "read-file-utf8": "^2.0.4",
-    "redux": "^4.2.1",
-    "redux-thunk": "^2.4.2",
     "styled-components": "^5.3.6"
   },
   "devDependencies": {
