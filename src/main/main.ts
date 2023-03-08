@@ -95,7 +95,6 @@ function openLogs(): Promise<any> {
 }
 
 ipcMain.handle('read/log-file', async (): Promise<any> => {
-  console.log('here we are!!!');
   try {
     const data = await openLogs();
     console.log(`handle: ${data}`); // Testing
