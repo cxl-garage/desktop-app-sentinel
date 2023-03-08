@@ -12,7 +12,7 @@ import { RunModelView } from 'components/RunModelView';
 import { Layout } from 'components/Layout';
 import { ModelMarketplaceView } from 'components/ModelMarketplaceView';
 import { SettingsView } from 'components/SettingsView';
-import { AfterOrgInput } from '../pages/afterorg';
+import { AfterOrgInput } from 'pages-DEPRECATED/afterorg';
 
 const QUERY_CLIENT = new QueryClient();
 
