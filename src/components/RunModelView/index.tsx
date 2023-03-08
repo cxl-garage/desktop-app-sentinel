@@ -1,6 +1,7 @@
 import { Heading } from 'components/ui/Heading';
 import { FileInput, FileInfo } from 'components/ui/FileInput';
 import { Button } from 'components/ui/Button';
+import { Select } from 'components/ui/Select';
 
 export function RunModelView(): JSX.Element {
   const onFileOrFolderSelected = (fileInfo: FileInfo): void => {
@@ -21,6 +22,20 @@ export function RunModelView(): JSX.Element {
       <Button type="primary" onClick={() => alert('clicked!')}>
         Test button
       </Button>
+      <Select
+        options={[
+          {
+            label: 'Option 1',
+            value: 'opt1',
+          },
+          {
+            label: 'Option 2',
+            value: 'opt2',
+          },
+        ]}
+        defaultValue="opt1"
+        onChange={(value: string) => console.log(value)}
+      />
     </div>
   );
 }
