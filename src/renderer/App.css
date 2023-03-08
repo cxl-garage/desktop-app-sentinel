@@ -6,11 +6,14 @@
 /* quick fix for importing fonts */
 @import 'https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap';
 
+/* stylelint-disable plugin/selector-bem-pattern */
+body {
+  margin: 0;
+}
+/* stylelint-enable */
+
 .App {
-  align-items: center;
+  background: #fafafa;
   font-family: Oxygen, sans-serif;
-  height: 954px;
-  justify-content: center;
-  position: relative;
-  width: 1424px;
+  height: 100vh;
 }

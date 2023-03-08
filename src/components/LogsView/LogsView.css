@@ -1,0 +1,24 @@
+.LogsView__log-component-wrapper {
+  background: white;
+  border-radius: 15px;
+  float: center;
+  font-family: Oxygen, sans-serif;
+  font-size: 14px;
+  max-height: 50%;
+  max-width: 70%;
+  overflow-y: scroll;
+  padding: 30px;
+}
+
+.LogsView__start-button {
+  background: #3d51d3;
+  border: none;
+  border-radius: 15px;
+  border-style: none;
+  color: white;
+  font-family: Oxygen, sans-serif;
+  font-size: 16px;
+  margin-left: 70%;
+  margin-top: 60px;
+  padding: 20px;
+}

@@ -1,0 +1,17 @@
+.Navbar {
+  display: flex;
+  flex-direction: row;
+  max-height: 5%;
+  min-height: 3%;
+}
+
+.Navbar__cxl-icon {
+  opacity: 0.5;
+  padding: 15px;
+  padding-top: 15px;
+}
+
+.Navbar__info-icon {
+  margin-left: 65%;
+  margin-top: 15px;
+}

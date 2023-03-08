@@ -1,8 +1,3 @@
-.Layout {
-  background: linear-gradient(180deg, #fff 0%, #edeff2 11.46%);
-  font-family: Oxygen, sans-serif;
-}
-
 .Layout__grid {
   display: grid;
   grid-template-columns: 20% 80%;
