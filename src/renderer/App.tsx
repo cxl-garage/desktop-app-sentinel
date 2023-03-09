@@ -1,83 +1,88 @@
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  MemoryRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 import './App.css';
-import { useContext } from 'react';
-// eslint-disable-next-line import/no-unresolved
-import { AuthContext } from '../context/AuthContext';
-import { AuthProvider } from '../provider/authProvider';
-import Layout from './Layout';
-import { Dashboard } from '../pages/dashboard';
-import { AfterOrgInput } from '../pages/afterorg';
-import { Logs } from '../pages/logs';
-import Login from '../pages/login';
-import { Profile } from 'pages/profile';
-import { Results } from 'pages/results';
-import Setup from 'pages/setup';
+import { PastResultsView } from 'components/PastResultsView';
+import { LogsView } from 'components/LogsView';
+import { RunModelView } from 'components/RunModelView';
+import { Layout } from 'components/Layout';
+import { ModelMarketplaceView } from 'components/ModelMarketplaceView';
+import { SettingsView } from 'components/SettingsView';
+import { AfterOrgInput } from 'pages-DEPRECATED/afterorg';
 
-//all the routes, add layout which has nav bar to all app's pages except login
-export default function App() {
-  const user = useContext(AuthContext);
+const QUERY_CLIENT = new QueryClient();
 
+/**
+ * Main app component with all the routes.
+ */
+export default function App(): JSX.Element {
   return (
+    <div className="App">
+      <QueryClientProvider client={QUERY_CLIENT}>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Navigate to="/run-model" />} />
+            <Route
+              path="/run-model"
+              element={
+                <Layout>
+                  <RunModelView />
+                </Layout>
+              }
+            />
 
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Login />
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <Layout>
-                <Dashboard />
-              </Layout>
-            }
-          />
-          <Route
-            path="/results"
-            element={
-              <Layout>
-                <Results />
-              </Layout>
-            }
-          />
-          <Route
-            path="/orgsubmitted"
-            element={
-              <Layout>
-                <AfterOrgInput />
-              </Layout>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <Layout>
-                 <Profile user={user.currentUser} email={user.currentUser?.email} username={user.currentUser?.displayName} />
-              </Layout>
-            }
-          />
-          <Route
-            path="/setup"
-            element={
-              <Layout>
-                <Setup />
-              </Layout>
-            }
-          />
-          <Route
-            path="/logs"
-            element={
-              <Layout>
-                <Logs />
-              </Layout>
-            }
-          />
-        </Routes>
-      </Router>
-    </AuthProvider>
+            <Route
+              path="/logs"
+              element={
+                <Layout>
+                  <LogsView />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/past-results"
+              element={
+                <Layout>
+                  <PastResultsView />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/more-models"
+              element={
+                <Layout>
+                  <ModelMarketplaceView />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/settings"
+              element={
+                <Layout>
+                  <SettingsView />
+                </Layout>
+              }
+            />
+
+            {/* TODO: this is a legacy route. Is it still needed? */}
+            <Route
+              path="/orgsubmitted"
+              element={
+                <Layout>
+                  <AfterOrgInput />
+                </Layout>
+              }
+            />
+          </Routes>
+        </Router>
+      </QueryClientProvider>
+    </div>
   );
 }

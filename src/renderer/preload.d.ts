@@ -1,16 +1,17 @@
-import { Channels } from 'main/preload';
-
 declare global {
   interface Window {
-    electron: {
-      ipcRenderer: {
-        sendMessage(channel: Channels, args: unknown[]): void;
-        on(
-          channel: string,
-          func: (...args: unknown[]) => void
-        ): (() => void) | undefined;
-        once(channel: string, func: (...args: unknown[]) => void): void;
-      };
+    SentinelDesktopService: {
+      findOrgModels: (arg: any) => Promise<any>;
+      runModel: (arg?: any) => Promise<any>;
+      writeUserInputJson: (arg: any) => Promise<any>;
+      selectInputFolder: () => Promise<any>;
+      selectOutputFolder: () => Promise<any>;
+      readLogFile: () => Promise<any>;
+      readUpdate: () => Promise<any>;
+      readResults: () => Promise<any>;
+      readModels: () => Promise<any>;
+      openWindow: (arg: any) => Promise<any>;
+      countFiles: (arg: any) => Promise<any>;
     };
   }
 }

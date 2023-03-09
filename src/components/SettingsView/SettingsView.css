@@ -1,0 +1,17 @@
+.SettingsView {
+  background: white;
+  border-radius: 15px;
+  padding: 10px;
+  padding-left: 30px;
+  padding-right: 30px;
+  width: 70%;
+}
+
+.SettingsView__p {
+  font-weight: normal;
+}
+
+.SettingsView__docker-img {
+  cursor: pointer;
+  margin-bottom: 10px;
+}

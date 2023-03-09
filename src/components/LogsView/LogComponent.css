@@ -1,0 +1,10 @@
+.LogComponent {
+  background: rgba(255, 177, 177, 0.79);
+  border: 2px solid rgba(255, 0, 0, 0.21);
+  border-radius: 15px;
+  float: center;
+  font-family: Oxygen, sans-serif;
+  font-size: 16px;
+  padding: 20px;
+  padding-top: 3;
+}
