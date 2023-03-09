@@ -1,6 +1,7 @@
 type LogRecord = {
+  id: string;
   message: string;
-  timestamp: string;
+  timestamp: Date;
 };
 
 export { LogRecord as T };

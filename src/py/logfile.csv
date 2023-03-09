@@ -1,12 +1,10 @@
+timestamp,message
 2022-08-19 13:58:54,156 DEBUG This is just debug message
 2022-08-19 13:58:54,165 DEBUG processing images
 2022-08-19 13:59:11,835 DEBUG processing images
 2022-08-19 13:59:12,647 DEBUG processing images
 2022-08-19 13:59:12,685 DEBUG Processed
 2022-08-19 13:59:12,686 DEBUG Processed
-2022-08-19 13:59:12,686 DEBU2022-08-19 13:59:13,622 DEBUG 
-Shutting down container
-2-08-19 13:59:12,687 DEBUG Processed
 2022-08-19 13:59:12,688 DEBUG Processed
 2022-08-19 13:59:12,688 DEBUG Processed
 2022-08-19 13:59:12,689 DEBUG Processed
