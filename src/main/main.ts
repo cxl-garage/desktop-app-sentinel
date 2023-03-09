@@ -14,6 +14,7 @@ import fs from 'fs';
 import { PythonShell } from 'python-shell';
 import invariant from 'invariant';
 import * as LogRecord from 'models/LogRecord';
+import * as CXLModelResults from 'models/CXLModelResults';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { SentinelDesktopService } from './SentinelDesktopService';
@@ -30,9 +31,19 @@ let mainWindow: BrowserWindow | undefined;
 
 ipcMain.handle('api/logs/getAll', async (): Promise<LogRecord.T[]> => {
   console.log('Calling api/logs/getAll');
-  const logs = await SentinelDesktopService.getLogRecords();
+  const logs = await SentinelDesktopService.getAllLogRecords();
   return logs;
 });
+
+ipcMain.handle(
+  'api/cxl-model-results/getAll',
+  async (): Promise<CXLModelResults.T[]> => {
+    console.log('Calling api/cxl-model-results/getAll');
+    const cxlModelResults =
+      await SentinelDesktopService.getAllCXLModelResults();
+    return cxlModelResults;
+  },
+);
 
 // below 2 functions handle openning and selecting a new directory, using electron's dialog.showOpenDialog
 // used in afterorg.tsx to select folder to get images from and folder to download images to
@@ -82,38 +93,6 @@ ipcMain.on('write/user-inputs-json', async (event, data) => {
       }
     },
   );
-});
-
-// read Results.json, which has been populated by RunCli2.py
-// has the number of objects detected, number of total images, and number of empty images
-// used by results.tsx that displays results
-function readResults(): Promise<any> {
-  return new Promise((resolve, reject) => {
-    fs.readFile(
-      path.join(__dirname, '../py/Results.json'),
-      'utf-8',
-      (error: any, data: any) => {
-        if (error) {
-          console.log(`reject: ${error}`); // Testing
-          reject(error);
-        } else {
-          console.log(`resolve: ${data}`); // Testing
-          resolve(data);
-        }
-      },
-    );
-  });
-}
-
-ipcMain.handle('DEPRECATED/read/results-file', async () => {
-  try {
-    const data = await readResults();
-    console.log(`handle: ${data}`); // Testing
-    return data;
-  } catch (error) {
-    console.log('handle error', error); // Testing
-    return 'Error Loading Log File';
-  }
 });
 
 // read Models.json, which is a json of models populated by runCli.py

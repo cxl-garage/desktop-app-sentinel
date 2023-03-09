@@ -15,7 +15,9 @@ export type Channels = ['ipc-example', 'mainChannel'];
  * SentinelDesktopService.
  */
 const SentinelDesktopServiceBridge = {
-  getLogRecords: async () => ipcRenderer.invoke('api/logs/getAll'),
+  getAllLogRecords: async () => ipcRenderer.invoke('api/logs/getAll'),
+  getAllCXLModelResults: async () =>
+    ipcRenderer.invoke('api/cxl-model-results/getAll'),
 
   // Legacy functions.
   // TODO: These should be either refactored or removed.
@@ -29,7 +31,6 @@ const SentinelDesktopServiceBridge = {
   selectOutputFolder: async () =>
     ipcRenderer.invoke('DEPRECATED/dialog:openDirectoryOutput'), // allows to select directory for output folder of the model results of user's images
   readUpdate: async () => ipcRenderer.invoke('DEPRECATED/read/update-file'), // read update.json file
-  readResults: async () => ipcRenderer.invoke('DEPRECATED/read/results-file'), // read Results.json which has the number of objects, empty images, and the total images that the model was run over
   readModels: async () => ipcRenderer.invoke('DEPRECATED/read/models-file'), // read Models populated by runOrg.py for the inputed organization
   openWindow: async (arg: any) =>
     ipcRenderer.send('DEPRECATED/open/window', arg), // open new window of docker.desktop

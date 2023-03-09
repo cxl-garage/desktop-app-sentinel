@@ -2,15 +2,22 @@
 import path from 'path';
 import fs from 'fs';
 import csvParser from 'csv-parser';
-import * as LogRecord from 'models/LogRecord';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
+import * as LogRecord from 'models/LogRecord';
+import * as CXLModelResults from 'models/CXLModelResults';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
 
 // Declare the expected CSV schema
-const CSVLogRecordSchema = z.object({
+const LogRecordCSVSchema = z.object({
   timestamp: z.coerce.date(),
   message: z.string(),
+});
+
+const CXLModelResultJSONSchema = z.object({
+  imagecount: z.coerce.number(),
+  objects: z.coerce.number(),
+  emptyimages: z.coerce.number(),
 });
 
 class SentinelDesktopServiceImpl implements ISentinelDesktopService {
@@ -20,14 +27,14 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
    * TODO: this is unlikely how we actually want to read and treat logs.
    * This is just a placeholder function. It will likely change a lot.
    */
-  getLogRecords(): Promise<LogRecord.T[]> {
+  getAllLogRecords(): Promise<LogRecord.T[]> {
     return new Promise((resolve) => {
       const results: LogRecord.T[] = [];
 
       fs.createReadStream(path.join(__dirname, '../../py/logfile.csv'))
         .pipe(csvParser())
         .on('data', (data: unknown) => {
-          const logRecord = CSVLogRecordSchema.parse(data);
+          const logRecord = LogRecordCSVSchema.parse(data);
           results.push({
             id: uuid(),
             ...logRecord,
@@ -36,6 +43,40 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
         .on('end', () => {
           resolve(results);
         });
+    });
+  }
+
+  /**
+   * Read Results.json, which has been populated by RunCli2.py.
+   * This has the number of objects detected, number of total images, and
+   * number of empty images.
+   *
+   * TODO: this is likely to change as we build out this functionality more.
+   */
+  getAllCXLModelResults(): Promise<CXLModelResults.T[]> {
+    return new Promise((resolve, reject) => {
+      fs.readFile(
+        path.join(__dirname, '../../py/Results.json'),
+        'utf-8',
+        (_error: unknown, jsonString: unknown) => {
+          const dataArray =
+            typeof jsonString === 'string' ? JSON.parse(jsonString) : undefined;
+
+          if (Array.isArray(dataArray)) {
+            const cxlModelResults = dataArray.map((dataObj: unknown) =>
+              CXLModelResultJSONSchema.parse(dataObj),
+            );
+            console.log(`resolve: ${cxlModelResults}`); // Testing
+            resolve(cxlModelResults);
+          } else {
+            reject(
+              new Error(
+                'JSON data of model results was expected to be an array',
+              ),
+            );
+          }
+        },
+      );
     });
   }
 }
