@@ -13,8 +13,10 @@ import log from 'electron-log';
 import fs from 'fs';
 import { PythonShell } from 'python-shell';
 import invariant from 'invariant';
+import * as LogRecord from 'models/LogRecord';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { SentinelDesktopService } from './SentinelDesktopService';
 
 class AppUpdater {
   constructor() {
@@ -26,21 +28,30 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | undefined;
 
+ipcMain.handle('api/logs/getAll', async (): Promise<LogRecord.T[]> => {
+  console.log('Calling api/logs/getAll');
+  const logs = await SentinelDesktopService.getLogRecords();
+  return logs;
+});
+
 // below 2 functions handle openning and selecting a new directory, using electron's dialog.showOpenDialog
 // used in afterorg.tsx to select folder to get images from and folder to download images to
 
-ipcMain.handle('dialog:openDirectoryInput', async (): Promise<string> => {
-  invariant(mainWindow, 'Main BrowserWindow must exist');
-  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory'],
-  });
-  if (canceled) {
-    return 'cancelled'; // returns cancelled if folder finding is cancelled
-  }
-  return filePaths[0]; // returns filepath of folder
-});
+ipcMain.handle(
+  'DEPRECATED/dialog:openDirectoryInput',
+  async (): Promise<string> => {
+    invariant(mainWindow, 'Main BrowserWindow must exist');
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory'],
+    });
+    if (canceled) {
+      return 'cancelled'; // returns cancelled if folder finding is cancelled
+    }
+    return filePaths[0]; // returns filepath of folder
+  },
+);
 
-ipcMain.handle('dialog:openDirectoryOutput', async () => {
+ipcMain.handle('DEPRECATED/dialog:openDirectoryOutput', async () => {
   invariant(mainWindow, 'Main BrowserWindow must exist');
   const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory'],
@@ -73,38 +84,6 @@ ipcMain.on('write/user-inputs-json', async (event, data) => {
   );
 });
 
-// read log file
-// resolve with data, logs.tsx displays the data returned by below function
-// ipcMain uses below function to return data to logs
-function openLogs(): Promise<any> {
-  return new Promise((resolve, reject) => {
-    fs.readFile(
-      path.join(__dirname, '../py/logfile.csv'),
-      'utf-8',
-      (error: any, data: any) => {
-        if (error) {
-          console.log(`reject: ${error}`); // Testing
-          reject(error);
-        } else {
-          console.log(`resolve: ${data}`); // Testing
-          resolve(data);
-        }
-      },
-    );
-  });
-}
-
-ipcMain.handle('read/log-file', async (): Promise<any> => {
-  try {
-    const data = await openLogs();
-    console.log(`handle: ${data}`); // Testing
-    return data;
-  } catch (error) {
-    console.log('handle error', error);
-    return 'Error Loading Log File';
-  }
-});
-
 // read Results.json, which has been populated by RunCli2.py
 // has the number of objects detected, number of total images, and number of empty images
 // used by results.tsx that displays results
@@ -126,7 +105,7 @@ function readResults(): Promise<any> {
   });
 }
 
-ipcMain.handle('read/results-file', async () => {
+ipcMain.handle('DEPRECATED/read/results-file', async () => {
   try {
     const data = await readResults();
     console.log(`handle: ${data}`); // Testing
@@ -156,7 +135,7 @@ function readModels(): Promise<any> {
   });
 }
 
-ipcMain.handle('read/models-file', async () => {
+ipcMain.handle('DEPRECATED/read/models-file', async () => {
   try {
     const data = await readModels();
     console.log(`handle: ${data}`); // Testing
@@ -169,7 +148,7 @@ ipcMain.handle('read/models-file', async () => {
 
 // runs runOrg.py with py-shell
 // check python-shell documentary
-ipcMain.handle('run/find-org-models', async (_, args) => {
+ipcMain.handle('DEPRECATED/run/find-org-models', async (_, args) => {
   const result = await new Promise((resolve, reject) => {
     const pyshell = new PythonShell('./src/py/runOrg.py');
     pyshell.send(JSON.stringify({ org: `${args}` }));
@@ -205,7 +184,7 @@ ipcMain.handle('run/find-org-models', async (_, args) => {
 
 // runs runCli2.py with inputed data
 // with model
-ipcMain.handle('run/model', async () => {
+ipcMain.handle('DREPCATED/run/model', async () => {
   const result = await new Promise((resolve, reject) => {
     const pyshell = new PythonShell('./src/py/runCli2.py', { mode: 'text' });
     let error = '';
@@ -239,7 +218,7 @@ ipcMain.handle('run/model', async () => {
 });
 
 // runs countFiles.py
-ipcMain.handle('count/files', async (arg) => {
+ipcMain.handle('DEPRECATED/count/files', async (arg) => {
   const result = await new Promise((resolve, reject) => {
     const pyshell = new PythonShell('./src/py/countFiles.py', { mode: 'text' });
     pyshell.send(String(arg));

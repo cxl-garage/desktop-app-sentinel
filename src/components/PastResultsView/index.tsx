@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-const READ_PAST_RESULTS_QUERY = ['logfile'];
+const READ_PAST_RESULTS_QUERY = ['allPastResults'];
 
 export function PastResultsView(): JSX.Element {
   // read results written by the python script
