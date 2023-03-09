@@ -66,7 +66,6 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
             const cxlModelResults = dataArray.map((dataObj: unknown) =>
               CXLModelResultJSONSchema.parse(dataObj),
             );
-            console.log(`resolve: ${cxlModelResults}`); // Testing
             resolve(cxlModelResults);
           } else {
             reject(
