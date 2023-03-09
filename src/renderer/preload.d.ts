@@ -1,11 +1,13 @@
 import * as LogRecord from 'models/LogRecord';
+import * as CXLModelResults from 'models/CXLModelResults';
 
 declare global {
   interface Window {
     // TODO: once all deprecated functions are either refactored or
     // removed, this type should just be the ISentinelDesktopService type
     SentinelDesktopService: {
-      getLogRecords: () => Promise<LogRecord.T[]>;
+      getAllLogRecords: () => Promise<LogRecord.T[]>;
+      getAllCXLModelResults: () => Promise<CXLModelResults.T[]>;
 
       // deprecated functions (need refactoring)
       findOrgModels: (arg: any) => Promise<any>;
@@ -14,7 +16,6 @@ declare global {
       selectInputFolder: () => Promise<any>;
       selectOutputFolder: () => Promise<any>;
       readUpdate: () => Promise<any>;
-      readResults: () => Promise<any>;
       readModels: () => Promise<any>;
       openWindow: (arg: any) => Promise<any>;
       countFiles: (arg: any) => Promise<any>;

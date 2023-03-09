@@ -1,5 +1,7 @@
 import * as LogRecord from 'models/LogRecord';
+import * as CXLModelResults from 'models/CXLModelResults';
 
 export interface ISentinelDesktopService {
-  getLogRecords(): Promise<LogRecord.T[]>;
+  getAllLogRecords(): Promise<LogRecord.T[]>;
+  getAllCXLModelResults(): Promise<CXLModelResults.T[]>;
 }

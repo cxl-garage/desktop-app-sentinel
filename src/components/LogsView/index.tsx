@@ -5,7 +5,7 @@ const READ_LOG_QUERY = ['allLogs'];
 
 export function LogsView(): JSX.Element {
   const { data: logs } = useQuery({
-    queryFn: window.SentinelDesktopService.getLogRecords,
+    queryFn: window.SentinelDesktopService.getAllLogRecords,
     queryKey: READ_LOG_QUERY,
   });
 
