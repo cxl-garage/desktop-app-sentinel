@@ -7,7 +7,7 @@ type Props = {
 };
 
 /**
- * A Card component. This is a thin wrapper around the And Design Card
+ * A Card component. This is a thin wrapper around the Ant Design Card
  * component.
  */
 export function Card({ children, title }: Props): JSX.Element {

@@ -28,7 +28,7 @@ function dummyRequest({ onSuccess }: UploadRequestOption): void {
 }
 
 /**
- * A File Input component. This is a thin wrapper around the And Design Upload
+ * A File Input component. This is a thin wrapper around the Ant Design Upload
  * component, except we aren't using this to upload anything. This component is
  * used only as a file or folder picker.
  *

@@ -39,7 +39,7 @@ type Props = {
 };
 
 /**
- * A Button component. This is a thin wrapper around the And Design Button
+ * A Button component. This is a thin wrapper around the Ant Design Button
  * component.
  */
 export function Button(props: Props): JSX.Element {
