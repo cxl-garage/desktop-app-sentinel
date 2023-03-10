@@ -1,7 +1,22 @@
 [
-    {
-        "imagecount": "176",
-        "objects": "5",
-        "emptyimages": "16"
-    }
+  {
+    "runid": "1",
+    "modelname": "Classifier A",
+    "rundate": "2021-01-01",
+    "imagecount": "176",
+    "objectcount": "5",
+    "emptyimagecount": "16",
+    "imagedir": "C:\\Users\\user\\Desktop\\Sentinel\\runs\\classifier_a\\1\\images",
+    "resultsdir": "C:\\Users\\user\\Desktop\\Sentinel\\runs\\classifier_a\\1\\results"
+  },
+  {
+    "runid": "2",
+    "modelname": "Classifier B",
+    "rundate": "2021-01-02",
+    "imagecount": "178",
+    "objectcount": "5",
+    "emptyimagecount": "125",
+    "imagedir": "C:\\Users\\user\\Desktop\\Sentinel\\runs\\classifier_b\\2\\images",
+    "resultsdir": "C:\\Users\\user\\Desktop\\Sentinel\\runs\\classifier_b\\2\\results"
+  }
 ]

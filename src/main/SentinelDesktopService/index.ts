@@ -15,9 +15,14 @@ const LogRecordCSVSchema = z.object({
 });
 
 const CXLModelResultJSONSchema = z.object({
+  runid: z.string(),
+  modelname: z.string(),
+  rundate: z.string(),
   imagecount: z.coerce.number(),
-  objects: z.coerce.number(),
-  emptyimages: z.coerce.number(),
+  emptyimagecount: z.coerce.number(),
+  objectcount: z.coerce.number(),
+  imagedir: z.string(),
+  resultsdir: z.string(),
 });
 
 class SentinelDesktopServiceImpl implements ISentinelDesktopService {

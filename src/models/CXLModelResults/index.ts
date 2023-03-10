@@ -6,9 +6,14 @@
  * 'model' (which just represents a data type).
  */
 type CXLModelResults = {
+  runid: string;
+  modelname: string;
+  rundate: string;
   imagecount: number;
-  objects: number;
-  emptyimages: number;
+  emptyimagecount: number;
+  objectcount: number;
+  imagedir: string;
+  resultsdir: string;
 };
 
 export { CXLModelResults as T };
