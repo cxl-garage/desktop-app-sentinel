@@ -17,7 +17,7 @@ const LogRecordCSVSchema = z.object({
 const CXLModelResultJSONSchema = z.object({
   runid: z.string(),
   modelname: z.string(),
-  rundate: z.string(),
+  rundate: z.coerce.date(),
   imagecount: z.coerce.number(),
   emptyimagecount: z.coerce.number(),
   objectcount: z.coerce.number(),

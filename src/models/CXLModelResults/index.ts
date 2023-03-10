@@ -8,7 +8,7 @@
 type CXLModelResults = {
   runid: string;
   modelname: string;
-  rundate: string;
+  rundate: Date;
   imagecount: number;
   emptyimagecount: number;
   objectcount: number;

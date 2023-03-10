@@ -12,7 +12,11 @@ function ResultsSummaryCard({
   modelRunMetadata,
 }: SummaryCardProps): JSX.Element {
   const { rundate } = modelRunMetadata;
-  return <Card title={rundate}>Results summary card</Card>;
+  return (
+    <Card title={rundate.toLocaleDateString('en-US')}>
+      Results summary card
+    </Card>
+  );
 }
 
 export function PastResultsView(): JSX.Element {
