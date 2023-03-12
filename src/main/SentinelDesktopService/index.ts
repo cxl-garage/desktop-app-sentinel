@@ -42,6 +42,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
           const logRecord = LogRecordCSVSchema.parse(data);
           results.push({
             id: uuid(),
+            level: "INFO", // placeholder for now
             ...logRecord,
           });
         })
