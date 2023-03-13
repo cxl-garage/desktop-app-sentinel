@@ -7,7 +7,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog, protocol } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import fs from 'fs';
@@ -15,6 +15,7 @@ import { PythonShell } from 'python-shell';
 import invariant from 'invariant';
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
+import * as urllib from 'url';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { SentinelDesktopService } from './SentinelDesktopService';
@@ -370,7 +371,16 @@ app.on('window-all-closed', () => {
 });
 
 async function setupApp(): Promise<void> {
-  await app.whenReady();
+  // eslint-disable-next-line promise/always-return
+  await app.whenReady().then(() => {
+    protocol.registerFileProtocol('localfile', (request, callback) => {
+      const filePath = urllib.fileURLToPath(
+        `file://${request.url.slice('localfile://'.length)}`,
+      );
+      // eslint-disable-next-line promise/no-callback-in-promise
+      callback(filePath);
+    });
+  });
   createWindow();
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the

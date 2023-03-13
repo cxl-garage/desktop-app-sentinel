@@ -1,10 +1,11 @@
-import { Col, Row } from 'antd';
+import { Col, Input, Row } from 'antd';
 import Paragraph from 'antd/es/typography/Paragraph';
 import Text from 'antd/es/typography/Text';
 import { Card } from 'components/ui/Card';
 import { Image } from 'components/ui/Image';
 
 import * as CXLModelResults from 'models/CXLModelResults';
+import { useState } from 'react';
 
 // Image license details here: https://commons.wikimedia.org/wiki/File:Standing_jaguar.jpg
 const PUBLIC_DOMAIN_PLACEHOLDER_IMAGE =
@@ -63,14 +64,17 @@ function ModelRunMetadataSummary({ modelRunMetadata }: Props): JSX.Element {
   );
 }
 
-function ModelRunImagePreview(): JSX.Element {
-  // TODO: Load images from user file system
+function ModelRunImagePreview({
+  localPath,
+}: {
+  localPath?: string;
+}): JSX.Element {
   const imageIds = [1, 2, 3, 4, 5, 6];
   return (
     <Row gutter={[16, 16]}>
       {imageIds.map((imageId) => (
         <Col span={8} key={imageId}>
-          <Image src={PUBLIC_DOMAIN_PLACEHOLDER_IMAGE} />
+          <Image src={localPath || PUBLIC_DOMAIN_PLACEHOLDER_IMAGE} />
         </Col>
       ))}
     </Row>
@@ -79,15 +83,29 @@ function ModelRunImagePreview(): JSX.Element {
 
 export function ResultsSummaryCard({ modelRunMetadata }: Props): JSX.Element {
   const { rundate } = modelRunMetadata;
+  const [localPath, setLocalPath] = useState('');
+
+  const handlePathInput = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
+    setLocalPath(event.target.value);
+  };
 
   return (
     <Card title={rundate.toLocaleDateString('en-US')}>
+      {/* Temporary local path loader until we have paginated directory filename endpoint */}
+      <Input
+        placeholder="Proof-of-concept local path loader"
+        onChange={handlePathInput}
+      />
       <Row gutter={[16, 16]}>
         <Col span={12}>
           <ModelRunMetadataSummary modelRunMetadata={modelRunMetadata} />
         </Col>
         <Col span={12}>
-          <ModelRunImagePreview />
+          <ModelRunImagePreview
+            localPath={localPath ? `localfile:////${localPath}` : ''}
+          />
         </Col>
       </Row>
     </Card>
