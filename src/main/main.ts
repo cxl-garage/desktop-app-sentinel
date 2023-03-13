@@ -373,6 +373,8 @@ app.on('window-all-closed', () => {
 async function setupApp(): Promise<void> {
   // eslint-disable-next-line promise/always-return
   await app.whenReady().then(() => {
+    // Out-of-box file:// protocol gets "Not allowed to load local resource" error
+    // https://www.electronjs.org/docs/latest/api/protocol#protocolregisterfileprotocolscheme-handler
     protocol.registerFileProtocol('localfile', (request, callback) => {
       const filePath = urllib.fileURLToPath(
         `file://${request.url.slice('localfile://'.length)}`,
