@@ -9,7 +9,7 @@ type Props = {
 };
 
 /**
- * A Heading component. This is a thin wrapper around the And Design Title
+ * A Heading component. This is a thin wrapper around the Ant Design Title
  * component.
  */
 export function Heading({ children, level = 1 }: Props): JSX.Element {
