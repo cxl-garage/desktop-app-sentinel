@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Col, Input, Row } from 'antd';
 import Paragraph from 'antd/es/typography/Paragraph';
 import Text from 'antd/es/typography/Text';
@@ -5,7 +6,6 @@ import { Card } from 'components/ui/Card';
 import { Image } from 'components/ui/Image';
 
 import * as CXLModelResults from 'models/CXLModelResults';
-import { useState } from 'react';
 
 // Image license details here: https://commons.wikimedia.org/wiki/File:Standing_jaguar.jpg
 const PUBLIC_DOMAIN_PLACEHOLDER_IMAGE =
@@ -83,7 +83,7 @@ function ModelRunImagePreview({
 
 export function ResultsSummaryCard({ modelRunMetadata }: Props): JSX.Element {
   const { rundate } = modelRunMetadata;
-  const [localPath, setLocalPath] = useState('');
+  const [localPath, setLocalPath] = React.useState('');
 
   const handlePathInput = (
     event: React.ChangeEvent<HTMLInputElement>,
