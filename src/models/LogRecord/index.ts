@@ -3,6 +3,7 @@
  */
 type LogRecord = {
   id: string;
+  level: string;
   message: string;
   timestamp: Date;
 };
