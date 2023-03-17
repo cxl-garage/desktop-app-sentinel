@@ -83,6 +83,19 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       );
     });
   }
+
+  getFilesInDir(dirPath: string): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      fs.readdir(dirPath, (err: unknown, files: string[]) => {
+        if (err) {
+          reject(new Error(`Unable to read directory: ${dirPath}`));
+        } else {
+          // Return full paths
+          resolve(files.map((file) => path.join(dirPath, file)));
+        }
+      });
+    });
+  }
 }
 
 export const SentinelDesktopService = new SentinelDesktopServiceImpl();
