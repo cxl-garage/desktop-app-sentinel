@@ -46,16 +46,6 @@ ipcMain.handle(
   },
 );
 
-ipcMain.handle(
-  'api/files/getDir',
-  async (_event, dirPath: string): Promise<string[]> => {
-    // eslint-disable-next-line no-console
-    console.log('Calling api/files/getDir');
-    // TODO: Handle exceptions cleanly somehow, pass custom errors to client
-    return SentinelDesktopService.getFilesInDir(dirPath);
-  },
-);
-
 // below 2 functions handle openning and selecting a new directory, using electron's dialog.showOpenDialog
 // used in afterorg.tsx to select folder to get images from and folder to download images to
 
@@ -386,16 +376,11 @@ async function setupApp(): Promise<void> {
     // Out-of-box file:// protocol gets "Not allowed to load local resource" error
     // https://www.electronjs.org/docs/latest/api/protocol#protocolregisterfileprotocolscheme-handler
     protocol.registerFileProtocol('localfile', (request, callback) => {
-      try {
-        const filePath = urllib.fileURLToPath(
-          `file://${request.url.slice('localfile://'.length)}`,
-        );
-        // eslint-disable-next-line promise/no-callback-in-promise
-        callback(filePath);
-      } catch (error) {
-        // TODO: handle error
-        console.error(error);
-      }
+      const filePath = urllib.fileURLToPath(
+        `file://${request.url.slice('localfile://'.length)}`,
+      );
+      // eslint-disable-next-line promise/no-callback-in-promise
+      callback(filePath);
     });
   });
   createWindow();

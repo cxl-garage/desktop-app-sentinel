@@ -18,8 +18,6 @@ const SentinelDesktopServiceBridge = {
   getAllLogRecords: async () => ipcRenderer.invoke('api/logs/getAll'),
   getAllCXLModelResults: async () =>
     ipcRenderer.invoke('api/cxl-model-results/getAll'),
-  getFilesInDir: async (dirPath: string) =>
-    ipcRenderer.invoke('api/files/getDir', dirPath),
 
   // Legacy functions.
   // TODO: These should be either refactored or removed.

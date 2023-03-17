@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Col, Input, Row } from 'antd';
 import Paragraph from 'antd/es/typography/Paragraph';
 import Text from 'antd/es/typography/Text';
@@ -65,60 +64,21 @@ function ModelRunMetadataSummary({ modelRunMetadata }: Props): JSX.Element {
   );
 }
 
-function ImageGrid({ filePaths }: { filePaths: string[] }): JSX.Element {
+function ModelRunImagePreview({
+  localPath,
+}: {
+  localPath?: string;
+}): JSX.Element {
+  const imageIds = [1, 2, 3, 4, 5, 6];
   return (
     <Row gutter={[16, 16]}>
-      {filePaths.map((imageFilePath) => (
-        <Col span={8} key={imageFilePath}>
-          <Image src={imageFilePath} />
+      {imageIds.map((imageId) => (
+        <Col span={8} key={imageId}>
+          <Image src={localPath || PUBLIC_DOMAIN_PLACEHOLDER_IMAGE} />
         </Col>
       ))}
     </Row>
   );
-}
-
-function ModelRunImagePreviewPlaceholder(): JSX.Element {
-  const imageFilePaths = Array.from(
-    { length: 6 },
-    (_value, index: number) =>
-      `${PUBLIC_DOMAIN_PLACEHOLDER_IMAGE}?index=${index}`,
-  );
-  return <ImageGrid filePaths={imageFilePaths} />;
-}
-
-function ModelRunImagePreview({
-  localPath,
-}: {
-  localPath: string;
-}): JSX.Element {
-  const {
-    data: files,
-    isError,
-    error,
-  } = useQuery({
-    queryFn: () => window.SentinelDesktopService.getFilesInDir(localPath),
-    queryKey: ['fetchDir', localPath],
-  });
-  if (isError) {
-    return (
-      <Paragraph>
-        <>Error loading images: {(error as Error).message}</>
-      </Paragraph>
-    );
-  }
-  if (!files) {
-    return <div>Loading...</div>;
-  }
-
-  const imageFilePaths: string[] = files
-    .filter(
-      (file: string) =>
-        file.endsWith('.jpg') ||
-        file.endsWith('.png') ||
-        file.endsWith('.jpeg'),
-    )
-    .map((file: string) => `localfile://${file}`);
-  return <ImageGrid filePaths={imageFilePaths.slice(0, 6)} />;
 }
 
 export function ResultsSummaryCard({ modelRunMetadata }: Props): JSX.Element {
@@ -133,6 +93,7 @@ export function ResultsSummaryCard({ modelRunMetadata }: Props): JSX.Element {
 
   return (
     <Card title={rundate.toLocaleDateString('en-US')}>
+      {/* Temporary local path loader until we have paginated directory filename endpoint */}
       <Input
         placeholder="Proof-of-concept local path loader"
         onChange={handlePathInput}
@@ -142,11 +103,9 @@ export function ResultsSummaryCard({ modelRunMetadata }: Props): JSX.Element {
           <ModelRunMetadataSummary modelRunMetadata={modelRunMetadata} />
         </Col>
         <Col span={12}>
-          {localPath ? (
-            <ModelRunImagePreview localPath={localPath} />
-          ) : (
-            <ModelRunImagePreviewPlaceholder />
-          )}
+          <ModelRunImagePreview
+            localPath={localPath ? `localfile:////${localPath}` : ''}
+          />
         </Col>
       </Row>
     </Card>
