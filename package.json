@@ -197,7 +197,7 @@
     "sass-loader": "^13.2.0",
     "style-loader": "^3.3.1",
     "stylelint": "^15.2.0",
-    "stylelint-config-standard": "^30.0.1",
+    "stylelint-config-standard-scss": "^7.0.1",
     "stylelint-order": "^6.0.2",
     "stylelint-selector-bem-pattern": "^2.1.1",
     "terser-webpack-plugin": "^5.3.6",
