@@ -8,6 +8,7 @@ declare global {
     SentinelDesktopService: {
       getAllLogRecords: () => Promise<LogRecord.T[]>;
       getAllCXLModelResults: () => Promise<CXLModelResults.T[]>;
+      getFilesInDir: (dirPath: string) => Promise<string[]>;
 
       // deprecated functions (need refactoring)
       findOrgModels: (arg: any) => Promise<any>;
