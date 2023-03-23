@@ -22,6 +22,7 @@ const THEME: ThemeConfig = {
   token: {
     colorPrimary: '#00aaff',
     colorTextHeading: '#656565',
+    colorBgContainer: '#fafafa',
   },
 };
 
