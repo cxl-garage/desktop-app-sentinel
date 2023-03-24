@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, theme } from 'antd';
 import type { ThemeConfig } from 'antd';
 import {
   MemoryRouter as Router,
@@ -26,12 +27,21 @@ const THEME: ThemeConfig = {
   },
 };
 
+const { defaultAlgorithm, darkAlgorithm } = theme;
+
 /**
  * Main app component with all the routes.
  */
 export default function App(): JSX.Element {
+  const [darkMode, setDarkMode] = useState(false);
+
   return (
-    <ConfigProvider theme={THEME}>
+    <ConfigProvider
+      theme={{
+        ...THEME,
+        algorithm: darkMode ? darkAlgorithm : defaultAlgorithm,
+      }}
+    >
       <QueryClientProvider client={QUERY_CLIENT}>
         <div className="App">
           <Router>
@@ -40,7 +50,7 @@ export default function App(): JSX.Element {
               <Route
                 path="/run-model"
                 element={
-                  <Layout>
+                  <Layout setDarkMode={setDarkMode}>
                     <RunModelView />
                   </Layout>
                 }
@@ -49,7 +59,7 @@ export default function App(): JSX.Element {
               <Route
                 path="/logs"
                 element={
-                  <Layout>
+                  <Layout setDarkMode={setDarkMode}>
                     <LogsView />
                   </Layout>
                 }
@@ -58,7 +68,7 @@ export default function App(): JSX.Element {
               <Route
                 path="/past-results"
                 element={
-                  <Layout>
+                  <Layout setDarkMode={setDarkMode}>
                     <PastResultsView />
                   </Layout>
                 }
@@ -67,7 +77,7 @@ export default function App(): JSX.Element {
               <Route
                 path="/more-models"
                 element={
-                  <Layout>
+                  <Layout setDarkMode={setDarkMode}>
                     <ModelMarketplaceView />
                   </Layout>
                 }
@@ -76,7 +86,7 @@ export default function App(): JSX.Element {
               <Route
                 path="/settings"
                 element={
-                  <Layout>
+                  <Layout setDarkMode={setDarkMode}>
                     <SettingsView />
                   </Layout>
                 }
@@ -86,7 +96,7 @@ export default function App(): JSX.Element {
               <Route
                 path="/orgsubmitted"
                 element={
-                  <Layout>
+                  <Layout setDarkMode={setDarkMode}>
                     <AfterOrgInput />
                   </Layout>
                 }
