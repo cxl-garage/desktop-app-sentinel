@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import React, { useReducer } from 'react';
+import React from 'react';
+import { useImmerReducer } from 'use-immer';
 import { AnyAction } from '../types/Action';
 import ActionTypes from '../types/ActionTypes';
 import ERunningImageStatus from '../types/ERunningImageStatus';
@@ -9,64 +10,46 @@ import {
   RunningModelDispatchContext,
 } from './RunningModelContext';
 
-type State = IRunningModel | null;
+type State = { runningModel: IRunningModel | null };
 
-const reducer = (state: State, action: AnyAction): State => {
-  // console.log('reducer', action, state);
+function reducer(draft: State, action: AnyAction): void {
   switch (action.type) {
     case ActionTypes.MODEL_RUN_REQUESTED: {
-      return action.model;
+      draft.runningModel = action.model;
+      break;
     }
     case ActionTypes.MODEL_RUN_IMAGE_PROCESS_REQUESTED: {
-      if (!state) {
-        return state;
+      if (draft.runningModel) {
+        const { images } = draft.runningModel;
+        const imageIndex = _.findIndex(images, { id: action.imageId });
+        images[imageIndex].status = ERunningImageStatus.IN_PROGRESS;
       }
-      const imageIndex = _.findIndex(state.images, { id: action.imageId });
-      return {
-        images: [
-          ...state.images.slice(0, imageIndex),
-          {
-            ...state.images[imageIndex],
-            status: ERunningImageStatus.IN_PROGRESS,
-          },
-          ...state.images.slice(imageIndex + 1),
-        ],
-      };
+      break;
     }
     case ActionTypes.MODEL_RUN_IMAGE_PROCESS_COMPLETED: {
-      if (!state) {
-        return state;
+      if (draft.runningModel) {
+        const { images } = draft.runningModel;
+        const imageIndex = _.findIndex(images, { id: action.imageId });
+        images[imageIndex].status = ERunningImageStatus.COMPLETED;
       }
-      const imageIndex = _.findIndex(state.images, { id: action.imageId });
-      return {
-        images: [
-          ...state.images.slice(0, imageIndex),
-          {
-            ...state.images[imageIndex],
-            status: ERunningImageStatus.COMPLETED,
-          },
-          ...state.images.slice(imageIndex + 1),
-        ],
-      };
-    }
-    case ActionTypes.MODEL_RUN_COMPLETED: {
-      return state;
+      break;
     }
     default: {
-      return state;
+      break;
     }
   }
-  return state;
-};
+}
 
 interface IProps {
   children: React.ReactNode;
 }
 
 function RunningModelProvider({ children }: IProps): JSX.Element {
-  const [runningModel, dispatch] = useReducer(reducer, null);
+  const [state, dispatch] = useImmerReducer<State, AnyAction>(reducer, {
+    runningModel: null,
+  });
   return (
-    <RunningModelContext.Provider value={runningModel}>
+    <RunningModelContext.Provider value={state.runningModel}>
       <RunningModelDispatchContext.Provider value={dispatch}>
         {children}
       </RunningModelDispatchContext.Provider>
