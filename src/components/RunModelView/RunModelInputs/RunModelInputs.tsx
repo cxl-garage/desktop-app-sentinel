@@ -5,6 +5,10 @@ import { Button } from '../../ui/Button';
 import { FileInfo, FileInput } from '../../ui/FileInput';
 import { Heading } from '../../ui/Heading';
 import { Select } from '../../ui/Select';
+import {
+  useIsRunningModelInProgress,
+  useStartModelRun,
+} from '../RunningModelProvider/RunningModelContext';
 
 const Wrapper = styled.div`
   display: flex;
@@ -13,8 +17,10 @@ const Wrapper = styled.div`
 `;
 
 function RunModelInputs(): JSX.Element {
+  const startModelRun = useStartModelRun();
+  const isRunningModelInProgress = useIsRunningModelInProgress();
   const onFileOrFolderSelected = (fileInfo: FileInfo): void => {
-    console.log(fileInfo);
+    console.log(fileInfo); // eslint-disable-line no-console
   };
   return (
     <Wrapper>
@@ -39,7 +45,9 @@ function RunModelInputs(): JSX.Element {
           },
         ]}
         defaultValue="opt1"
-        onChange={(value: string) => console.log(value)}
+        onChange={(value: string) => {
+          console.log(value); // eslint-disable-line no-console
+        }}
       />
       <div>
         <Heading.H1>Confidence Threshold</Heading.H1>
@@ -48,7 +56,7 @@ function RunModelInputs(): JSX.Element {
             min={1}
             max={20}
             onChange={(value) => {
-              console.log(value);
+              console.log(value); // eslint-disable-line no-console
             }}
           />
           <InputNumber min={1} max={20} style={{ margin: '0 16px' }} />
@@ -60,7 +68,13 @@ function RunModelInputs(): JSX.Element {
           Pick a directory
         </FileInput>
       </div>
-      <Button type="primary" onClick={() => alert('clicked!')}>
+      <Button
+        type="primary"
+        disabled={isRunningModelInProgress}
+        onClick={() => {
+          startModelRun();
+        }}
+      >
         RUN MODEL
       </Button>
     </Wrapper>

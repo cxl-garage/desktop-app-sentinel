@@ -23,6 +23,7 @@ module.exports = {
         ignoreRestSiblings: true,
       },
     ],
+    'no-shadow': 'off',
     '@typescript-eslint/no-shadow': 'error',
     '@typescript-eslint/no-inferrable-types': 'off',
     'import/extensions': 'off',
