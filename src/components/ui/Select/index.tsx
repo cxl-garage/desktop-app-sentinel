@@ -8,8 +8,9 @@ export type OptionType<T> = {
 };
 
 type Props<T> = {
+  placeholder?: string;
   options: ReadonlyArray<OptionType<T>>;
-  defaultValue: T;
+  defaultValue?: T;
   value?: T;
   onChange: (
     value: T,
@@ -18,6 +19,7 @@ type Props<T> = {
 };
 
 export function Select<T extends string | number>({
+  placeholder,
   options,
   defaultValue,
   value,
@@ -25,6 +27,7 @@ export function Select<T extends string | number>({
 }: Props<T>): JSX.Element {
   return (
     <AntSelect
+      placeholder={placeholder}
       defaultValue={defaultValue}
       value={value}
       options={options as Array<OptionType<T>>}
