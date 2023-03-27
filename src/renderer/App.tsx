@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider, Layout, theme } from 'antd';
 import type { ThemeConfig } from 'antd';
 import {
   MemoryRouter as Router,
@@ -12,18 +12,24 @@ import './App.css';
 import { PastResultsView } from 'components/PastResultsView';
 import { LogsView } from 'components/LogsView';
 import { RunModelView } from 'components/RunModelView';
-import { Layout } from 'components/Layout';
 import { ModelMarketplaceView } from 'components/ModelMarketplaceView';
 import { SettingsView } from 'components/SettingsView';
 import { AfterOrgInput } from 'pages-DEPRECATED/afterorg';
+import { Sidebar } from 'components/Layout/Sidebar';
+import { Navbar } from 'components/Layout/Navbar';
 
 const QUERY_CLIENT = new QueryClient();
+const { Header, Sider, Content } = Layout;
 
 const THEME: ThemeConfig = {
   token: {
     colorPrimary: '#00aaff',
     colorTextHeading: '#656565',
-    colorBgContainer: '#fafafa',
+  },
+  components: {
+    Layout: {
+      colorBgHeader: '#fafafa',
+    },
   },
 };
 
@@ -47,63 +53,31 @@ export default function App(): JSX.Element {
       <QueryClientProvider client={QUERY_CLIENT}>
         <div className="App">
           <Router>
-            <Routes>
-              <Route path="/" element={<Navigate to="/run-model" />} />
-              <Route
-                path="/run-model"
-                element={
-                  <Layout setDarkMode={setDarkMode}>
-                    <RunModelView />
-                  </Layout>
-                }
-              />
-
-              <Route
-                path="/logs"
-                element={
-                  <Layout setDarkMode={setDarkMode}>
-                    <LogsView />
-                  </Layout>
-                }
-              />
-
-              <Route
-                path="/past-results"
-                element={
-                  <Layout setDarkMode={setDarkMode}>
-                    <PastResultsView />
-                  </Layout>
-                }
-              />
-
-              <Route
-                path="/more-models"
-                element={
-                  <Layout setDarkMode={setDarkMode}>
-                    <ModelMarketplaceView />
-                  </Layout>
-                }
-              />
-
-              <Route
-                path="/settings"
-                element={
-                  <Layout setDarkMode={setDarkMode}>
-                    <SettingsView />
-                  </Layout>
-                }
-              />
-
-              {/* TODO: this is a legacy route. Is it still needed? */}
-              <Route
-                path="/orgsubmitted"
-                element={
-                  <Layout setDarkMode={setDarkMode}>
-                    <AfterOrgInput />
-                  </Layout>
-                }
-              />
-            </Routes>
+            <Layout>
+              <Header>
+                <Navbar setDarkMode={setDarkMode} />
+              </Header>
+              <Layout>
+                <Sider>
+                  <Sidebar />
+                </Sider>
+                <Content>
+                  <Routes>
+                    <Route path="/" element={<Navigate to="/run-model" />} />
+                    <Route path="/run-model" element={<RunModelView />} />
+                    <Route path="/logs" element={<LogsView />} />
+                    <Route path="/past-results" element={<PastResultsView />} />
+                    <Route
+                      path="/more-models"
+                      element={<ModelMarketplaceView />}
+                    />
+                    <Route path="/settings" element={<SettingsView />} />
+                    {/* TODO: this is a legacy route. Is it still needed? */}
+                    <Route path="/orgsubmitted" element={<AfterOrgInput />} />
+                  </Routes>
+                </Content>
+              </Layout>
+            </Layout>
           </Router>
         </div>
       </QueryClientProvider>
