@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import * as React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider, theme } from 'antd';
 import type { ThemeConfig } from 'antd';
@@ -33,15 +33,14 @@ const { defaultAlgorithm, darkAlgorithm } = theme;
  * Main app component with all the routes.
  */
 export default function App(): JSX.Element {
-  const [darkMode, setDarkMode] = useState(false);
-
+  const [darkMode, setDarkMode] = React.useState(false);
+  const themeToUse = React.useMemo(() => ({
+    ...THEME,
+    algorithm: darkMode ? darkAlgorithm : defaultAlgorithm,
+  }), [darkMode]);
+  
   return (
-    <ConfigProvider
-      theme={{
-        ...THEME,
-        algorithm: darkMode ? darkAlgorithm : defaultAlgorithm,
-      }}
-    >
+    <ConfigProvider theme={themeToUse}>
       <QueryClientProvider client={QUERY_CLIENT}>
         <div className="App">
           <Router>
