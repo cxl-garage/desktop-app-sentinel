@@ -36,6 +36,8 @@ type Props = {
 
   /** The type of button to render. */
   type?: 'default' | 'primary' | 'ghost' | 'dashed' | 'link' | 'text';
+
+  disabled?: boolean;
 };
 
 /**

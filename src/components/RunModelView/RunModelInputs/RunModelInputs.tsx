@@ -1,69 +1,85 @@
-import { InputNumber, Slider } from 'antd';
+import { Form } from 'antd';
+import _ from 'lodash';
 import React from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import ReactJson from 'react-json-view';
 import styled from 'styled-components';
 import { Button } from '../../ui/Button';
-import { FileInfo, FileInput } from '../../ui/FileInput';
-import { Heading } from '../../ui/Heading';
-import { Select } from '../../ui/Select';
+import {
+  useIsRunningModelInProgress,
+  useStartModelRun,
+} from '../RunningModelProvider/RunningModelContext';
+import type IModelInputs from '../types/IModelInputs';
+import FormConfidenceThreshold from './FormConfidenceThreshold';
+import FormImportDataset from './FormImportDataset';
+import FormImportModel from './FormImportModel';
+import FormOutputDirectory from './FormOutputDirectory';
+import FormOutputStyle from './FormOutputStyle';
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 40px;
+  label.ant-form-item-required {
+    font-size: 20px;
+    font-weight: 700;
+  }
 `;
 
 function RunModelInputs(): JSX.Element {
-  const onFileOrFolderSelected = (fileInfo: FileInfo): void => {
-    console.log(fileInfo);
+  const startModelRun = useStartModelRun();
+  const isRunningModelInProgress = useIsRunningModelInProgress();
+  const {
+    handleSubmit,
+    watch,
+    control,
+    formState: { errors, touchedFields },
+  } = useForm<IModelInputs>({ mode: 'onBlur' });
+  const onSubmit: SubmitHandler<IModelInputs> = (modelInputs) => {
+    startModelRun(modelInputs);
   };
+  const isDebugging = false;
   return (
-    <Wrapper>
-      <Heading.H1>Import model</Heading.H1>
-      <FileInput type="drag-area" onFileSelected={onFileOrFolderSelected}>
-        Drop a file here
-      </FileInput>
-      <Heading.H1>Import dataset</Heading.H1>
-      <FileInput type="drag-area" onFileSelected={onFileOrFolderSelected}>
-        Drop a file here
-      </FileInput>
-
-      <Select
-        options={[
-          {
-            label: 'Option 1',
-            value: 'opt1',
-          },
-          {
-            label: 'Option 2',
-            value: 'opt2',
-          },
-        ]}
-        defaultValue="opt1"
-        onChange={(value: string) => console.log(value)}
-      />
-      <div>
-        <Heading.H1>Confidence Threshold</Heading.H1>
+    <Form
+      layout="vertical"
+      onFinish={handleSubmit(onSubmit)}
+      requiredMark={false}
+    >
+      <Wrapper>
+        <FormImportModel control={control} />
+        <FormImportDataset control={control} />
+        <FormOutputStyle control={control} />
+        <FormConfidenceThreshold control={control} />
+        <FormOutputDirectory control={control} />
         <div>
-          <Slider
-            min={1}
-            max={20}
-            onChange={(value) => {
-              console.log(value);
-            }}
-          />
-          <InputNumber min={1} max={20} style={{ margin: '0 16px' }} />
+          <Button
+            type="primary"
+            htmlType="submit"
+            disabled={isRunningModelInProgress}
+          >
+            RUN MODEL
+          </Button>
         </div>
-      </div>
-      <div>
-        <Heading.H1>Save results to</Heading.H1>
-        <FileInput directory onFileSelected={onFileOrFolderSelected}>
-          Pick a directory
-        </FileInput>
-      </div>
-      <Button type="primary" onClick={() => alert('clicked!')}>
-        RUN MODEL
-      </Button>
-    </Wrapper>
+      </Wrapper>
+      {isDebugging && (
+        <div>
+          <hr />
+          <ReactJson name="watch()" src={watch()} />
+          <ReactJson
+            name="errors"
+            src={_.reduce(
+              errors,
+              (previous, value, key) => {
+                previous[key] = _.omit(value, 'ref');
+                return previous;
+              },
+              {} as object,
+            )}
+          />
+          <ReactJson name="touchedFields" src={touchedFields} />
+        </div>
+      )}
+    </Form>
   );
 }
 

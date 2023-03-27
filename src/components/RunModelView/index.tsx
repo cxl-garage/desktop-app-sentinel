@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import RunModelInputs from './RunModelInputs/RunModelInputs';
 import RunModelResults from './RunModelResultsPanel/RunModelResults';
+import RunningModelProvider from './RunningModelProvider/RunningModelProvider';
 
 const Wrapper = styled.div`
   display: flex;
@@ -18,13 +19,15 @@ const OutputsPanel = styled.div`
 
 export function RunModelView(): JSX.Element {
   return (
-    <Wrapper>
-      <InputsPanel>
-        <RunModelInputs />
-      </InputsPanel>
-      <OutputsPanel>
-        <RunModelResults />
-      </OutputsPanel>
-    </Wrapper>
+    <RunningModelProvider>
+      <Wrapper>
+        <InputsPanel>
+          <RunModelInputs />
+        </InputsPanel>
+        <OutputsPanel>
+          <RunModelResults />
+        </OutputsPanel>
+      </Wrapper>
+    </RunningModelProvider>
   );
 }

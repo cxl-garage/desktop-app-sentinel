@@ -2,7 +2,8 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { Image, Spin } from 'antd';
 import React from 'react';
 import styled from 'styled-components';
-import IImageWithProcessingStatus from './IImageWithProcessingStatus';
+import ERunningImageStatus from '../types/ERunningImageStatus';
+import IRunningImage from '../types/IRunningImage';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -37,7 +38,7 @@ const LoadingImageWrapper = styled.div`
 `;
 
 interface IProps {
-  processingImages: IImageWithProcessingStatus[];
+  processingImages: IRunningImage[];
 }
 
 function ImagesLoadingProgressGallery({
@@ -45,7 +46,7 @@ function ImagesLoadingProgressGallery({
 }: IProps): JSX.Element {
   const totalCount = processingImages.length;
   const completedCount = processingImages.filter(
-    (it) => !it.isProcessing,
+    (it) => it.status === ERunningImageStatus.COMPLETED,
   ).length;
   const completedPercentage = Math.round((completedCount * 100) / totalCount);
   return (
@@ -58,15 +59,21 @@ function ImagesLoadingProgressGallery({
         </span>
       </LoadingStatusWrapper>
       <ImageGrid>
-        {processingImages.map((it) => {
-          return it.isProcessing ? (
-            <LoadingImageWrapper key={it.id}>
-              <LoadingOutlined style={{ fontSize: 64, color: '#00AAFF' }} />
-            </LoadingImageWrapper>
-          ) : (
-            <ImageGridImage key={it.id} src={it.src} />
-          );
-        })}
+        {processingImages
+          .filter(
+            (it) =>
+              it.status === ERunningImageStatus.IN_PROGRESS ||
+              it.status === ERunningImageStatus.COMPLETED,
+          )
+          .map((it) => {
+            return it.status === ERunningImageStatus.IN_PROGRESS ? (
+              <LoadingImageWrapper key={it.id}>
+                <LoadingOutlined style={{ fontSize: 64, color: '#00AAFF' }} />
+              </LoadingImageWrapper>
+            ) : (
+              <ImageGridImage key={it.id} src={it.url} />
+            );
+          })}
       </ImageGrid>
     </Wrapper>
   );

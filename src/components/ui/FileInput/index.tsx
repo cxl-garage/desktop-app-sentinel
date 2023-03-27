@@ -15,6 +15,7 @@ type Props = {
   type?: 'button' | 'drag-area';
   children: React.ReactNode;
   onFileSelected?: (info: FileInfo) => void;
+  maxCount?: number;
 };
 
 // a dummy request given that this component doesn't actually upload anything.
@@ -37,6 +38,7 @@ function dummyRequest({ onSuccess }: UploadRequestOption): void {
 export function FileInput({
   children,
   onFileSelected,
+  maxCount = 1,
   directory = false,
   type = 'button',
 }: Props): JSX.Element {
@@ -64,6 +66,7 @@ export function FileInput({
   const commonProps = {
     directory,
     onChange,
+    maxCount,
     customRequest: dummyRequest,
   };
 
