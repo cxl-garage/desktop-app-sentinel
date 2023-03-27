@@ -34,11 +34,14 @@ const { defaultAlgorithm, darkAlgorithm } = theme;
  */
 export default function App(): JSX.Element {
   const [darkMode, setDarkMode] = React.useState(false);
-  const themeToUse = React.useMemo(() => ({
-    ...THEME,
-    algorithm: darkMode ? darkAlgorithm : defaultAlgorithm,
-  }), [darkMode]);
-  
+  const themeToUse = React.useMemo(
+    () => ({
+      ...THEME,
+      algorithm: darkMode ? darkAlgorithm : defaultAlgorithm,
+    }),
+    [darkMode],
+  );
+
   return (
     <ConfigProvider theme={themeToUse}>
       <QueryClientProvider client={QUERY_CLIENT}>

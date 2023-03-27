@@ -6,6 +6,12 @@
 /* quick fix for importing fonts */
 @import 'https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap';
 
+/* stylelint-disable scss/at-rule-no-unknown */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* stylelint-enable */
+
 /* stylelint-disable plugin/selector-bem-pattern */
 body {
   margin: 0;
