@@ -3,13 +3,8 @@ import { Form } from 'antd';
 import React from 'react';
 import { useController } from 'react-hook-form';
 import { Control } from 'react-hook-form/dist/types';
-import styled from 'styled-components';
 import { FileInput } from '../../ui/FileInput';
 import IModelInputs from '../types/IModelInputs';
-
-const InputWrapper = styled.div`
-  padding: 0 8px;
-`;
 
 function FormImportModel({
   control,
@@ -36,10 +31,10 @@ function FormImportModel({
           field.onBlur(); // trigger validation
         }}
       >
-        <InputWrapper>
+        <div className="mx-2">
           <DownloadOutlined />
           <div>Drag & Drop or browse your device</div>
-        </InputWrapper>
+        </div>
       </FileInput>
     </Form.Item>
   );

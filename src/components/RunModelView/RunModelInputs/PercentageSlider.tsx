@@ -1,14 +1,8 @@
 import { InputNumber, Slider } from 'antd';
 import React from 'react';
-import styled from 'styled-components';
 
 const MIN = 0;
 const MAX = 100;
-
-const Wrapper = styled.div`
-  display: flex;
-  width: 100%;
-`;
 
 function PercentageSlider({
   value,
@@ -18,7 +12,7 @@ function PercentageSlider({
   onChange?: (v: number | null) => void;
 }): JSX.Element {
   return (
-    <Wrapper>
+    <div className="flex w-full">
       <div style={{ flex: 1 }}>
         <Slider min={MIN} max={MAX} value={value} onChange={onChange} />
       </div>
@@ -31,7 +25,7 @@ function PercentageSlider({
         value={value}
         onChange={onChange}
       />
-    </Wrapper>
+    </div>
   );
 }
 

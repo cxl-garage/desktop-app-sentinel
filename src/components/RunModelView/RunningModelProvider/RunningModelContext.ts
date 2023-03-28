@@ -37,7 +37,6 @@ const createModel = (): IRunningModel => {
   return {
     images: [...Array(IMAGES_SIZE)].map(() => {
       return {
-        // eslint-disable-next-line no-plusplus
         id: _.uniqueId(),
         url: PUBLIC_DOMAIN_PLACEHOLDER_IMAGE,
         status: ERunningImageStatus.NOT_STARTED,
