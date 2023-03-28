@@ -64,21 +64,6 @@
     ]
   },
   "browserslist": [],
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "all",
-    "overrides": [
-      {
-        "files": [
-          ".prettierrc",
-          ".eslintrc"
-        ],
-        "options": {
-          "parser": "json"
-        }
-      }
-    ]
-  },
   "jest": {
     "moduleDirectories": [
       "node_modules",
@@ -199,6 +184,7 @@
     "postcss": "^8.4.21",
     "postcss-loader": "^7.1.0",
     "prettier": "^2.8.4",
+    "prettier-plugin-tailwindcss": "^0.2.5",
     "process": "^0.11.10",
     "react-refresh": "^0.14.0",
     "react-test-renderer": "^18.2.0",
