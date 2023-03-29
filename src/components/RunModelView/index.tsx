@@ -4,10 +4,6 @@ import RunModelInputs from './RunModelInputs/RunModelInputs';
 import RunModelResults from './RunModelResultsPanel/RunModelResults';
 import RunningModelProvider from './RunningModelProvider/RunningModelProvider';
 
-const Wrapper = styled.div`
-  display: flex;
-`;
-
 const InputsPanel = styled.div`
   border-right: 2px solid #dddddd;
   padding: 40px;
@@ -20,14 +16,14 @@ const OutputsPanel = styled.div`
 export function RunModelView(): JSX.Element {
   return (
     <RunningModelProvider>
-      <Wrapper>
+      <div className="flex">
         <InputsPanel>
           <RunModelInputs />
         </InputsPanel>
         <OutputsPanel>
           <RunModelResults />
         </OutputsPanel>
-      </Wrapper>
+      </div>
     </RunningModelProvider>
   );
 }

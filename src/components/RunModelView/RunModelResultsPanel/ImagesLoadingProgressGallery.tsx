@@ -1,18 +1,10 @@
 import { LoadingOutlined } from '@ant-design/icons';
 import { Image, Spin } from 'antd';
+import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 import ERunningImageStatus from '../types/ERunningImageStatus';
 import IRunningImage from '../types/IRunningImage';
-
-const Wrapper = styled.div`
-  flex: 1;
-  padding: 40px;
-`;
-
-const LoadingStatusWrapper = styled.div`
-  display: flex;
-`;
 
 const ImageGrid = styled.div`
   margin-top: 32px;
@@ -45,19 +37,19 @@ function ImagesLoadingProgressGallery({
   processingImages,
 }: IProps): JSX.Element {
   const totalCount = processingImages.length;
-  const completedCount = processingImages.filter(
-    (it) => it.status === ERunningImageStatus.COMPLETED,
-  ).length;
+  const completedCount = _.filter(processingImages, {
+    status: ERunningImageStatus.COMPLETED,
+  }).length;
   const completedPercentage = Math.round((completedCount * 100) / totalCount);
   return (
-    <Wrapper>
-      <LoadingStatusWrapper>
+    <div className="flex-1 p-10">
+      <div className="flex">
         {completedPercentage !== 100 && <Spin style={{ marginRight: 12 }} />}
         <span>
           {completedPercentage}% Processing images ({completedCount}/
           {totalCount})
         </span>
-      </LoadingStatusWrapper>
+      </div>
       <ImageGrid>
         {processingImages
           .filter(
@@ -75,7 +67,7 @@ function ImagesLoadingProgressGallery({
             );
           })}
       </ImageGrid>
-    </Wrapper>
+    </div>
   );
 }
 
