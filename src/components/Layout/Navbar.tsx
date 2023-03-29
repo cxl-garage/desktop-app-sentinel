@@ -8,15 +8,15 @@ type Props = {
 
 export function Navbar({ setDarkMode }: Props): JSX.Element {
   return (
-    <div className="Navbar">
+    <div>
       <Row>
         <Col>
           <img
             alt=""
             src={icon}
-            width="20"
-            height="20"
-            className="Navbar__info-icon"
+            width="50"
+            height="50"
+            className="Navbar__cxl-icon"
           />
         </Col>
         <Col flex="auto" />
