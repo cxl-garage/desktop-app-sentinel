@@ -21,14 +21,37 @@ import { Navbar } from 'components/Layout/Navbar';
 const QUERY_CLIENT = new QueryClient();
 const { Header, Sider, Content } = Layout;
 
-const THEME: ThemeConfig = {
+const LIGHT_BG_COLOR = '#fafafa';
+const DARK_BG_COLOR = '#35393f';
+const PRIMARY_COLOR = '#00aaff';
+const WHITE = '#ffffff';
+
+const LIGHT_THEME: ThemeConfig = {
   token: {
-    colorPrimary: '#00aaff',
+    colorPrimary: PRIMARY_COLOR,
     colorTextHeading: '#656565',
+    colorBgBase: LIGHT_BG_COLOR,
+    colorBgContainer: LIGHT_BG_COLOR,
+    colorBgLayout: LIGHT_BG_COLOR,
   },
   components: {
     Layout: {
-      colorBgHeader: '#fafafa',
+      colorBgHeader: LIGHT_BG_COLOR,
+    },
+  },
+};
+
+const DARK_THEME: ThemeConfig = {
+  token: {
+    colorPrimary: PRIMARY_COLOR,
+    colorTextHeading: WHITE,
+    colorBgBase: DARK_BG_COLOR,
+    colorBgContainer: DARK_BG_COLOR,
+    colorBgLayout: DARK_BG_COLOR,
+  },
+  components: {
+    Layout: {
+      colorBgHeader: DARK_BG_COLOR,
     },
   },
 };
@@ -42,7 +65,7 @@ export default function App(): JSX.Element {
   const [darkMode, setDarkMode] = React.useState(false);
   const themeToUse = React.useMemo(
     () => ({
-      ...THEME,
+      ...(darkMode ? DARK_THEME : LIGHT_THEME),
       algorithm: darkMode ? darkAlgorithm : defaultAlgorithm,
     }),
     [darkMode],

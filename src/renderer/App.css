@@ -19,7 +19,7 @@ body {
 /* stylelint-enable */
 
 .App {
-  background: #fafafa;
+  background-color: #fafafa;
   font-family: Oxygen, sans-serif;
   height: 100vh;
 }
