@@ -1,4 +1,3 @@
-import * as React from 'react';
 import styled from 'styled-components';
 import RunModelInputs from './RunModelInputs/RunModelInputs';
 import RunModelResults from './RunModelResultsPanel/RunModelResults';
