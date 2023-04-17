@@ -1,12 +1,13 @@
-import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Col, Input, Row } from 'antd';
+import { Col, Row } from 'antd';
 import Paragraph from 'antd/es/typography/Paragraph';
-import Text from 'antd/es/typography/Text';
 import { Card } from 'components/ui/Card';
 import { Image } from 'components/ui/Image';
 
 import * as CXLModelResults from 'models/CXLModelResults';
+import styled from 'styled-components';
+import { ModelRunMetadataSummary } from './ModelRunMetadataSummary';
+import { CardShadowWrapper } from './PastResultsViewStyledComponents';
 
 // Image license details here: https://commons.wikimedia.org/wiki/File:Standing_jaguar.jpg
 const PUBLIC_DOMAIN_PLACEHOLDER_IMAGE =
@@ -14,60 +15,17 @@ const PUBLIC_DOMAIN_PLACEHOLDER_IMAGE =
 
 type Props = {
   modelRunMetadata: CXLModelResults.T;
+  imagePathOverride?: string;
 };
 
-function MetricDisplay({
-  metricName,
-  metricValue,
-}: {
-  metricName: string;
-  metricValue: string | number | Date;
-}): JSX.Element {
-  let formattedMetricValue = metricValue;
-  if (metricValue instanceof Date) {
-    formattedMetricValue = metricValue.toLocaleString('en-US');
-  }
-  // Typechecking for Paragraph expects a single child for some reason
-  return (
-    <Paragraph>
-      <>
-        <Text strong>{metricName}:</Text> {formattedMetricValue}
-      </>
-    </Paragraph>
-  );
-}
-
-function ModelRunMetadataSummary({ modelRunMetadata }: Props): JSX.Element {
-  const {
-    emptyimagecount,
-    imagecount,
-    imagedir,
-    modelname,
-    objectcount,
-    rundate,
-    runid,
-    resultsdir,
-  } = modelRunMetadata;
-  return (
-    <Card>
-      <MetricDisplay metricName="Model Name" metricValue={modelname} />
-      <MetricDisplay metricName="Run ID" metricValue={runid} />
-      <MetricDisplay metricName="Run Date" metricValue={rundate} />
-      <MetricDisplay metricName="Image Directory" metricValue={imagedir} />
-      <MetricDisplay metricName="Results Directory" metricValue={resultsdir} />
-      <MetricDisplay metricName="Image Count" metricValue={imagecount} />
-      <MetricDisplay
-        metricName="Empty Image Count"
-        metricValue={emptyimagecount}
-      />
-      <MetricDisplay metricName="Object Count" metricValue={objectcount} />
-    </Card>
-  );
-}
+const MainResultCardWrapper = styled(CardShadowWrapper)`
+  margin-top: 10px;
+  margin-bottom: 5px;
+`;
 
 function ImageGrid({ filePaths }: { filePaths: string[] }): JSX.Element {
   return (
-    <Row gutter={[16, 16]}>
+    <Row gutter={16}>
       {filePaths.map((imageFilePath) => (
         <Col span={8} key={imageFilePath}>
           <Image src={imageFilePath} />
@@ -121,34 +79,28 @@ function ModelRunImagePreview({
   return <ImageGrid filePaths={imageFilePaths.slice(0, 6)} />;
 }
 
-export function ResultsSummaryCard({ modelRunMetadata }: Props): JSX.Element {
+export function ResultsSummaryCard({
+  modelRunMetadata,
+  imagePathOverride,
+}: Props): JSX.Element {
   const { rundate } = modelRunMetadata;
-  const [localPath, setLocalPath] = React.useState('');
-
-  const handlePathInput = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ): void => {
-    setLocalPath(event.target.value);
-  };
 
   return (
-    <Card title={rundate.toLocaleDateString('en-US')}>
-      <Input
-        placeholder="Proof-of-concept local path loader"
-        onChange={handlePathInput}
-      />
-      <Row gutter={[16, 16]}>
-        <Col span={12}>
-          <ModelRunMetadataSummary modelRunMetadata={modelRunMetadata} />
-        </Col>
-        <Col span={12}>
-          {localPath ? (
-            <ModelRunImagePreview localPath={localPath} />
-          ) : (
-            <ModelRunImagePreviewPlaceholder />
-          )}
-        </Col>
-      </Row>
-    </Card>
+    <MainResultCardWrapper>
+      <Card title={rundate.toLocaleDateString('en-US')}>
+        <Row gutter={16}>
+          <Col span={12}>
+            <ModelRunMetadataSummary modelRunMetadata={modelRunMetadata} />
+          </Col>
+          <Col span={12}>
+            {imagePathOverride ? (
+              <ModelRunImagePreview localPath={imagePathOverride} />
+            ) : (
+              <ModelRunImagePreviewPlaceholder />
+            )}
+          </Col>
+        </Row>
+      </Card>
+    </MainResultCardWrapper>
   );
 }
