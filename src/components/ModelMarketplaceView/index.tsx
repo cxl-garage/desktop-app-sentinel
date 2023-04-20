@@ -38,6 +38,12 @@ export function ModelMarketplaceView(): JSX.Element {
         </Space>
       </div>
       <div className="mt-4 flex w-full justify-center">
+        {/* NOTE: target _blank should only be used with noreferrer and
+          * noopener to avoid tabnabbing security sissue. However antd
+          * does not give any way of adding those to their Button component.
+          * We are proceeding anyways because we are only linking to sites
+          * owned by CXL so this is safe.
+          */}
         <Button href="https://mysentinel.info" target="_blank">
           Browse Now
         </Button>
