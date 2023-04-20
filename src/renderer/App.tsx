@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { StyleProvider } from '@ant-design/cssinjs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider, Layout, theme } from 'antd';
 import type { ThemeConfig } from 'antd';
@@ -73,37 +74,42 @@ export default function App(): JSX.Element {
 
   return (
     <ConfigProvider theme={themeToUse}>
-      <QueryClientProvider client={QUERY_CLIENT}>
-        <div className="App">
-          <Router>
-            <Layout>
-              <Header>
-                <Navbar setDarkMode={setDarkMode} />
-              </Header>
+      <StyleProvider hashPriority="high">
+        <QueryClientProvider client={QUERY_CLIENT}>
+          <div className="App">
+            <Router>
               <Layout>
-                <Sider>
-                  <Sidebar />
-                </Sider>
-                <Content>
-                  <Routes>
-                    <Route path="/" element={<Navigate to="/run-model" />} />
-                    <Route path="/run-model" element={<RunModelView />} />
-                    <Route path="/logs" element={<LogsView />} />
-                    <Route path="/past-results" element={<PastResultsView />} />
-                    <Route
-                      path="/more-models"
-                      element={<ModelMarketplaceView />}
-                    />
-                    <Route path="/settings" element={<SettingsView />} />
-                    {/* TODO: this is a legacy route. Is it still needed? */}
-                    <Route path="/orgsubmitted" element={<AfterOrgInput />} />
-                  </Routes>
-                </Content>
+                <Header>
+                  <Navbar setDarkMode={setDarkMode} />
+                </Header>
+                <Layout>
+                  <Sider>
+                    <Sidebar />
+                  </Sider>
+                  <Content>
+                    <Routes>
+                      <Route path="/" element={<Navigate to="/run-model" />} />
+                      <Route path="/run-model" element={<RunModelView />} />
+                      <Route path="/logs" element={<LogsView />} />
+                      <Route
+                        path="/past-results"
+                        element={<PastResultsView />}
+                      />
+                      <Route
+                        path="/more-models"
+                        element={<ModelMarketplaceView />}
+                      />
+                      <Route path="/settings" element={<SettingsView />} />
+                      {/* TODO: this is a legacy route. Is it still needed? */}
+                      <Route path="/orgsubmitted" element={<AfterOrgInput />} />
+                    </Routes>
+                  </Content>
+                </Layout>
               </Layout>
-            </Layout>
-          </Router>
-        </div>
-      </QueryClientProvider>
+            </Router>
+          </div>
+        </QueryClientProvider>
+      </StyleProvider>
     </ConfigProvider>
   );
 }
