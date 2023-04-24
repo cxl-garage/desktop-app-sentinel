@@ -76,16 +76,16 @@ export default function App(): JSX.Element {
     <ConfigProvider theme={themeToUse}>
       <StyleProvider hashPriority="high">
         <QueryClientProvider client={QUERY_CLIENT}>
-          <div className="App">
+          <div className={`App${darkMode ? ' dark' : ''}`}>
             <Router>
-              <Layout>
-                <Header>
-                  <Navbar setDarkMode={setDarkMode} />
-                </Header>
+              <Layout className="h-full">
+                <Sider>
+                  <Sidebar />
+                </Sider>
                 <Layout>
-                  <Sider>
-                    <Sidebar />
-                  </Sider>
+                  <Header className="border-b-2 border-gray-200 dark:border-gray-600">
+                    <Navbar setDarkMode={setDarkMode} />
+                  </Header>
                   <Content>
                     <Routes>
                       <Route path="/" element={<Navigate to="/run-model" />} />

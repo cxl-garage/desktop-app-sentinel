@@ -5,7 +5,6 @@ import RunModelResults from './RunModelResultsPanel/RunModelResults';
 import RunningModelProvider from './RunningModelProvider/RunningModelProvider';
 
 const InputsPanel = styled.div`
-  border-right: 2px solid #dddddd;
   padding: 40px;
 `;
 const OutputsPanel = styled.div`
@@ -17,7 +16,7 @@ export function RunModelView(): JSX.Element {
   return (
     <RunningModelProvider>
       <div className="flex">
-        <InputsPanel>
+        <InputsPanel className="border-r-2 border-gray-200 dark:border-gray-600">
           <RunModelInputs />
         </InputsPanel>
         <OutputsPanel>
