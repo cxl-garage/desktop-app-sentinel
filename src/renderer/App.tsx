@@ -78,7 +78,7 @@ export default function App(): JSX.Element {
         <QueryClientProvider client={QUERY_CLIENT}>
           <div className={`App${darkMode ? ' dark' : ''}`}>
             <Router>
-              <Layout className="h-full">
+              <Layout className="h-full overflow-auto">
                 <Sider>
                   <Sidebar />
                 </Sider>
