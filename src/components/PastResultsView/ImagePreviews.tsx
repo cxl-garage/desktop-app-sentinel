@@ -49,7 +49,9 @@ export function ModelRunImagePreview({
   if (isError) {
     return (
       <Paragraph>
-        <>Error loading images: {(error as Error).message}</>
+        {error instanceof Error
+          ? `Error loading images: ${error.message}`
+          : `Error loading images`}
       </Paragraph>
     );
   }

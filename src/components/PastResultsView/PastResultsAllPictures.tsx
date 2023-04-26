@@ -1,7 +1,6 @@
 import { Col, Row, Space } from 'antd';
+import { LeftOutlined } from '@ant-design/icons';
 import { Card } from 'components/ui/Card';
-
-import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PUBLIC_DOMAIN_PLACEHOLDER_IMAGE } from 'components/RunModelView/tempMockData';
 import { CardShadowWrapper } from './PastResultsViewStyledComponents';
@@ -11,21 +10,19 @@ import {
   ModelRunImagePreviewPlaceholder,
 } from './ImagePreviews';
 
-const MainResultCardWrapper = styled(CardShadowWrapper)`
-  margin-top: 10px;
-  margin-bottom: 5px;
-`;
+const URL = `/past-results/`;
 
 export function PastResultsAllPictures(): JSX.Element {
   const { resultsPath } = useParams();
   const navigate = useNavigate();
-  const url = `/past-results/`;
 
   return (
-    <MainResultCardWrapper>
+    <CardShadowWrapper className="mb-1 mt-2.5">
       <Card>
         <Space direction="vertical" size="middle">
-          <Button onClick={() => navigate(url)}>{'<'} Back</Button>
+          <Button icon={<LeftOutlined />} onClick={() => navigate(URL)}>
+            Back
+          </Button>
           <Row gutter={16}>
             <Col span={24}>
               {resultsPath &&
@@ -38,6 +35,6 @@ export function PastResultsAllPictures(): JSX.Element {
           </Row>
         </Space>
       </Card>
-    </MainResultCardWrapper>
+    </CardShadowWrapper>
   );
 }
