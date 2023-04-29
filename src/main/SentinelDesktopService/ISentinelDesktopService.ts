@@ -5,4 +5,8 @@ export interface ISentinelDesktopService {
   getAllLogRecords(): Promise<LogRecord.T[]>;
   getAllCXLModelResults(): Promise<CXLModelResults.T[]>;
   getFilesInDir: (dirPath: string) => Promise<string[]>;
+  getImages: () => Promise<any[]>;
+  getContainers: () => Promise<any[]>;
+  start: (folder: string, modelName: string) => Promise<boolean>;
+  cleanup: () => Promise<void>;
 }

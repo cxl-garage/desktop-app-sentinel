@@ -1,31 +1,111 @@
-import './SettingsView.css';
-import docker from '../../../assets/docker.png';
+import React from 'react';
+import { Button, Table, Typography } from 'antd';
+// import docker from '../../../assets/docker.png';
 
 export function SettingsView(): JSX.Element {
-  const handleClick = (): void => {
-    window.SentinelDesktopService.openWindow(
-      'https://www.docker.com/products/docker-desktop/',
-    );
+  const [images, setImages] = React.useState<any[]>([]);
+  const [containers, setContainers] = React.useState<any[]>([]);
+
+  // const handleClick = (): void => {
+  //   window.SentinelDesktopService.openWindow(
+  //     'https://www.docker.com/products/docker-desktop/',
+  //   );
+  // };
+
+  const start = (): void => {
+    // TODO: Should get from API.
+    const folder = '/Users/jslott/ts/desktop-app-sentinel/data';
+    const modelName = 'osa_jaguar';
+    window.SentinelDesktopService.start(folder, modelName);
   };
 
+  const stopAll = (): void => {
+    window.SentinelDesktopService.cleanup();
+  };
+
+  async function updateImages(): Promise<void> {
+    setImages(await window.SentinelDesktopService.getImages());
+  }
+
+  async function updateContainers(): Promise<void> {
+    setContainers(await window.SentinelDesktopService.getContainers());
+  }
+
+  function refresh(): void {
+    updateImages();
+    updateContainers();
+  }
+
   return (
-    <>
-      <h1>Setup</h1>
-      <div className="SettingsView">
-        <p className="SettingsView__p">
-          Click below to download docker desktop for your computer, open it, and
-          sign in!
-        </p>
-        <button type="button" onClick={handleClick}>
-          <img
-            src={docker}
-            className="SettingsView__docker-img"
-            height="100"
-            width="400"
-            alt="Download docker desktop"
-          />
-        </button>
+    <div className="pt-6 pb-12 pl-6 pr-6">
+      <div className="pb-6">
+        <Button type="primary" onClick={() => refresh()}>
+          Refresh
+        </Button>
       </div>
-    </>
+      <div className="pb-6">
+        <Typography.Title level={3}>Docker Images</Typography.Title>
+        <Table
+          columns={[
+            {
+              title: 'Id',
+              dataIndex: 'Id',
+              key: 'id',
+            },
+            {
+              title: 'Tags',
+              dataIndex: 'RepoTags',
+              key: 'tags',
+            },
+          ]}
+          dataSource={images}
+          pagination={false}
+        />
+      </div>
+      <div className="pb-6">
+        <Typography.Title level={3}>Docker Containers</Typography.Title>
+        <Table
+          columns={[
+            {
+              title: 'Id',
+              dataIndex: 'Id',
+              key: 'id',
+            },
+            {
+              title: 'Image',
+              dataIndex: 'ImageID',
+              key: 'image',
+            },
+            {
+              title: 'Names',
+              dataIndex: 'Names',
+              key: 'names',
+            },
+            {
+              title: 'State',
+              dataIndex: 'State',
+              key: 'state',
+            },
+            {
+              title: 'Status',
+              dataIndex: 'Status',
+              key: 'status',
+            },
+          ]}
+          dataSource={containers}
+          pagination={false}
+        />
+        <Button type="primary" onClick={stopAll}>
+          Stop All
+        </Button>
+      </div>
+
+      <div className="pb-6">
+        <Typography.Title level={3}>Test Run</Typography.Title>
+        <Button type="primary" onClick={start}>
+          Start Test Run
+        </Button>
+      </div>
+    </div>
   );
 }

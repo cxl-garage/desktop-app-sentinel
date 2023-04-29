@@ -1,0 +1,103 @@
+/**
+ * Functions to invoke the docker container to detect features
+ * in an image.
+ */
+
+import path from 'path';
+import {
+  drawRectangle,
+  isSupported,
+  read,
+  save,
+  toDataArray,
+  writeText,
+  loadFont,
+} from './image';
+
+export type DetectOptions = {
+  inputSize?: number;
+  threshold?: number;
+  modelName: string;
+  classNames: string[];
+  outputFolder: string;
+};
+
+const DEFAULT_THRESHOLD = 0.4;
+const LINE_WIDTH = 3;
+
+export async function detect(
+  folder: string,
+  name: string,
+  options: DetectOptions,
+): Promise<string[]> {
+  const detections: any[] = [];
+
+  // Read the image and resize if necessary if the image type is supported
+  console.log(`Detecting ${name}`);
+  if (!isSupported(name)) {
+    return detections;
+  }
+  const image = await read(folder, name, options.inputSize);
+  const data = toDataArray(image);
+
+  // Invoke the docker endpoint to detect
+  const url = `http://localhost:8501/v1/models/${options.modelName}:predict`;
+  const body = {
+    signature_name: 'serving_default',
+    instances: [data],
+  };
+  // TODO: Should we retry this with a sleep?
+  const response = await fetch(url, {
+    method: 'post',
+    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const json = await response.json();
+  const predictions = json.predictions[0];
+  console.log(JSON.stringify(predictions, null, 2));
+
+  // TODO: Make sure font is loaded for writing below
+  const font = await loadFont();
+
+  // Look through the output for all results that exceed the confidence threshold,
+  // write out the image with the bounding box if detected and return the result
+  // from this function.
+  const threshold = options.threshold ?? DEFAULT_THRESHOLD;
+  if (predictions.output_1[0] > threshold) {
+    let x = 0;
+    while (true) {
+      if (
+        predictions.output_1[x] > threshold &&
+        x < predictions.output_1.length
+      ) {
+        // Assume input and output size are the same to simplify bbox computations
+        const bbox = predictions.output_0[x];
+        const classId = predictions.output_2[x];
+        const className = options.classNames[classId - 1];
+        const confidence = predictions.output_1[x];
+        detections.push([
+          name,
+          className,
+          classId,
+          confidence,
+          path.join(folder, name),
+          bbox,
+        ]);
+
+        drawRectangle(image, bbox[1], bbox[0], bbox[3], bbox[2], LINE_WIDTH);
+        writeText(font, image, 10, 10, `${className} (${confidence})`);
+        save(options.outputFolder, name, image);
+        x += 1;
+      } else {
+        break;
+      }
+    }
+  } else {
+    detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
+    save(options.outputFolder, name, image);
+  }
+  // TODO: This is the place to catch any exceptions and write an error output
+  // detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
+
+  return detections;
+}
