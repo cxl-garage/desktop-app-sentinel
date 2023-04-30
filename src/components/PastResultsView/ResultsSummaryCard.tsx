@@ -2,7 +2,6 @@ import { Col, Row } from 'antd';
 import { Card } from 'components/ui/Card';
 
 import * as CXLModelResults from 'models/CXLModelResults';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { PUBLIC_DOMAIN_PLACEHOLDER_IMAGE } from 'components/RunModelView/tempMockData';
 import { ModelRunMetadataSummary } from './ModelRunMetadataSummary';
@@ -18,11 +17,6 @@ type Props = {
   imagePathOverride?: string;
 };
 
-const MainResultCardWrapper = styled(CardShadowWrapper)`
-  margin-top: 10px;
-  margin-bottom: 5px;
-`;
-
 export function ResultsSummaryCard({
   modelRunMetadata,
   imagePathOverride,
@@ -36,24 +30,30 @@ export function ResultsSummaryCard({
   const { rundate } = modelRunMetadata;
 
   return (
-    <MainResultCardWrapper>
+    <CardShadowWrapper className="my-4">
       <Card title={rundate.toLocaleDateString('en-US')}>
         <Row gutter={16}>
           <Col span={12}>
             <ModelRunMetadataSummary modelRunMetadata={modelRunMetadata} />
           </Col>
           <Col span={12}>
-            <>
+            <Row>
               {imagePathOverride ? (
                 <ModelRunImagePreview localPath={imagePathOverride} count={6} />
               ) : (
                 <ModelRunImagePreviewPlaceholder count={6} />
               )}
-              <Button onClick={() => navigate(url)}>View all images</Button>
-            </>
+            </Row>
+            <Row>
+              <div className="ml-auto">
+                <Button size="large" type="text" onClick={() => navigate(url)}>
+                  View all images
+                </Button>
+              </div>
+            </Row>
           </Col>
         </Row>
       </Card>
-    </MainResultCardWrapper>
+    </CardShadowWrapper>
   );
 }

@@ -6,11 +6,19 @@ import { Image } from 'components/ui/Image';
 const PUBLIC_DOMAIN_PLACEHOLDER_IMAGE =
   'https://upload.wikimedia.org/wikipedia/commons/0/0a/Standing_jaguar.jpg';
 
-export function ImageGrid({ filePaths }: { filePaths: string[] }): JSX.Element {
+export function ImageGrid({
+  filePaths,
+  imagesPerRow,
+}: {
+  filePaths: string[];
+  imagesPerRow?: number;
+}): JSX.Element {
+  // Grid width is 24 cells, define span to get desired row width
+  const span = Math.round(24 / (imagesPerRow ?? 3));
   return (
     <Row gutter={16}>
       {filePaths.map((imageFilePath) => (
-        <Col span={8} key={imageFilePath}>
+        <Col span={span} key={imageFilePath}>
           <Image src={imageFilePath} />
         </Col>
       ))}
@@ -20,23 +28,27 @@ export function ImageGrid({ filePaths }: { filePaths: string[] }): JSX.Element {
 
 export function ModelRunImagePreviewPlaceholder({
   count,
+  imagesPerRow,
 }: {
   count: number;
+  imagesPerRow?: number;
 }): JSX.Element {
   const imageFilePaths = Array.from(
     { length: count },
     (_value, index: number) =>
       `${PUBLIC_DOMAIN_PLACEHOLDER_IMAGE}?index=${index}`,
   );
-  return <ImageGrid filePaths={imageFilePaths} />;
+  return <ImageGrid filePaths={imageFilePaths} imagesPerRow={imagesPerRow} />;
 }
 
 export function ModelRunImagePreview({
   localPath,
   count,
+  imagesPerRow,
 }: {
   localPath: string;
   count?: number;
+  imagesPerRow?: number;
 }): JSX.Element {
   const {
     data: files,
@@ -67,5 +79,10 @@ export function ModelRunImagePreview({
         file.endsWith('.jpeg'),
     )
     .map((file: string) => `localfile://${file}`);
-  return <ImageGrid filePaths={imageFilePaths.slice(0, count)} />;
+  return (
+    <ImageGrid
+      filePaths={imageFilePaths.slice(0, count)}
+      imagesPerRow={imagesPerRow}
+    />
+  );
 }

@@ -29,6 +29,8 @@ type Props = {
   /** Triggered when this button is clicked. */
   onClick?: React.MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>;
 
+  size?: 'large' | 'middle' | 'small';
+
   /**
    * The target for an anchor button. Only used if the button type is 'link'.
    */
