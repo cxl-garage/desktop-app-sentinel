@@ -1,9 +1,7 @@
 import { Col, Row, Space } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
-import { Card } from 'components/ui/Card';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PUBLIC_DOMAIN_PLACEHOLDER_IMAGE } from 'components/RunModelView/tempMockData';
-import { CardShadowWrapper } from './PastResultsViewStyledComponents';
 import { Button } from '../ui/Button';
 import {
   ModelRunImagePreview,
@@ -17,24 +15,26 @@ export function PastResultsAllPictures(): JSX.Element {
   const navigate = useNavigate();
 
   return (
-    <CardShadowWrapper className="mb-1 mt-2.5">
-      <Card>
-        <Space direction="vertical" size="middle">
-          <Button icon={<LeftOutlined />} onClick={() => navigate(URL)}>
-            Back
-          </Button>
-          <Row gutter={16}>
-            <Col span={24}>
-              {resultsPath &&
-              resultsPath !== PUBLIC_DOMAIN_PLACEHOLDER_IMAGE ? (
-                <ModelRunImagePreview localPath={resultsPath} />
-              ) : (
-                <ModelRunImagePreviewPlaceholder count={20} />
-              )}
-            </Col>
-          </Row>
-        </Space>
-      </Card>
-    </CardShadowWrapper>
+    <Space direction="vertical" size="middle" className="mx-8 my-4">
+      {/* Vertical alignment needed becase icon by default
+              sits too low and looks awkward visually. */}
+      <Button
+        size="large"
+        icon={<LeftOutlined className="align-[1px]" />}
+        onClick={() => navigate(URL)}
+        type="text"
+      >
+        Back
+      </Button>
+      <Row gutter={16}>
+        <Col span={24}>
+          {resultsPath && resultsPath !== PUBLIC_DOMAIN_PLACEHOLDER_IMAGE ? (
+            <ModelRunImagePreview localPath={resultsPath} imagesPerRow={4} />
+          ) : (
+            <ModelRunImagePreviewPlaceholder count={20} imagesPerRow={4} />
+          )}
+        </Col>
+      </Row>
+    </Space>
   );
 }
