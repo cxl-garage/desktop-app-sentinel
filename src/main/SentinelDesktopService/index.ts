@@ -6,7 +6,10 @@ import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
+import type { ImageInfo, ContainerInfo } from 'dockerode';
+import { ModelRunner } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
+import { cleanup, getContainers, getImages, start } from './docker';
 
 // Declare the expected CSV schema
 const LogRecordCSVSchema = z.object({
@@ -26,6 +29,38 @@ const CXLModelResultJSONSchema = z.object({
 });
 
 class SentinelDesktopServiceImpl implements ISentinelDesktopService {
+  runner: ModelRunner;
+
+  constructor() {
+    this.runner = new ModelRunner();
+  }
+
+  getImages(): Promise<ImageInfo[]> {
+    return getImages();
+  }
+
+  async getContainers(): Promise<ContainerInfo[]> {
+    const containers = await getContainers();
+    console.log(JSON.stringify(containers, null, 2));
+    return containers;
+  }
+
+  cleanup(): Promise<void> {
+    return cleanup();
+  }
+
+  async startModel(folder: string, modelName: string): Promise<boolean> {
+    await cleanup();
+    await start(modelName);
+    // TODO: It takes some time for the image to start, so wait
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5000);
+    });
+
+    this.runner.start(folder, modelName);
+    return Promise.resolve(true);
+  }
+
   /**
    * Read log file and convert each log to a LogRecord model.
    *

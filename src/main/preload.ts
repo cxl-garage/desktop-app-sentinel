@@ -20,6 +20,11 @@ const SentinelDesktopServiceBridge = {
     ipcRenderer.invoke('api/cxl-model-results/getAll'),
   getFilesInDir: async (dirPath: string) =>
     ipcRenderer.invoke('api/files/getDir', dirPath),
+  getImages: async () => ipcRenderer.invoke('api/docker/getImages'),
+  getContainers: async () => ipcRenderer.invoke('api/docker/getContainers'),
+  startModel: async (folder: string, modelName: string) =>
+    ipcRenderer.invoke('api/docker/start', folder, modelName),
+  cleanup: async () => ipcRenderer.invoke('api/docker/cleanup'),
 
   // Legacy functions.
   // TODO: These should be either refactored or removed.

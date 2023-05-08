@@ -56,6 +56,29 @@ ipcMain.handle(
   },
 );
 
+ipcMain.handle('api/docker/getImages', async (): Promise<any[]> => {
+  console.log('Calling api/docker/getImages');
+  return SentinelDesktopService.getImages();
+});
+
+ipcMain.handle('api/docker/getContainers', async (): Promise<any[]> => {
+  console.log('Calling api/docker/getContainers');
+  return SentinelDesktopService.getContainers();
+});
+
+ipcMain.handle('api/docker/cleanup', async (): Promise<void> => {
+  console.log('Calling api/docker/cleanup');
+  return SentinelDesktopService.cleanup();
+});
+
+ipcMain.handle(
+  'api/docker/start',
+  async (_event, folder: string, modelName: string): Promise<boolean> => {
+    console.log('Calling api/docker/start');
+    return SentinelDesktopService.startModel(folder, modelName);
+  },
+);
+
 // below 2 functions handle openning and selecting a new directory, using electron's dialog.showOpenDialog
 // used in afterorg.tsx to select folder to get images from and folder to download images to
 
