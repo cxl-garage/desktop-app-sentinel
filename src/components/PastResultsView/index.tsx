@@ -11,8 +11,6 @@ export function PastResultsView(): JSX.Element {
     queryFn: window.SentinelDesktopService.getAllCXLModelResults,
     queryKey: READ_PAST_RESULTS_QUERY,
   });
-  console.log('Past results loaded', pastResults);
-
   const [localPath, setLocalPath] = React.useState('');
 
   const handlePathInput = (
@@ -25,11 +23,12 @@ export function PastResultsView(): JSX.Element {
     return <div>Loading...</div>;
   }
   return (
-    <Row gutter={[16, 16]}>
+    <Row gutter={[16, 16]} className="my-4">
       <Col span={22} offset={1}>
         <Input
-          placeholder="Proof-of-concept local path loader"
+          placeholder="Search results... (currently: proof-of-concept local path loader)"
           onChange={handlePathInput}
+          className="max-w-lg"
         />
         {pastResults?.map((modelRunMetadata) => (
           <ResultsSummaryCard
