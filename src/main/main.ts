@@ -75,7 +75,7 @@ ipcMain.handle(
   'api/docker/start',
   async (_event, folder: string, modelName: string): Promise<boolean> => {
     console.log('Calling api/docker/start');
-    return SentinelDesktopService.start(folder, modelName);
+    return SentinelDesktopService.startModel(folder, modelName);
   },
 );
 

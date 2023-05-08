@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
+import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { ModelRunner } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
 import { cleanup, getContainers, getImages, start } from './docker';
@@ -34,22 +35,21 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     this.runner = new ModelRunner();
   }
 
-  getImages(): Promise<any[]> {
+  getImages(): Promise<ImageInfo[]> {
     return getImages();
   }
 
-  getContainers(): Promise<any[]> {
-    return getContainers().then((c) => {
-      console.log(JSON.stringify(c, null, 2));
-      return c;
-    });
+  async getContainers(): Promise<ContainerInfo[]> {
+    const containers = await getContainers();
+    console.log(JSON.stringify(containers, null, 2));
+    return containers;
   }
 
   cleanup(): Promise<void> {
     return cleanup();
   }
 
-  async start(folder: string, modelName: string): Promise<boolean> {
+  async startModel(folder: string, modelName: string): Promise<boolean> {
     await cleanup();
     await start(modelName);
     // TODO: It takes some time for the image to start, so wait

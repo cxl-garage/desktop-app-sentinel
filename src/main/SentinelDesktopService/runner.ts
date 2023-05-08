@@ -3,21 +3,32 @@ import * as async from 'async';
 import { detect } from './detect';
 import { getClassNames } from './docker';
 
+type JobTask = {
+  folder: string;
+  file: string;
+  options: {
+    inputSize: number;
+    threshold: number;
+    modelName: string;
+    classNames: string[];
+    outputFolder: string;
+  };
+};
+
 export class ModelRunner {
   queue: async.QueueObject<any>;
 
   constructor() {
-    this.queue = async.queue(async function (task: any, callback) {
-      // eslint-disable-next-line promise/catch-or-return, promise/always-return
+    this.queue = async.queue(async (task: JobTask, callback) => {
       await detect(task.folder, task.file, task.options);
       callback();
     }, 3);
   }
 
-  stats(): any {
+  stats(): { idle: boolean; length: number } {
     return {
-      idle: this.queue.idle,
-      length: this.queue.length,
+      idle: this.queue.idle(),
+      length: this.queue.length(),
     };
   }
 

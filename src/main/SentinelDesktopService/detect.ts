@@ -2,7 +2,6 @@
  * Functions to invoke the docker container to detect features
  * in an image.
  */
-
 import path from 'path';
 import {
   drawRectangle,
@@ -29,8 +28,8 @@ export async function detect(
   folder: string,
   name: string,
   options: DetectOptions,
-): Promise<string[]> {
-  const detections: any[] = [];
+): Promise<Array<Array<string | number>>> {
+  const detections: Array<Array<string | number>> = [];
 
   // Read the image and resize if necessary if the image type is supported
   console.log(`Detecting ${name}`);

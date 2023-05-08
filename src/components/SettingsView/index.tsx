@@ -1,22 +1,18 @@
 import React from 'react';
 import { Button, Table, Typography } from 'antd';
-// import docker from '../../../assets/docker.png';
+import type { ImageInfo, ContainerInfo } from 'dockerode';
 
 export function SettingsView(): JSX.Element {
-  const [images, setImages] = React.useState<any[]>([]);
-  const [containers, setContainers] = React.useState<any[]>([]);
-
-  // const handleClick = (): void => {
-  //   window.SentinelDesktopService.openWindow(
-  //     'https://www.docker.com/products/docker-desktop/',
-  //   );
-  // };
+  const [images, setImages] = React.useState<readonly ImageInfo[]>([]);
+  const [containers, setContainers] = React.useState<readonly ContainerInfo[]>(
+    [],
+  );
 
   const start = (): void => {
     // TODO: Should get from API.
-    const folder = '/Users/jslott/ts/desktop-app-sentinel/data';
+    const folder = './data';
     const modelName = 'osa_jaguar';
-    window.SentinelDesktopService.start(folder, modelName);
+    window.SentinelDesktopService.startModel(folder, modelName);
   };
 
   const stopAll = (): void => {

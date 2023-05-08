@@ -4,6 +4,8 @@
 
 import Jimp from 'jimp';
 import path from 'path';
+import { ColorActionName } from '@jimp/plugin-color';
+import type { Font } from '@jimp/plugin-print';
 
 /**
  * Reads an image.
@@ -94,9 +96,7 @@ export function drawRectangle(
   });
 }
 
-// TODO: Can't figure out how to use Font interface here,
-// so use 'any' for now
-export async function loadFont(): Promise<any> {
+export async function loadFont(): Promise<Font> {
   return Jimp.loadFont(Jimp.FONT_SANS_12_BLACK);
 }
 
@@ -109,7 +109,7 @@ export async function loadFont(): Promise<any> {
  */
 // TODO: Write this is different colors (e.g. red)
 export async function writeText(
-  font: any,
+  font: Font,
   image: Jimp,
   x: number,
   y: number,
@@ -121,7 +121,7 @@ export async function writeText(
   textImage.print(font, x, y, text);
   textImage.color([
     {
-      apply: 'xor' as any,
+      apply: ColorActionName.XOR,
       params: ['#ff0000ff'],
     },
   ]);

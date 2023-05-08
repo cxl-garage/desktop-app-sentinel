@@ -7,6 +7,6 @@ export interface ISentinelDesktopService {
   getFilesInDir: (dirPath: string) => Promise<string[]>;
   getImages: () => Promise<any[]>;
   getContainers: () => Promise<any[]>;
-  start: (folder: string, modelName: string) => Promise<boolean>;
+  startModel: (folder: string, modelName: string) => Promise<boolean>;
   cleanup: () => Promise<void>;
 }

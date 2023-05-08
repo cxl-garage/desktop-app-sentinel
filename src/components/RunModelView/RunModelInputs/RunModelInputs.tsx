@@ -73,7 +73,7 @@ function RunModelInputs(): JSX.Element {
                 previous[key] = _.omit(value, 'ref');
                 return previous;
               },
-              {} as object,
+              {} as Record<string, unknown>,
             )}
           />
           <ReactJson name="touchedFields" src={touchedFields} />

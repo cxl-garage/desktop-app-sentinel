@@ -1,5 +1,6 @@
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
+import type { ImageInfo, ContainerInfo } from 'dockerode';
 
 declare global {
   interface Window {
@@ -9,9 +10,9 @@ declare global {
       getAllLogRecords: () => Promise<LogRecord.T[]>;
       getAllCXLModelResults: () => Promise<CXLModelResults.T[]>;
       getFilesInDir: (dirPath: string) => Promise<string[]>;
-      getImages: () => Promise<any[]>;
-      getContainers: () => Promise<any[]>;
-      start: (folder: string, modelName: string) => Promise<boolean>;
+      getImages: () => Promise<ImageInfo[]>;
+      getContainers: () => Promise<ContainerInfo[]>;
+      startModel: (folder: string, modelName: string) => Promise<boolean>;
       cleanup: () => Promise<void>;
 
       // deprecated functions (need refactoring)
