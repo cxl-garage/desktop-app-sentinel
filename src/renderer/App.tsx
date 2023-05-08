@@ -18,6 +18,7 @@ import { SettingsView } from 'components/SettingsView';
 import { AfterOrgInput } from 'pages-DEPRECATED/afterorg';
 import { Sidebar } from 'components/Layout/Sidebar';
 import { Navbar } from 'components/Layout/Navbar';
+import { PastResultsAllPictures } from 'components/PastResultsView/PastResultsAllPictures';
 
 const QUERY_CLIENT = new QueryClient();
 const { Header, Sider, Content } = Layout;
@@ -91,10 +92,13 @@ export default function App(): JSX.Element {
                       <Route path="/" element={<Navigate to="/run-model" />} />
                       <Route path="/run-model" element={<RunModelView />} />
                       <Route path="/logs" element={<LogsView />} />
-                      <Route
-                        path="/past-results"
-                        element={<PastResultsView />}
-                      />
+                      <Route path="/past-results">
+                        <Route index element={<PastResultsView />} />
+                        <Route
+                          path=":resultsPath"
+                          element={<PastResultsAllPictures />}
+                        />
+                      </Route>
                       <Route
                         path="/more-models"
                         element={<ModelMarketplaceView />}
