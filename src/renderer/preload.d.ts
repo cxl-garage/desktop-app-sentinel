@@ -1,5 +1,6 @@
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
+import { DockerVersion } from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 
 declare global {
@@ -12,6 +13,7 @@ declare global {
       getFilesInDir: (dirPath: string) => Promise<string[]>;
       getImages: () => Promise<ImageInfo[]>;
       getContainers: () => Promise<ContainerInfo[]>;
+      getVersion: () => Promise<DockerVersion>;
       startModel: (folder: string, modelName: string) => Promise<boolean>;
       cleanup: () => Promise<void>;
 

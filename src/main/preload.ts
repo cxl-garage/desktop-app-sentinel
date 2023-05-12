@@ -22,6 +22,7 @@ const SentinelDesktopServiceBridge = {
     ipcRenderer.invoke('api/files/getDir', dirPath),
   getImages: async () => ipcRenderer.invoke('api/docker/getImages'),
   getContainers: async () => ipcRenderer.invoke('api/docker/getContainers'),
+  getVersion: async () => ipcRenderer.invoke('api/docker/getVersion'),
   startModel: async (folder: string, modelName: string) =>
     ipcRenderer.invoke('api/docker/start', folder, modelName),
   cleanup: async () => ipcRenderer.invoke('api/docker/cleanup'),

@@ -15,6 +15,7 @@ import { PythonShell } from 'python-shell';
 import invariant from 'invariant';
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
+import { DockerVersion } from 'models/DockerVersion';
 import * as urllib from 'url';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
@@ -64,6 +65,10 @@ ipcMain.handle('api/docker/getImages', async (): Promise<any[]> => {
 ipcMain.handle('api/docker/getContainers', async (): Promise<any[]> => {
   console.log('Calling api/docker/getContainers');
   return SentinelDesktopService.getContainers();
+});
+
+ipcMain.handle('api/docker/getVersion', async (): Promise<DockerVersion> => {
+  return SentinelDesktopService.getVersion();
 });
 
 ipcMain.handle('api/docker/cleanup', async (): Promise<void> => {

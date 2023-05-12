@@ -6,10 +6,11 @@ import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
+import { DockerVersion } from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { ModelRunner } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
-import { cleanup, getContainers, getImages, start } from './docker';
+import { cleanup, getContainers, getImages, getVersion, start } from './docker';
 
 // Declare the expected CSV schema
 const LogRecordCSVSchema = z.object({
@@ -33,6 +34,10 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
 
   constructor() {
     this.runner = new ModelRunner();
+  }
+
+  async getVersion(): Promise<DockerVersion> {
+    return getVersion();
   }
 
   getImages(): Promise<ImageInfo[]> {
