@@ -33,3 +33,7 @@ __pycache__/
 *.py[cod]
 
 data
+
+# prisma
+prisma/dev.db
+prisma/migrations

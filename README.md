@@ -9,7 +9,8 @@ Python version `3.10.2`
 ## Local setup
 
 1. After cloning and going into repo, run `yarn install`
-2. To start the app, run `yarn start`
+2. Initiliaze the local sqlite db by running `yarn make-db`
+3. To start the app, run `yarn start`
 
 ## Helpful Resources for Electron Inter-Process Communication
 

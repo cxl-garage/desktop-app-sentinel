@@ -7,9 +7,12 @@ import { v4 as uuid } from 'uuid';
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
+import { PrismaClient } from '@prisma/client';
 import { ModelRunner } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
 import { cleanup, getContainers, getImages, start } from './docker';
+
+const prisma = new PrismaClient();
 
 // Declare the expected CSV schema
 const LogRecordCSVSchema = z.object({
@@ -49,7 +52,27 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     return cleanup();
   }
 
+  async fetchRuns(): Promise<void> {
+    const modelRuns = await prisma.modelRun.findMany();
+    console.log('PREVIOUS RUNS: ');
+    console.log(modelRuns);
+  }
+
+  async registerRun(modelName: string): Promise<void> {
+    const modelRun = await prisma.modelRun.create({
+      data: {
+        modelName,
+        outputPath: 'placeholder_path/output',
+        startTime: Math.round(Date.now() / 1000),
+      },
+    });
+    console.log('NEW RUN: ');
+    console.log(modelRun);
+  }
+
   async startModel(folder: string, modelName: string): Promise<boolean> {
+    await this.fetchRuns();
+    await this.registerRun(modelName);
     await cleanup();
     await start(modelName);
     // TODO: It takes some time for the image to start, so wait
