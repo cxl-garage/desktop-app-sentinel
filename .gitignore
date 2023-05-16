@@ -34,8 +34,6 @@ __pycache__/
 
 data
 
-.env
-
 # prisma
 prisma/dev.db
 prisma/migrations
