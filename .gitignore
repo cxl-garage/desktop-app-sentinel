@@ -33,3 +33,9 @@ __pycache__/
 *.py[cod]
 
 data
+
+.env
+
+# prisma
+prisma/dev.db
+prisma/migrations
