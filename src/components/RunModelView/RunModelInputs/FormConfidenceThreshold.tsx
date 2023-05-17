@@ -2,13 +2,13 @@ import { Form } from 'antd';
 import React from 'react';
 import { useController } from 'react-hook-form';
 import { Control } from 'react-hook-form/dist/types';
-import IModelInputs from '../types/IModelInputs';
+import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
 import PercentageSlider from './PercentageSlider';
 
 function FormConfidenceThreshold({
   control,
 }: {
-  control?: Control<IModelInputs>;
+  control?: Control<IRunModelInputsFormValues>;
 }): JSX.Element {
   const { field, fieldState } = useController({
     control,

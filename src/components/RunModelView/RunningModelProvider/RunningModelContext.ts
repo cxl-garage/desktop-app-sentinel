@@ -5,7 +5,7 @@ import { PUBLIC_DOMAIN_PLACEHOLDER_IMAGE } from '../tempMockData';
 import { AnyAction } from '../types/Action';
 import ActionTypes from '../types/ActionTypes';
 import ERunningImageStatus from '../types/ERunningImageStatus';
-import IModelInputs from '../types/IModelInputs';
+import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
 import IRunningModel from '../types/IRunningModel';
 import { delay } from '../utils/commonUtils';
 
@@ -46,11 +46,12 @@ const createModel = (): IRunningModel => {
 };
 
 export const useStartModelRun = (): ((
-  params: IModelInputs,
+  params: IRunModelInputsFormValues,
 ) => Promise<void>) => {
   const dispatch = useRunningModelDispatch();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const startModelRun = async (modelInputs: IModelInputs): Promise<void> => {
+  const startModelRun = async (
+    _modelInputs: IRunModelInputsFormValues,
+  ): Promise<void> => {
     const newModel = createModel();
     dispatch({ type: ActionTypes.MODEL_RUN_REQUESTED, model: newModel });
     const batches = R.chunk(newModel?.images ?? [], BATCH_SIZE);

@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import IRunModelOptions from '../models/IRunModelOptions';
 
 export type Channels = ['ipc-example', 'mainChannel'];
 
@@ -22,9 +23,10 @@ const SentinelDesktopServiceBridge = {
     ipcRenderer.invoke('api/files/getDir', dirPath),
   getImages: async () => ipcRenderer.invoke('api/docker/getImages'),
   getContainers: async () => ipcRenderer.invoke('api/docker/getContainers'),
-  startModel: async (folder: string, modelName: string) =>
-    ipcRenderer.invoke('api/docker/start', folder, modelName),
+  startModel: async (options: IRunModelOptions) =>
+    ipcRenderer.invoke('api/docker/start', options),
   cleanup: async () => ipcRenderer.invoke('api/docker/cleanup'),
+  getModelNames: async () => ipcRenderer.invoke('api/docker/getModelNames'),
 
   // Legacy functions.
   // TODO: These should be either refactored or removed.

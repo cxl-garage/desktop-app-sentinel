@@ -13,12 +13,14 @@ import {
   loadFont,
 } from './image';
 
+export type OutputStyle = 'class' | 'hierarchy' | 'flat' | 'timelapse' | 'none';
 export type DetectOptions = {
   inputSize?: number;
   threshold?: number;
   modelName: string;
   classNames: string[];
   outputFolder: string;
+  outputStyle: OutputStyle; // TODO, this is currently not being used
 };
 
 const DEFAULT_THRESHOLD = 0.4;

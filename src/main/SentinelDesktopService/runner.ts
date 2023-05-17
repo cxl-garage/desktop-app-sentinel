@@ -1,6 +1,6 @@
 import fs from 'fs';
 import * as async from 'async';
-import { detect } from './detect';
+import { detect, DetectOptions, OutputStyle } from './detect';
 import { getClassNames } from './docker';
 
 type JobTask = {
@@ -12,6 +12,7 @@ type JobTask = {
     modelName: string;
     classNames: string[];
     outputFolder: string;
+    outputStyle: EOutputStyle;
   };
 };
 
@@ -32,22 +33,38 @@ export class ModelRunner {
     };
   }
 
-  start(folder: string, modelName: string): void {
+  start({
+    inputFolder,
+    outputFolder,
+    outputStyle,
+    threshold,
+    modelName,
+  }: {
+    inputFolder: string;
+    outputFolder: string;
+    outputStyle: OutputStyle;
+    threshold: number;
+    modelName: string;
+  }): void {
     // This information should be exposed to the GUI
-    const options = {
-      inputSize: 256,
-      threshold: 0.4,
+    const options: DetectOptions = {
+      // inputSize: 256,
+      threshold,
       modelName,
       classNames: getClassNames(modelName),
-      outputFolder: `${folder}/output`,
+      outputFolder,
+      outputStyle,
     };
 
-    fs.readdir(folder, (err, files) => {
+    fs.readdir(inputFolder, (err, files) => {
       files.forEach((file) => {
         console.log(`Processing ${file}`);
-        this.queue.push({ folder, file, options }, function (_err) {
-          console.log(`Finished processing ${file}`);
-        });
+        this.queue.push(
+          { folder: inputFolder, file, options },
+          function (_err) {
+            console.log(`Finished processing ${file}`);
+          },
+        );
       });
     });
   }

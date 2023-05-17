@@ -16,6 +16,7 @@ import invariant from 'invariant';
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import * as urllib from 'url';
+import IRunModelOptions from '../models/IRunModelOptions';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { SentinelDesktopService } from './SentinelDesktopService';
@@ -73,9 +74,17 @@ ipcMain.handle('api/docker/cleanup', async (): Promise<void> => {
 
 ipcMain.handle(
   'api/docker/start',
-  async (_event, folder: string, modelName: string): Promise<boolean> => {
+  async (_event, options: IRunModelOptions): Promise<boolean> => {
     console.log('Calling api/docker/start');
-    return SentinelDesktopService.startModel(folder, modelName);
+    return SentinelDesktopService.startModel(options);
+  },
+);
+
+ipcMain.handle(
+  'api/docker/getModelNames',
+  async (_event): Promise<string[]> => {
+    console.log('Calling api/docker/getModelNames');
+    return SentinelDesktopService.getModelNames();
   },
 );
 

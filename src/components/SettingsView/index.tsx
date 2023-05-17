@@ -1,6 +1,7 @@
-import React from 'react';
 import { Button, Table, Typography } from 'antd';
-import type { ImageInfo, ContainerInfo } from 'dockerode';
+import type { ContainerInfo, ImageInfo } from 'dockerode';
+import React from 'react';
+import { EOutputStyle } from '../../models/IRunModelOptions';
 
 export function SettingsView(): JSX.Element {
   const [images, setImages] = React.useState<readonly ImageInfo[]>([]);
@@ -9,10 +10,14 @@ export function SettingsView(): JSX.Element {
   );
 
   const start = (): void => {
-    // TODO: Should get from API.
-    const folder = './data';
-    const modelName = 'osa_jaguar';
-    window.SentinelDesktopService.startModel(folder, modelName);
+    // Test run startModel
+    window.SentinelDesktopService.startModel({
+      modelName: 'osa_jaguar',
+      outputStyle: EOutputStyle.FLAT,
+      confidenceThreshold: 0.4,
+      outputDirectory: './output',
+      inputDirectory: './data',
+    });
   };
 
   const stopAll = (): void => {
