@@ -8,6 +8,9 @@ import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import { DockerVersion } from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
+import { PrismaClient } from '@prisma/client';
+import { app } from 'electron';
+import IRunModelOptions from '../../models/IRunModelOptions';
 import { ModelRunner } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
 import { cleanup, getContainers, getImages, getVersion, start } from './docker';
@@ -32,8 +35,24 @@ const CXLModelResultJSONSchema = z.object({
 class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   runner: ModelRunner;
 
+  prisma: PrismaClient;
+
   constructor() {
     this.runner = new ModelRunner();
+    this.prisma = new PrismaClient(
+      app.isPackaged
+        ? {
+            datasources: {
+              db: {
+                url: `file:${path.join(
+                  process.resourcesPath,
+                  'prisma/dev.db',
+                )}`,
+              },
+            },
+          }
+        : undefined,
+    );
   }
 
   async getVersion(): Promise<DockerVersion> {
@@ -54,15 +73,45 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     return cleanup();
   }
 
-  async startModel(folder: string, modelName: string): Promise<boolean> {
+  async fetchRuns(): Promise<void> {
+    const modelRuns = await this.prisma.modelRun.findMany();
+    console.log('PREVIOUS RUNS: ');
+    console.log(modelRuns);
+  }
+
+  async registerRun(modelName: string): Promise<void> {
+    const modelRun = await this.prisma.modelRun.create({
+      data: {
+        modelName,
+        outputPath: 'placeholder_path/output',
+        startTime: Math.round(Date.now() / 1000),
+      },
+    });
+    console.log('NEW RUN: ');
+    console.log(modelRun);
+  }
+
+  async getModelNames(): Promise<string[]> {
+    const modelNames = getModelNames();
+    return modelNames;
+  }
+
+  async startModel(options: IRunModelOptions): Promise<boolean> {
     await cleanup();
-    await start(modelName);
+    await start(options.modelName);
+
     // TODO: It takes some time for the image to start, so wait
     await new Promise((resolve) => {
       setTimeout(resolve, 5000);
     });
 
-    this.runner.start(folder, modelName);
+    this.runner.start({
+      inputFolder: options.inputDirectory,
+      outputFolder: options.outputDirectory,
+      outputStyle: options.outputStyle,
+      threshold: options.confidenceThreshold,
+      modelName: options.modelName,
+    });
     return Promise.resolve(true);
   }
 

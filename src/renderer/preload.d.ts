@@ -2,6 +2,7 @@ import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import { DockerVersion } from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
+import IRunModelOptions from '../models/IRunModelOptions';
 
 declare global {
   interface Window {
@@ -14,8 +15,9 @@ declare global {
       getImages: () => Promise<ImageInfo[]>;
       getContainers: () => Promise<ContainerInfo[]>;
       getVersion: () => Promise<DockerVersion>;
-      startModel: (folder: string, modelName: string) => Promise<boolean>;
+      startModel: (options: IRunModelOptions) => Promise<boolean>;
       cleanup: () => Promise<void>;
+      getModelNames: () => Promise<string[]>;
 
       // deprecated functions (need refactoring)
       findOrgModels: (arg: any) => Promise<any>;

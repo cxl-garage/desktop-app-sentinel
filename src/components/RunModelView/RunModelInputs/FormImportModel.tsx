@@ -1,41 +1,34 @@
-import { DownloadOutlined } from '@ant-design/icons';
-import { Form } from 'antd';
-import React from 'react';
+import { Form, Select } from 'antd';
 import { useController } from 'react-hook-form';
 import { Control } from 'react-hook-form/dist/types';
-import { FileInput } from '../../ui/FileInput';
-import IModelInputs from '../types/IModelInputs';
+import useModelNames from '../hooks/useModelNames';
+import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
 
 function FormImportModel({
   control,
 }: {
-  control?: Control<IModelInputs>;
+  control?: Control<IRunModelInputsFormValues>;
 }): JSX.Element {
   const { field, fieldState } = useController({
     control,
-    name: 'model',
+    name: 'modelName',
     rules: { required: 'Model is required' },
   });
+  const { data: modelNames } = useModelNames();
+
+  /* eslint-disable react/jsx-props-no-spreading */
   return (
     <Form.Item
       label="Import model"
       required
       validateStatus={fieldState.error && 'error'}
       help={fieldState.error?.message}
-      wrapperCol={{ span: 12 }}
+      wrapperCol={{ span: 24 }}
     >
-      <FileInput
-        type="drag-area"
-        onFileSelected={(info) => {
-          field.onChange(info.file.name);
-          field.onBlur(); // trigger validation
-        }}
-      >
-        <div className="mx-2">
-          <DownloadOutlined />
-          <div>Drag & Drop or browse your device</div>
-        </div>
-      </FileInput>
+      <Select
+        options={modelNames?.map((name) => ({ label: name, value: name }))}
+        {...field}
+      />
     </Form.Item>
   );
 }

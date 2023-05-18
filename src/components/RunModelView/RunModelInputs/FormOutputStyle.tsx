@@ -2,13 +2,14 @@ import { Form } from 'antd';
 import React from 'react';
 import { useController } from 'react-hook-form';
 import { Control } from 'react-hook-form/dist/types';
+import { EOutputStyle } from '../../../models/IRunModelOptions';
 import { Select } from '../../ui/Select';
-import IModelInputs from '../types/IModelInputs';
+import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
 
 function FormOutputStyle({
   control,
 }: {
-  control?: Control<IModelInputs>;
+  control?: Control<IRunModelInputsFormValues>;
 }): JSX.Element {
   const { field, fieldState } = useController({
     control,
@@ -27,12 +28,24 @@ function FormOutputStyle({
         placeholder="Select an option"
         options={[
           {
-            label: 'Option 1',
-            value: 'opt1',
+            label: 'Class',
+            value: EOutputStyle.CLASS,
           },
           {
-            label: 'Option 2',
-            value: 'opt2',
+            label: 'Hierarchy',
+            value: EOutputStyle.HIERARCHY,
+          },
+          {
+            label: 'Flat',
+            value: EOutputStyle.FLAT,
+          },
+          {
+            label: 'Timelapse',
+            value: EOutputStyle.TIMELAPSE,
+          },
+          {
+            label: 'None',
+            value: EOutputStyle.NONE,
           },
         ]}
         value={field.value}
