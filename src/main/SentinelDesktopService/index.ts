@@ -8,10 +8,17 @@ import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { PrismaClient } from '@prisma/client';
+import IRunModelOptions from '../../models/IRunModelOptions';
 import { app } from 'electron';
 import { ModelRunner } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
-import { cleanup, getContainers, getImages, start } from './docker';
+import {
+  cleanup,
+  getModelNames,
+  getContainers,
+  getImages,
+  start,
+} from './docker';
 
 // Declare the expected CSV schema
 const LogRecordCSVSchema = z.object({
@@ -85,17 +92,27 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     console.log(modelRun);
   }
 
-  async startModel(folder: string, modelName: string): Promise<boolean> {
-    await this.fetchRuns();
-    await this.registerRun(modelName);
+  async getModelNames(): Promise<string[]> {
+    const modelNames = getModelNames();
+    return modelNames;
+  }
+
+  async startModel(options: IRunModelOptions): Promise<boolean> {
     await cleanup();
-    await start(modelName);
+    await start(options.modelName);
+
     // TODO: It takes some time for the image to start, so wait
     await new Promise((resolve) => {
       setTimeout(resolve, 5000);
     });
 
-    this.runner.start(folder, modelName);
+    this.runner.start({
+      inputFolder: options.inputDirectory,
+      outputFolder: options.outputDirectory,
+      outputStyle: options.outputStyle,
+      threshold: options.confidenceThreshold,
+      modelName: options.modelName,
+    });
     return Promise.resolve(true);
   }
 

@@ -2,13 +2,13 @@ import { Form } from 'antd';
 import React from 'react';
 import { useController } from 'react-hook-form';
 import { Control } from 'react-hook-form/dist/types';
-import { FileInput } from '../../ui/FileInput';
-import IModelInputs from '../types/IModelInputs';
+import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
+import DirectoryInput from './formItems/DirectoryInput';
 
 function FormOutputDirectory({
   control,
 }: {
-  control?: Control<IModelInputs>;
+  control?: Control<IRunModelInputsFormValues>;
 }): JSX.Element {
   const { field, fieldState } = useController({
     control,
@@ -22,16 +22,7 @@ function FormOutputDirectory({
       validateStatus={fieldState.error && 'error'}
       help={fieldState.error?.message}
     >
-      <FileInput
-        directory
-        type="button"
-        onFileSelected={(info) => {
-          field.onChange(info.file.name);
-          field.onBlur(); // trigger validation
-        }}
-      >
-        Choose a directory
-      </FileInput>
+      <DirectoryInput value={field.value} onChange={field.onChange} />
     </Form.Item>
   );
 }
