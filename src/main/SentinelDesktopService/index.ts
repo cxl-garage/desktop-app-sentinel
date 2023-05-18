@@ -9,6 +9,7 @@ import * as CXLModelResults from 'models/CXLModelResults';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { PrismaClient } from '@prisma/client';
 import IRunModelOptions from '../../models/IRunModelOptions';
+import { app } from 'electron';
 import { ModelRunner } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
 import {
@@ -18,8 +19,6 @@ import {
   getImages,
   start,
 } from './docker';
-
-const prisma = new PrismaClient();
 
 // Declare the expected CSV schema
 const LogRecordCSVSchema = z.object({
@@ -41,8 +40,24 @@ const CXLModelResultJSONSchema = z.object({
 class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   runner: ModelRunner;
 
+  prisma: PrismaClient;
+
   constructor() {
     this.runner = new ModelRunner();
+    this.prisma = new PrismaClient(
+      app.isPackaged
+        ? {
+            datasources: {
+              db: {
+                url: `file:${path.join(
+                  process.resourcesPath,
+                  'prisma/dev.db',
+                )}`,
+              },
+            },
+          }
+        : undefined,
+    );
   }
 
   getImages(): Promise<ImageInfo[]> {
@@ -60,13 +75,13 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   }
 
   async fetchRuns(): Promise<void> {
-    const modelRuns = await prisma.modelRun.findMany();
+    const modelRuns = await this.prisma.modelRun.findMany();
     console.log('PREVIOUS RUNS: ');
     console.log(modelRuns);
   }
 
   async registerRun(modelName: string): Promise<void> {
-    const modelRun = await prisma.modelRun.create({
+    const modelRun = await this.prisma.modelRun.create({
       data: {
         modelName,
         outputPath: 'placeholder_path/output',
