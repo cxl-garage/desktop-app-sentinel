@@ -1,11 +1,9 @@
 import { Form, Select } from 'antd';
-import React from 'react';
 import { useController } from 'react-hook-form';
 import { Control } from 'react-hook-form/dist/types';
 import useModelNames from '../hooks/useModelNames';
 import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
 
-/* eslint-disable react/jsx-props-no-spreading */
 function FormImportModel({
   control,
 }: {
@@ -17,6 +15,8 @@ function FormImportModel({
     rules: { required: 'Model is required' },
   });
   const { data: modelNames } = useModelNames();
+
+  /* eslint-disable react/jsx-props-no-spreading */
   return (
     <Form.Item
       label="Import model"
