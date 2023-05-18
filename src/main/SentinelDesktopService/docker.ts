@@ -1,11 +1,32 @@
 /**
  * Functions to interact with docker.
  */
+import * as DockerVersion from 'models/DockerVersion';
 import Docker, { ImageInfo, ContainerInfo } from 'dockerode';
 
 // TODO: Maybe this all should be encapsulated in a class
 const docker = new Docker();
 const CONTAINER_NAME = 'sentinel';
+
+/**
+ * Gets basic version information about the docker engine, including
+ * whether it is running or not.
+ * @returns the docker engine version or an error
+ */
+export async function getVersion(): Promise<DockerVersion.T> {
+  try {
+    const version = await docker.version();
+    return {
+      name: version.Platform.Name,
+      version: version.Version,
+      arch: version.Arch,
+      kernel: version.KernelVersion,
+      os: version.Os,
+    };
+  } catch (error: any) {
+    return { error: error.toString() };
+  }
+}
 
 /**
  * Checks whether the needed image is installed in docker locally.

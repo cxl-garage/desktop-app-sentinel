@@ -6,19 +6,14 @@ import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
+import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { PrismaClient } from '@prisma/client';
-import IRunModelOptions from '../../models/IRunModelOptions';
 import { app } from 'electron';
+import IRunModelOptions from '../../models/IRunModelOptions';
 import { ModelRunner } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
-import {
-  cleanup,
-  getModelNames,
-  getContainers,
-  getImages,
-  start,
-} from './docker';
+import { cleanup, getContainers, getImages, getVersion, start } from './docker';
 
 // Declare the expected CSV schema
 const LogRecordCSVSchema = z.object({
@@ -58,6 +53,10 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
           }
         : undefined,
     );
+  }
+
+  async getVersion(): Promise<DockerVersion.T> {
+    return getVersion();
   }
 
   getImages(): Promise<ImageInfo[]> {
