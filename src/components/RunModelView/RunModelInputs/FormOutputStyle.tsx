@@ -2,7 +2,7 @@ import { Form } from 'antd';
 import React from 'react';
 import { useController } from 'react-hook-form';
 import { Control } from 'react-hook-form/dist/types';
-import { EOutputStyle } from '../../../models/IRunModelOptions';
+import * as RunModelOptions from '../../../models/RunModelOptions';
 import { Select } from '../../ui/Select';
 import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
 
@@ -29,23 +29,23 @@ function FormOutputStyle({
         options={[
           {
             label: 'Class',
-            value: EOutputStyle.CLASS,
+            value: RunModelOptions.EOutputStyle.CLASS,
           },
           {
             label: 'Hierarchy',
-            value: EOutputStyle.HIERARCHY,
+            value: RunModelOptions.EOutputStyle.HIERARCHY,
           },
           {
             label: 'Flat',
-            value: EOutputStyle.FLAT,
+            value: RunModelOptions.EOutputStyle.FLAT,
           },
           {
             label: 'Timelapse',
-            value: EOutputStyle.TIMELAPSE,
+            value: RunModelOptions.EOutputStyle.TIMELAPSE,
           },
           {
             label: 'None',
-            value: EOutputStyle.NONE,
+            value: RunModelOptions.EOutputStyle.NONE,
           },
         ]}
         value={field.value}

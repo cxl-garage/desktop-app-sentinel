@@ -6,7 +6,7 @@ export enum EOutputStyle {
   NONE = 'none',
 }
 
-interface IRunModelOptions {
+interface RunModelOptions {
   modelName: string;
   outputStyle: EOutputStyle;
   confidenceThreshold: number;
@@ -14,4 +14,4 @@ interface IRunModelOptions {
   outputDirectory: string;
 }
 
-export default IRunModelOptions;
+export { RunModelOptions as T };

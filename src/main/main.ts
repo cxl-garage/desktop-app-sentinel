@@ -17,7 +17,7 @@ import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import * as DockerVersion from 'models/DockerVersion';
 import * as urllib from 'url';
-import IRunModelOptions from '../models/IRunModelOptions';
+import * as RunModelOptions from '../models/RunModelOptions';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { SentinelDesktopService } from './SentinelDesktopService';
@@ -79,7 +79,7 @@ ipcMain.handle('api/docker/cleanup', async (): Promise<void> => {
 
 ipcMain.handle(
   'api/docker/start',
-  async (_event, options: IRunModelOptions): Promise<boolean> => {
+  async (_event, options: RunModelOptions.T): Promise<boolean> => {
     console.log('Calling api/docker/start');
     return SentinelDesktopService.startModel(options);
   },

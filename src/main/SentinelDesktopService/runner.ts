@@ -2,6 +2,7 @@ import fs from 'fs';
 import * as async from 'async';
 import { detect, DetectOptions, OutputStyle } from './detect';
 import { getClassNames } from './docker';
+import * as RunModelOptions from '../../models/RunModelOptions';
 
 type JobTask = {
   folder: string;
@@ -12,7 +13,7 @@ type JobTask = {
     modelName: string;
     classNames: string[];
     outputFolder: string;
-    outputStyle: EOutputStyle;
+    outputStyle: RunModelOptions.EOutputStyle;
   };
 };
 

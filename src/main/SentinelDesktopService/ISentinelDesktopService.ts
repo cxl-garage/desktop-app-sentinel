@@ -1,7 +1,7 @@
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import * as DockerVersion from 'models/DockerVersion';
-import IRunModelOptions from '../../models/IRunModelOptions';
+import * as RunModelOptions from '../../models/RunModelOptions';
 
 export interface ISentinelDesktopService {
   getAllLogRecords(): Promise<LogRecord.T[]>;
@@ -10,7 +10,7 @@ export interface ISentinelDesktopService {
   getImages: () => Promise<any[]>;
   getContainers: () => Promise<any[]>;
   getVersion: () => Promise<DockerVersion.T>;
-  startModel: (options: IRunModelOptions) => Promise<boolean>;
+  startModel: (options: RunModelOptions.T) => Promise<boolean>;
   cleanup: () => Promise<void>;
   getModelNames: () => Promise<string[]>;
 }

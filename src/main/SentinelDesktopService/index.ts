@@ -10,10 +10,17 @@ import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { PrismaClient } from '@prisma/client';
 import { app } from 'electron';
-import IRunModelOptions from '../../models/IRunModelOptions';
+import * as RunModelOptions from '../../models/RunModelOptions';
 import { ModelRunner } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
-import { cleanup, getContainers, getImages, getVersion, start } from './docker';
+import {
+  cleanup,
+  getModelNames,
+  getContainers,
+  getImages,
+  getVersion,
+  start,
+} from './docker';
 
 // Declare the expected CSV schema
 const LogRecordCSVSchema = z.object({
@@ -96,7 +103,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     return modelNames;
   }
 
-  async startModel(options: IRunModelOptions): Promise<boolean> {
+  async startModel(options: RunModelOptions.T): Promise<boolean> {
     await cleanup();
     await start(options.modelName);
 

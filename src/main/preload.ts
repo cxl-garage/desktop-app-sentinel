@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import IRunModelOptions from '../models/IRunModelOptions';
+import * as RunModelOptions from '../models/RunModelOptions';
 
 export type Channels = ['ipc-example', 'mainChannel'];
 
@@ -24,7 +24,7 @@ const SentinelDesktopServiceBridge = {
   getImages: async () => ipcRenderer.invoke('api/docker/getImages'),
   getContainers: async () => ipcRenderer.invoke('api/docker/getContainers'),
   getVersion: async () => ipcRenderer.invoke('api/docker/getVersion'),
-  startModel: async (options: IRunModelOptions) =>
+  startModel: async (options: RunModelOptions.T) =>
     ipcRenderer.invoke('api/docker/start', options),
   cleanup: async () => ipcRenderer.invoke('api/docker/cleanup'),
   getModelNames: async () => ipcRenderer.invoke('api/docker/getModelNames'),

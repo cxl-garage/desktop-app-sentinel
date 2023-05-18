@@ -1,9 +1,9 @@
-import { EOutputStyle } from '../../../models/IRunModelOptions';
+import * as RunModelOptions from '../../../models/RunModelOptions';
 
 interface IRunModelInputsFormValues {
   modelName: string;
   dataset: string;
-  outputStyle: EOutputStyle;
+  outputStyle: RunModelOptions.EOutputStyle;
   confidenceThreshold: number;
   outputDirectory: string;
 }
