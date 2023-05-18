@@ -1,7 +1,7 @@
 /**
  * Functions to interact with docker.
  */
-import { DockerVersion } from 'models/DockerVersion';
+import * as DockerVersion from 'models/DockerVersion';
 import Docker, { ImageInfo, ContainerInfo } from 'dockerode';
 
 // TODO: Maybe this all should be encapsulated in a class
@@ -13,7 +13,7 @@ const CONTAINER_NAME = 'sentinel';
  * whether it is running or not.
  * @returns the docker engine version or an error
  */
-export async function getVersion(): Promise<DockerVersion> {
+export async function getVersion(): Promise<DockerVersion.T> {
   try {
     const version = await docker.version();
     return {

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
-import { DockerVersion } from 'models/DockerVersion';
+import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { PrismaClient } from '@prisma/client';
 import { app } from 'electron';
@@ -55,7 +55,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     );
   }
 
-  async getVersion(): Promise<DockerVersion> {
+  async getVersion(): Promise<DockerVersion.T> {
     return getVersion();
   }
 

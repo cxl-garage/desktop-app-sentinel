@@ -1,6 +1,6 @@
 import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
-import { DockerVersion } from 'models/DockerVersion';
+import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import IRunModelOptions from '../models/IRunModelOptions';
 
@@ -14,7 +14,7 @@ declare global {
       getFilesInDir: (dirPath: string) => Promise<string[]>;
       getImages: () => Promise<ImageInfo[]>;
       getContainers: () => Promise<ContainerInfo[]>;
-      getVersion: () => Promise<DockerVersion>;
+      getVersion: () => Promise<DockerVersion.T>;
       startModel: (options: IRunModelOptions) => Promise<boolean>;
       cleanup: () => Promise<void>;
       getModelNames: () => Promise<string[]>;

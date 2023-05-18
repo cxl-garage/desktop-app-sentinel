@@ -16,12 +16,14 @@ type DockerError = {
 
 type DockerVersion = DockerSuccess | DockerError;
 
-function isDockerError(x: DockerVersion | undefined): x is DockerError {
+export function isDockerError(x: DockerVersion | undefined): x is DockerError {
   return x !== undefined ? 'error' in x : false;
 }
 
-function isDockerSuccess(x: DockerVersion | undefined): x is DockerSuccess {
+export function isDockerSuccess(
+  x: DockerVersion | undefined,
+): x is DockerSuccess {
   return x !== undefined ? 'name' in x : false;
 }
 
-export { DockerVersion, isDockerError, isDockerSuccess };
+export { DockerVersion as T };
