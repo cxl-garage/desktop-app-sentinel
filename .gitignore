@@ -38,3 +38,4 @@ data
 prisma/dev.db
 prisma/dev.db-journal
 prisma/migrations
+release/app/prisma
