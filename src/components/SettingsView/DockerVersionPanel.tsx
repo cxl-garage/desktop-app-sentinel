@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { isDockerError, isDockerSuccess } from 'models/DockerVersion';
+import * as DockerVersion from 'models/DockerVersion';
 import { Collapse, Typography, Row, Col } from 'antd';
 import {
   CaretLeftOutlined,
@@ -20,18 +20,18 @@ export function DockerVersionPanel(): JSX.Element {
         {version && (
           <Row gutter={[12, 0]}>
             <Col>
-              {isDockerSuccess(version) && (
+              {DockerVersion.isDockerSuccess(version) && (
                 <CheckSquareFilled className="text-2xl text-green-700" />
               )}
-              {isDockerError(version) && (
+              {DockerVersion.isDockerError(version) && (
                 <CloseSquareFilled className="text-2xl text-red-700" />
               )}
             </Col>
             <Col flex="auto">
-              {isDockerSuccess(version) && (
+              {DockerVersion.isDockerSuccess(version) && (
                 <Typography>Docker Desktop Installed & Running</Typography>
               )}
-              {isDockerError(version) && (
+              {DockerVersion.isDockerError(version) && (
                 <Typography>
                   Please make sure
                   <a
@@ -55,7 +55,7 @@ export function DockerVersionPanel(): JSX.Element {
   function dockerPanel(): React.ReactNode {
     return (
       <div>
-        {isDockerSuccess(version) && (
+        {DockerVersion.isDockerSuccess(version) && (
           <div>
             <Typography.Paragraph>
               <Typography.Text strong>Name: </Typography.Text>
@@ -73,7 +73,7 @@ export function DockerVersionPanel(): JSX.Element {
             </Typography.Paragraph>
           </div>
         )}
-        {isDockerError(version) && (
+        {DockerVersion.isDockerError(version) && (
           <Typography.Text>{version.error}</Typography.Text>
         )}
       </div>
