@@ -4,13 +4,12 @@ import React from 'react';
 const MIN = 0;
 const MAX = 100;
 
-function PercentageSlider({
-  value,
-  onChange,
-}: {
+interface IProps {
   value?: number;
   onChange?: (v: number | null) => void;
-}): JSX.Element {
+}
+
+function PercentageSlider({ value, onChange }: IProps): JSX.Element {
   return (
     <div className="flex w-full">
       <div style={{ flex: 1 }}>

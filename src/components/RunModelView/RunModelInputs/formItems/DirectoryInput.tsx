@@ -2,13 +2,12 @@ import { CloseOutlined, FolderOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import React from 'react';
 
-function DirectoryInput({
-  value,
-  onChange,
-}: {
+interface IProps {
   value?: string;
   onChange?: (newValue: string) => void;
-}): JSX.Element {
+}
+
+function DirectoryInput({ value, onChange }: IProps): JSX.Element {
   return (
     <div>
       <Button

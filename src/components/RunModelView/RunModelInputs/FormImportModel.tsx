@@ -4,11 +4,11 @@ import { Control } from 'react-hook-form/dist/types';
 import useModelNames from '../hooks/useModelNames';
 import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
 
-function FormImportModel({
-  control,
-}: {
+interface IProps {
   control?: Control<IRunModelInputsFormValues>;
-}): JSX.Element {
+}
+
+function FormImportModel({ control }: IProps): JSX.Element {
   const { field, fieldState } = useController({
     control,
     name: 'modelName',
