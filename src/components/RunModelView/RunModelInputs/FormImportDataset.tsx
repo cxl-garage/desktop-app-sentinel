@@ -12,7 +12,7 @@ interface IProps {
 function FormImportDataset({ control }: IProps): JSX.Element {
   const { field, fieldState } = useController({
     control,
-    name: 'dataset',
+    name: 'inputDirectory',
     rules: { required: 'Dataset is required' },
   });
   return (
