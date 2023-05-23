@@ -6,6 +6,7 @@ interface IProps {
   children: React.ReactNode;
 }
 
+// TODO, this was meant for dev only and we may remove it later during productionalization.
 function IsDebuggingContextProvider({ children }: IProps): JSX.Element {
   const [isDebugging, setIsDebugging] = React.useState(false);
   return (
