@@ -107,7 +107,7 @@ export function ModelRunMetadataSummary({
           <MetricDisplayCard
             metricName="Empty images"
             metricValue={emptyImageCount}
-            highlightText={toPercentageStr(detectedObjectCount, imageCount)}
+            highlightText={toPercentageStr(emptyImageCount, imageCount)}
           />
         </Col>
         <Col span={8}>
