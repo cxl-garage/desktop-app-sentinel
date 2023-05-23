@@ -22,7 +22,13 @@ export type DetectOptions = {
   outputFolder: string;
   outputStyle: OutputStyle; // TODO, this is currently not being used
 };
+export type DetectionCountMetadata = {
+  imagesInspectedCount: number;
+  detectedObjectCount: number;
+  emptyImageCount: number;
+};
 
+const EMPTY_IMAGE_CLASS = 'blank';
 const DEFAULT_THRESHOLD = 0.4;
 const LINE_WIDTH = 3;
 
@@ -94,11 +100,41 @@ export async function detect(
       }
     }
   } else {
-    detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
+    detections.push([
+      name,
+      EMPTY_IMAGE_CLASS,
+      0,
+      0,
+      path.join(folder, name),
+      '',
+    ]);
     save(options.outputFolder, name, image);
   }
   // TODO: This is the place to catch any exceptions and write an error output
   // detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
 
   return detections;
+}
+
+export function getDetectionCounts(
+  detections: Array<Array<string | number>>,
+): DetectionCountMetadata {
+  // TODO: determine CXL wants to report total detections (maybe >1 per image)
+  // or number of images with detections. For now just count at most 1 per image
+  const hasDetection = detections.find(
+    (detection) => detection[1] !== EMPTY_IMAGE_CLASS,
+  );
+  if (hasDetection) {
+    return {
+      imagesInspectedCount: 1,
+      detectedObjectCount: 1,
+      emptyImageCount: 0,
+    };
+  }
+
+  return {
+    imagesInspectedCount: 1,
+    detectedObjectCount: 0,
+    emptyImageCount: 1,
+  };
 }
