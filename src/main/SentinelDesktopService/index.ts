@@ -8,9 +8,10 @@ import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
-import { PrismaClient } from '@prisma/client';
+import { ModelRun, PrismaClient } from '@prisma/client';
 import { app } from 'electron';
 import * as RunModelOptions from '../../models/RunModelOptions';
+import * as ModelRunProgress from '../../models/ModelRunProgress';
 import { ModelRunner } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
 import {
@@ -43,6 +44,12 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   runner: ModelRunner;
 
   prisma: PrismaClient;
+
+  private registeredModelRunOptions: RunModelOptions.T | null = null;
+
+  private registeredModelRun: ModelRun | null = null;
+
+  private isPreparingForModelRun: boolean = false;
 
   constructor() {
     this.runner = new ModelRunner();
@@ -77,6 +84,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   }
 
   cleanup(): Promise<void> {
+    this.registeredModelRun = null;
     return cleanup();
   }
 
@@ -86,16 +94,16 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     console.log(modelRuns);
   }
 
-  async registerRun(modelName: string): Promise<void> {
-    const modelRun = await this.prisma.modelRun.create({
-      data: {
-        modelName,
-        outputPath: 'placeholder_path/output',
-        startTime: Math.round(Date.now() / 1000),
-      },
-    });
-    console.log('NEW RUN: ');
-    console.log(modelRun);
+  registerRun(options: RunModelOptions.T): Promise<ModelRun> {
+    const data = {
+      modelName: options.modelName,
+      inputPath: options.inputDirectory,
+      outputPath: options.outputDirectory,
+      startTime: Math.round(Date.now() / 1000),
+      outputStyle: options.outputStyle,
+      confidenceThreshold: options.confidenceThreshold,
+    };
+    return this.prisma.modelRun.create({ data });
   }
 
   async getModelNames(): Promise<string[]> {
@@ -103,23 +111,55 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     return modelNames;
   }
 
-  async startModel(options: RunModelOptions.T): Promise<boolean> {
-    await cleanup();
-    await start(options.modelName);
+  async getCurrentModelRunProgress(): Promise<ModelRunProgress.T | null> {
+    if (!this.registeredModelRunOptions) {
+      return null;
+    }
+    return {
+      startModelOptions: this.registeredModelRunOptions,
+      modelRun: this.registeredModelRun,
+      runnerState: this.registeredModelRun ? this.runner.getProgress() : null,
+    };
+  }
 
-    // TODO: It takes some time for the image to start, so wait
-    await new Promise((resolve) => {
-      setTimeout(resolve, 5000);
-    });
+  get isInProgress(): boolean {
+    return this.isPreparingForModelRun || !this.runner.stats().idle;
+  }
 
-    this.runner.start({
-      inputFolder: options.inputDirectory,
-      outputFolder: options.outputDirectory,
-      outputStyle: options.outputStyle,
-      threshold: options.confidenceThreshold,
-      modelName: options.modelName,
-    });
-    return Promise.resolve(true);
+  async startModel(options: RunModelOptions.T): Promise<number> {
+    if (this.isInProgress) {
+      throw new Error('A model run is currently in progress');
+    }
+    this.isPreparingForModelRun = true;
+    this.registeredModelRunOptions = options;
+    this.registeredModelRun = null;
+    try {
+      await cleanup();
+      this.runner.cleanup();
+      await start(options.modelName);
+      const modelRun = await this.registerRun(options);
+      this.registeredModelRun = modelRun;
+
+      // TODO: It takes some time for the image to start, so wait
+      await new Promise((resolve) => {
+        setTimeout(resolve, 5000);
+      });
+
+      this.runner.start({
+        inputFolder: options.inputDirectory,
+        outputFolder: options.outputDirectory,
+        outputStyle: options.outputStyle,
+        threshold: options.confidenceThreshold,
+        modelName: options.modelName,
+      });
+
+      return modelRun.id;
+    } catch (error) {
+      console.error(`Failed to start model`);
+      throw error; // rethrow
+    } finally {
+      this.isPreparingForModelRun = false;
+    }
   }
 
   /**

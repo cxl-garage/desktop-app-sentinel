@@ -15,4 +15,7 @@ model ModelRun {
   modelName  String
   outputPath String
   startTime  Int
+  inputPath String
+  confidenceThreshold Float
+  outputStyle String
 }

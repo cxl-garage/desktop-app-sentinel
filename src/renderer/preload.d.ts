@@ -2,7 +2,8 @@ import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
-import IRunModelOptions from '../models/IRunModelOptions';
+import * as RunModelOptions from '../models/RunModelOptions';
+import * as ModelRunProgress from '../models/ModelRunProgress';
 
 declare global {
   interface Window {
@@ -15,9 +16,11 @@ declare global {
       getImages: () => Promise<ImageInfo[]>;
       getContainers: () => Promise<ContainerInfo[]>;
       getVersion: () => Promise<DockerVersion.T>;
-      startModel: (options: IRunModelOptions) => Promise<boolean>;
+      startModel: (options: RunModelOptions.T) => Promise<number>;
       cleanup: () => Promise<void>;
       getModelNames: () => Promise<string[]>;
+      getCurrentModelRunProgress: () => Promise<ModelRunProgress.T | null>;
+      getIsModelRunInProgress: () => Promise<boolean>;
 
       // deprecated functions (need refactoring)
       findOrgModels: (arg: any) => Promise<any>;

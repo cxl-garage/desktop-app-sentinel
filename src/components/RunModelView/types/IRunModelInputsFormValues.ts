@@ -5,6 +5,7 @@ interface IRunModelInputsFormValues {
   dataset: string;
   outputStyle: RunModelOptions.EOutputStyle;
   confidenceThreshold: number;
+  inputDirectory: string;
   outputDirectory: string;
 }
 

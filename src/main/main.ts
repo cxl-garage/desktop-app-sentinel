@@ -17,6 +17,7 @@ import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import * as DockerVersion from 'models/DockerVersion';
 import * as urllib from 'url';
+import * as ModelRunProgress from '../models/ModelRunProgress';
 import * as RunModelOptions from '../models/RunModelOptions';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
@@ -79,7 +80,7 @@ ipcMain.handle('api/docker/cleanup', async (): Promise<void> => {
 
 ipcMain.handle(
   'api/docker/start',
-  async (_event, options: RunModelOptions.T): Promise<boolean> => {
+  async (_event, options: RunModelOptions.T): Promise<number> => {
     console.log('Calling api/docker/start');
     return SentinelDesktopService.startModel(options);
   },
@@ -90,6 +91,20 @@ ipcMain.handle(
   async (_event): Promise<string[]> => {
     console.log('Calling api/docker/getModelNames');
     return SentinelDesktopService.getModelNames();
+  },
+);
+
+ipcMain.handle(
+  'api/docker/getCurrentModelRunProgress',
+  async (_event): Promise<ModelRunProgress.T | null> => {
+    return SentinelDesktopService.getCurrentModelRunProgress();
+  },
+);
+
+ipcMain.handle(
+  'api/docker/getIsModelRunInProgress',
+  async (_event): Promise<boolean> => {
+    return SentinelDesktopService.isInProgress;
   },
 );
 
@@ -371,6 +386,7 @@ async function createWindow(): Promise<void> {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
+      webSecurity: false, // this is needed for loading images with 'file://' protocol
     },
   });
 

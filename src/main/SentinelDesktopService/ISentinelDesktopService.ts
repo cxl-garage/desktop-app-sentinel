@@ -2,6 +2,7 @@ import * as LogRecord from 'models/LogRecord';
 import * as CXLModelResults from 'models/CXLModelResults';
 import * as DockerVersion from 'models/DockerVersion';
 import * as RunModelOptions from '../../models/RunModelOptions';
+import * as ModelRunProgress from '../../models/ModelRunProgress';
 
 export interface ISentinelDesktopService {
   getAllLogRecords(): Promise<LogRecord.T[]>;
@@ -10,7 +11,9 @@ export interface ISentinelDesktopService {
   getImages: () => Promise<any[]>;
   getContainers: () => Promise<any[]>;
   getVersion: () => Promise<DockerVersion.T>;
-  startModel: (options: RunModelOptions.T) => Promise<boolean>;
+  startModel: (options: RunModelOptions.T) => Promise<number>;
   cleanup: () => Promise<void>;
   getModelNames: () => Promise<string[]>;
+  isInProgress: boolean;
+  getCurrentModelRunProgress: () => Promise<ModelRunProgress.T | null>;
 }

@@ -28,6 +28,10 @@ const SentinelDesktopServiceBridge = {
     ipcRenderer.invoke('api/docker/start', options),
   cleanup: async () => ipcRenderer.invoke('api/docker/cleanup'),
   getModelNames: async () => ipcRenderer.invoke('api/docker/getModelNames'),
+  getCurrentModelRunProgress: async () =>
+    ipcRenderer.invoke('api/docker/getCurrentModelRunProgress'),
+  getIsModelRunInProgress: async () =>
+    ipcRenderer.invoke('api/docker/getIsModelRunInProgress'),
 
   // Legacy functions.
   // TODO: These should be either refactored or removed.

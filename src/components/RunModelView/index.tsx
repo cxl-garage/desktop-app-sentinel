@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
+import IsDebuggingContextProvider from './DebuggingContext/IsDebuggingContextProvider';
 import RunModelInputs from './RunModelInputs/RunModelInputs';
 import RunModelResults from './RunModelResultsPanel/RunModelResults';
-import RunningModelProvider from './RunningModelProvider/RunningModelProvider';
 
 const InputsPanel = styled.div`
   padding: 40px;
@@ -14,7 +14,7 @@ const OutputsPanel = styled.div`
 
 export function RunModelView(): JSX.Element {
   return (
-    <RunningModelProvider>
+    <IsDebuggingContextProvider>
       <div className="flex">
         <InputsPanel className="border-r-2 border-gray-200 dark:border-gray-600">
           <RunModelInputs />
@@ -23,6 +23,6 @@ export function RunModelView(): JSX.Element {
           <RunModelResults />
         </OutputsPanel>
       </div>
-    </RunningModelProvider>
+    </IsDebuggingContextProvider>
   );
 }
