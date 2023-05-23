@@ -6,11 +6,11 @@ import * as RunModelOptions from '../../../models/RunModelOptions';
 import { Select } from '../../ui/Select';
 import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
 
-function FormOutputStyle({
-  control,
-}: {
+interface IProps {
   control?: Control<IRunModelInputsFormValues>;
-}): JSX.Element {
+}
+
+function FormOutputStyle({ control }: IProps): JSX.Element {
   const { field, fieldState } = useController({
     control,
     name: 'outputStyle',

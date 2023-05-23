@@ -5,11 +5,11 @@ import { Control } from 'react-hook-form/dist/types';
 import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
 import DirectoryInput from './formItems/DirectoryInput';
 
-function FormOutputDirectory({
-  control,
-}: {
+interface IProps {
   control?: Control<IRunModelInputsFormValues>;
-}): JSX.Element {
+}
+
+function FormOutputDirectory({ control }: IProps): JSX.Element {
   const { field, fieldState } = useController({
     control,
     name: 'outputDirectory',
