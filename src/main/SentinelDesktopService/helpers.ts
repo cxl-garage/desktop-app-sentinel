@@ -8,19 +8,14 @@ export function getDateFromTimestamp(
   timestamp: number,
   unit: 's' | 'us' | 'ns',
 ): Date {
-  let date; // use variable because ts struggles with switch typing
   switch (unit) {
     case 's':
-      date = new Date(timestamp * 1000);
-      break;
+      return new Date(timestamp * 1000);
     case 'us':
-      date = new Date(timestamp);
-      break;
+      return new Date(timestamp);
     case 'ns':
-      date = new Date(timestamp / 1000);
-      break;
+      return new Date(timestamp / 1000);
     default:
-      assertUnreachable(unit);
+      return assertUnreachable(unit);
   }
-  return date;
 }
