@@ -1,7 +1,7 @@
 import * as LogRecord from 'models/LogRecord';
-import * as CXLModelResults from 'models/CXLModelResults';
 import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
+import { ModelRun } from '@prisma/client';
 import * as RunModelOptions from '../models/RunModelOptions';
 import * as ModelRunProgress from '../models/ModelRunProgress';
 
@@ -11,7 +11,7 @@ declare global {
     // removed, this type should just be the ISentinelDesktopService type
     SentinelDesktopService: {
       getAllLogRecords: () => Promise<LogRecord.T[]>;
-      getAllCXLModelResults: () => Promise<CXLModelResults.T[]>;
+      getAllCXLModelResults: () => Promise<ModelRun[]>;
       getFilesInDir: (dirPath: string) => Promise<string[]>;
       getImages: () => Promise<ImageInfo[]>;
       getContainers: () => Promise<ContainerInfo[]>;

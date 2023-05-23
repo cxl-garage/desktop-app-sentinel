@@ -29,7 +29,12 @@ export function PastResultsAllPictures(): JSX.Element {
       <Row gutter={16}>
         <Col span={24}>
           {resultsPath && resultsPath !== PUBLIC_DOMAIN_PLACEHOLDER_IMAGE ? (
-            <ModelRunImagePreview localPath={resultsPath} imagesPerRow={4} />
+            // TODO: Paginate image preview page to allow removal of count cap
+            <ModelRunImagePreview
+              localPath={resultsPath}
+              imagesPerRow={4}
+              count={100}
+            />
           ) : (
             <ModelRunImagePreviewPlaceholder count={20} imagesPerRow={4} />
           )}
