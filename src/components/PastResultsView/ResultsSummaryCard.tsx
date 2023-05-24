@@ -1,9 +1,9 @@
 import { Col, Row } from 'antd';
 import { Card } from 'components/ui/Card';
 
-import * as CXLModelResults from 'models/CXLModelResults';
 import { useNavigate } from 'react-router-dom';
-import { PUBLIC_DOMAIN_PLACEHOLDER_IMAGE } from 'components/RunModelView/tempMockData';
+import { ModelRun } from '@prisma/client';
+import { getDateFromTimestamp } from 'main/SentinelDesktopService/helpers';
 import { ModelRunMetadataSummary } from './ModelRunMetadataSummary';
 import { CardShadowWrapper } from './PastResultsViewStyledComponents';
 import { Button } from '../ui/Button';
@@ -13,7 +13,7 @@ import {
 } from './ImagePreviews';
 
 type Props = {
-  modelRunMetadata: CXLModelResults.T;
+  modelRunMetadata: ModelRun;
   imagePathOverride?: string;
 };
 
@@ -21,25 +21,24 @@ export function ResultsSummaryCard({
   modelRunMetadata,
   imagePathOverride,
 }: Props): JSX.Element {
+  const { startTime, outputPath } = modelRunMetadata;
+  const outputPathToUse = imagePathOverride ?? outputPath;
   const navigate = useNavigate();
-  const url = `/past-results/${encodeURIComponent(
-    imagePathOverride && imagePathOverride.length
-      ? imagePathOverride
-      : PUBLIC_DOMAIN_PLACEHOLDER_IMAGE,
-  )}`;
-  const { rundate } = modelRunMetadata;
+  const url = `/past-results/${encodeURIComponent(outputPathToUse)}`;
+
+  const runStartDate = getDateFromTimestamp(startTime, 's');
 
   return (
     <CardShadowWrapper className="my-4">
-      <Card title={rundate.toLocaleDateString('en-US')}>
+      <Card title={runStartDate.toLocaleDateString('en-US')}>
         <Row gutter={16}>
           <Col span={12}>
             <ModelRunMetadataSummary modelRunMetadata={modelRunMetadata} />
           </Col>
           <Col span={12}>
             <Row>
-              {imagePathOverride ? (
-                <ModelRunImagePreview localPath={imagePathOverride} count={6} />
+              {outputPathToUse ? (
+                <ModelRunImagePreview localPath={outputPathToUse} count={6} />
               ) : (
                 <ModelRunImagePreviewPlaceholder count={6} />
               )}

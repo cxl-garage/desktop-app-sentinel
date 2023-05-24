@@ -1,12 +1,12 @@
+import { ModelRun } from '@prisma/client';
 import { Card, Col, Row, Space, Tag } from 'antd';
 import Text from 'antd/es/typography/Text';
 
-import * as CXLModelResults from 'models/CXLModelResults';
 import Title from 'antd/es/typography/Title';
 import { CardShadowWrapper } from './PastResultsViewStyledComponents';
 
 type Props = {
-  modelRunMetadata: CXLModelResults.T;
+  modelRunMetadata: ModelRun;
 };
 
 function MetricDisplay({
@@ -88,12 +88,11 @@ export function ModelRunMetadataSummary({
   modelRunMetadata,
 }: Props): JSX.Element {
   const {
-    emptyimagecount,
-    imagecount,
-    imagedir,
-    modelname,
-    objectcount,
-    resultsdir,
+    emptyImageCount,
+    imageCount,
+    detectedObjectCount,
+    outputPath,
+    modelName,
   } = modelRunMetadata;
   return (
     <>
@@ -101,35 +100,35 @@ export function ModelRunMetadataSummary({
         <Col span={8}>
           <MetricDisplayCard
             metricName="Images processed"
-            metricValue={imagecount}
+            metricValue={imageCount}
           />
         </Col>
         <Col span={8}>
           <MetricDisplayCard
             metricName="Empty images"
-            metricValue={emptyimagecount}
-            highlightText={toPercentageStr(objectcount, imagecount)}
+            metricValue={emptyImageCount}
+            highlightText={toPercentageStr(emptyImageCount, imageCount)}
           />
         </Col>
         <Col span={8}>
           <MetricDisplayCard
             metricName="Objects found"
-            metricValue={objectcount}
-            highlightText={toPercentageStr(objectcount, imagecount)}
+            metricValue={detectedObjectCount}
+            highlightText={toPercentageStr(detectedObjectCount, imageCount)}
           />
         </Col>
       </Row>
       <Row gutter={16} className="mt-4">
         <Col span={24}>
           <Space direction="vertical">
-            <MetricDisplay metricName="Model name" metricValue={modelname} />
+            <MetricDisplay metricName="Model name" metricValue={modelName} />
             <MetricDisplay
               metricName="Saved to folder"
-              metricValue={resultsdir}
+              metricValue={outputPath}
             />
             <MetricDisplay
               metricName="Images in folder"
-              metricValue={imagedir}
+              metricValue={outputPath}
             />
           </Space>
         </Col>
