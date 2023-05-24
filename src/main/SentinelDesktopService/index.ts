@@ -52,7 +52,6 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   private isPreparingForModelRun: boolean = false;
 
   constructor() {
-    this.runner = new ModelRunner();
     this.prisma = new PrismaClient(
       app.isPackaged
         ? {
@@ -67,6 +66,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
           }
         : undefined,
     );
+    this.runner = new ModelRunner(this.prisma);
   }
 
   async getVersion(): Promise<DockerVersion.T> {
@@ -153,6 +153,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
         outputStyle: options.outputStyle,
         threshold: options.confidenceThreshold,
         modelName: options.modelName,
+        modelRunId: modelRun.id,
       });
 
       return modelRun.id;
