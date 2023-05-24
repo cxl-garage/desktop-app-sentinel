@@ -28,6 +28,17 @@ export type DetectionCountMetadata = {
   emptyImageCount: number;
 };
 
+// TODO: Maybe use object with labeled coordinates
+export type BoundingBox = [number, number, number, number];
+export type DetectionResult = {
+  fileName: string;
+  className: string;
+  classId: number;
+  confidence: number;
+  filePath: string;
+  bbox: BoundingBox;
+};
+
 const EMPTY_IMAGE_CLASS = 'blank';
 const DEFAULT_THRESHOLD = 0.4;
 const LINE_WIDTH = 3;
@@ -36,8 +47,8 @@ export async function detect(
   folder: string,
   name: string,
   options: DetectOptions,
-): Promise<Array<Array<string | number>>> {
-  const detections: Array<Array<string | number>> = [];
+): Promise<DetectionResult[]> {
+  const detections: DetectionResult[] = [];
 
   // Read the image and resize if necessary if the image type is supported
   console.log(`Detecting ${name}`);
@@ -82,14 +93,14 @@ export async function detect(
         const classId = predictions.output_2[x];
         const className = options.classNames[classId - 1];
         const confidence = predictions.output_1[x];
-        detections.push([
-          name,
+        detections.push({
+          fileName: name,
           className,
           classId,
           confidence,
-          path.join(folder, name),
+          filePath: path.join(folder, name),
           bbox,
-        ]);
+        });
 
         drawRectangle(image, bbox[1], bbox[0], bbox[3], bbox[2], LINE_WIDTH);
         writeText(font, image, 10, 10, `${className} (${confidence})`);
@@ -100,14 +111,14 @@ export async function detect(
       }
     }
   } else {
-    detections.push([
-      name,
-      EMPTY_IMAGE_CLASS,
-      0,
-      0,
-      path.join(folder, name),
-      '',
-    ]);
+    detections.push({
+      fileName: name,
+      className: EMPTY_IMAGE_CLASS,
+      classId: 0,
+      confidence: 0,
+      filePath: path.join(folder, name),
+      bbox: [0, 0, 0, 0],
+    });
     save(options.outputFolder, name, image);
   }
   // TODO: This is the place to catch any exceptions and write an error output
@@ -117,12 +128,12 @@ export async function detect(
 }
 
 export function getDetectionCounts(
-  detections: Array<Array<string | number>>,
+  detections: DetectionResult[],
 ): DetectionCountMetadata {
   // TODO: determine CXL wants to report total detections (maybe >1 per image)
   // or number of images with detections. For now just count at most 1 per image
   const hasDetection = detections.find(
-    (detection) => detection[1] !== EMPTY_IMAGE_CLASS,
+    (detection) => detection.className !== EMPTY_IMAGE_CLASS,
   );
   if (hasDetection) {
     return {
