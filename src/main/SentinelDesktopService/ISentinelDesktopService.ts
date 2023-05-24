@@ -1,12 +1,12 @@
 import * as LogRecord from 'models/LogRecord';
-import * as CXLModelResults from 'models/CXLModelResults';
 import * as DockerVersion from 'models/DockerVersion';
+import { ModelRun } from '@prisma/client';
 import * as RunModelOptions from '../../models/RunModelOptions';
 import * as ModelRunProgress from '../../models/ModelRunProgress';
 
 export interface ISentinelDesktopService {
   getAllLogRecords(): Promise<LogRecord.T[]>;
-  getAllCXLModelResults(): Promise<CXLModelResults.T[]>;
+  getAllCXLModelResults(): Promise<ModelRun[]>;
   getFilesInDir: (dirPath: string) => Promise<string[]>;
   getImages: () => Promise<any[]>;
   getContainers: () => Promise<any[]>;

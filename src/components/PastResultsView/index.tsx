@@ -33,8 +33,8 @@ export function PastResultsView(): JSX.Element {
         {pastResults?.map((modelRunMetadata) => (
           <ResultsSummaryCard
             modelRunMetadata={modelRunMetadata}
-            key={modelRunMetadata.runid}
-            imagePathOverride={localPath}
+            key={modelRunMetadata.id}
+            imagePathOverride={localPath !== '' ? localPath : undefined}
           />
         ))}
       </Col>

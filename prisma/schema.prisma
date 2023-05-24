@@ -18,4 +18,10 @@ model ModelRun {
   inputPath String
   confidenceThreshold Float
   outputStyle String
+
+  // tbd: These results may be better stored somewhere users can view out-of-app
+  // e.g. as csv or json at outputPath
+  imageCount Int @default(0)
+  emptyImageCount Int @default(0)
+  detectedObjectCount Int @default(0)
 }

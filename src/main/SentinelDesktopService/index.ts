@@ -5,7 +5,6 @@ import csvParser from 'csv-parser';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
 import * as LogRecord from 'models/LogRecord';
-import * as CXLModelResults from 'models/CXLModelResults';
 import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { ModelRun, PrismaClient } from '@prisma/client';
@@ -29,6 +28,7 @@ const LogRecordCSVSchema = z.object({
   message: z.string(),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CXLModelResultJSONSchema = z.object({
   emptyimagecount: z.coerce.number(),
   imagecount: z.coerce.number(),
@@ -89,7 +89,9 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   }
 
   async fetchRuns(): Promise<void> {
-    const modelRuns = await this.prisma.modelRun.findMany();
+    const modelRuns = await this.prisma.modelRun.findMany({
+      orderBy: [{ startTime: 'desc' }],
+    });
     console.log('PREVIOUS RUNS: ');
     console.log(modelRuns);
   }
@@ -195,29 +197,9 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
    *
    * TODO: this is likely to change as we build out this functionality more.
    */
-  getAllCXLModelResults(): Promise<CXLModelResults.T[]> {
-    return new Promise((resolve, reject) => {
-      fs.readFile(
-        path.join(__dirname, '../../py/Results.json'),
-        'utf-8',
-        (_error: unknown, jsonString: unknown) => {
-          const dataArray =
-            typeof jsonString === 'string' ? JSON.parse(jsonString) : undefined;
-
-          if (Array.isArray(dataArray)) {
-            const cxlModelResults = dataArray.map((dataObj: unknown) =>
-              CXLModelResultJSONSchema.parse(dataObj),
-            );
-            resolve(cxlModelResults);
-          } else {
-            reject(
-              new Error(
-                'JSON data of model results was expected to be an array',
-              ),
-            );
-          }
-        },
-      );
+  getAllCXLModelResults(): Promise<ModelRun[]> {
+    return this.prisma.modelRun.findMany({
+      orderBy: [{ startTime: 'desc' }],
     });
   }
 
