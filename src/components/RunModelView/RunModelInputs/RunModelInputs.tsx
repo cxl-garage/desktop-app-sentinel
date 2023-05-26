@@ -49,7 +49,10 @@ function RunModelInputs(): JSX.Element {
         'outputStyle',
         currentModelRun.outputStyle as RunModelOptions.EOutputStyle,
       );
-      setValue('confidenceThreshold', currentModelRun.confidenceThreshold);
+      setValue(
+        'confidenceThreshold',
+        Math.floor(currentModelRun.confidenceThreshold * 100),
+      );
       setValue('inputDirectory', currentModelRun.inputPath);
       setValue('outputDirectory', currentModelRun.outputPath);
     }
@@ -59,7 +62,7 @@ function RunModelInputs(): JSX.Element {
     return window.SentinelDesktopService.startModel({
       modelName: values.modelName,
       outputStyle: values.outputStyle,
-      confidenceThreshold: values.confidenceThreshold,
+      confidenceThreshold: values.confidenceThreshold / 100.0,
       outputDirectory: values.outputDirectory,
       inputDirectory: values.inputDirectory,
     });

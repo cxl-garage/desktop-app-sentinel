@@ -40,6 +40,7 @@ export type DetectionResult = {
 };
 
 const EMPTY_IMAGE_CLASS = 'blank';
+const DEFAULT_SIZE = 256;
 const DEFAULT_THRESHOLD = 0.4;
 const LINE_WIDTH = 3;
 
@@ -51,11 +52,11 @@ export async function detect(
   const detections: DetectionResult[] = [];
 
   // Read the image and resize if necessary if the image type is supported
-  console.log(`Detecting ${name}`);
+  console.log(`Detecting ${name} with threshold ${options.threshold}`);
   if (!isSupported(name)) {
     return detections;
   }
-  const image = await read(folder, name, options.inputSize);
+  const image = await read(folder, name, options.inputSize ?? DEFAULT_SIZE);
   const data = toDataArray(image);
 
   // Invoke the docker endpoint to detect
