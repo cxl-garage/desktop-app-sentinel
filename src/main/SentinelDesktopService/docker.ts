@@ -55,24 +55,47 @@ export async function getContainers(): Promise<ContainerInfo[]> {
   return docker.listContainers();
 }
 
-export function getModelNames(): string[] {
-  // TODO: Hard-code for now, and currently implemented as calling `env`
-  // on a running container, but eventually should be information
-  // in the image metadata (see LABEL in Dockerfile) so that we
-  // can query without having to start a container
-  return ['osa_jaguar', 'MegaDetector_v5a'];
+async function getImageEnv(): Promise<string[]> {
+  // TODO: Assumes there is only a single suitable docker image
+  // installed. What if more than one?
+  try {
+    const imageInfo = await findImage();
+    if (!imageInfo) {
+      console.log('Failed to find suitable docker image.');
+      return [];
+    }
+    const dockerImage = docker.getImage(imageInfo.Id);
+    return (await dockerImage.inspect()).Config.Env;
+  } catch (error) {
+    console.log('Failed to find available models', error);
+    return [];
+  }
 }
 
-export function getClassNames(modelName: string): string[] {
-  // TODO: Hard-code for now, and currently implemented as calling `env`
-  // on a running container, but eventually should be information
-  // in the image metadata (see LABEL in Dockerfile) so that we
-  // can query without having to start a container
-  if (modelName === 'osa_jaguar') {
-    return ['jaguar', 'other_animal'];
+export async function getModelNames(): Promise<string[]> {
+  const models = (await getImageEnv()).find((value) =>
+    value.startsWith('AVAILABLE_MODELS'),
+  );
+  if (models) {
+    const tokens = models.split('=');
+    console.log(`Available models: ${tokens[1]}`);
+    if (tokens.length > 1) {
+      return tokens[1].split(',');
+    }
   }
-  if (modelName === 'MegaDetector_v5a') {
-    return ['animal', 'person', 'vehicle'];
+  return [];
+}
+
+export async function getClassNames(modelName: string): Promise<string[]> {
+  const classNames = (await getImageEnv()).find((value) =>
+    value.startsWith(`${modelName.toUpperCase()}_CLASSES`),
+  );
+  if (classNames) {
+    const tokens = classNames.split('=');
+    if (tokens.length > 1) {
+      console.log(`For ${modelName}, class names: ${tokens[1]}`);
+      return tokens[1].split(',');
+    }
   }
   return [];
 }

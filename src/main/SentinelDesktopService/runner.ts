@@ -107,7 +107,7 @@ export class ModelRunner {
       // inputSize: 256,
       threshold,
       modelName,
-      classNames: getClassNames(modelName),
+      classNames: await getClassNames(modelName),
       outputFolder,
       outputStyle,
     };
