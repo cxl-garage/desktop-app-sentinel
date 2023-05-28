@@ -3,15 +3,7 @@
  * in an image.
  */
 import path from 'path';
-import {
-  drawRectangle,
-  isSupported,
-  read,
-  save,
-  toDataArray,
-  writeText,
-  loadFont,
-} from './image';
+import { isSupported, read, save, toDataArray, getOverlay } from './image';
 
 export type OutputStyle = 'class' | 'hierarchy' | 'flat' | 'timelapse' | 'none';
 export type DetectOptions = {
@@ -52,18 +44,23 @@ export async function detect(
   const detections: DetectionResult[] = [];
 
   // Read the image and resize if necessary if the image type is supported
+  const startTime = Date.now();
   console.log(`Detecting ${name} with threshold ${options.threshold}`);
   if (!isSupported(name)) {
     return detections;
   }
-  const image = await read(folder, name, options.inputSize ?? DEFAULT_SIZE);
-  const data = toDataArray(image);
+  const size = options.inputSize ?? DEFAULT_SIZE;
+  const beforeRead = Date.now();
+  const image = await read(path.join(folder, name), size);
+  const dataArray = toDataArray(image);
+  const elapsedRead = Date.now() - beforeRead;
 
   // Invoke the docker endpoint to detect
+  const beforeDetect = Date.now();
   const url = `http://localhost:8501/v1/models/${options.modelName}:predict`;
   const body = {
     signature_name: 'serving_default',
-    instances: [data],
+    instances: [dataArray],
   };
   // TODO: Should we retry this with a sleep?
   const response = await fetch(url, {
@@ -72,15 +69,13 @@ export async function detect(
     headers: { 'Content-Type': 'application/json' },
   });
   const json = await response.json();
+  const elapsedDetect = Date.now() - beforeDetect;
   const predictions = json.predictions[0];
-  console.log(JSON.stringify(predictions, null, 2));
-
-  // TODO: Make sure font is loaded for writing below
-  const font = await loadFont();
 
   // Look through the output for all results that exceed the confidence threshold,
   // write out the image with the bounding box if detected and return the result
   // from this function.
+  let totalWrite = 0;
   const threshold = options.threshold ?? DEFAULT_THRESHOLD;
   if (predictions.output_1[0] > threshold) {
     let x = 0;
@@ -103,9 +98,26 @@ export async function detect(
           bbox,
         });
 
-        drawRectangle(image, bbox[1], bbox[0], bbox[3], bbox[2], LINE_WIDTH);
-        writeText(font, image, 10, 10, `${className} (${confidence})`);
-        save(options.outputFolder, name, image);
+        const beforeWrite = Date.now();
+        // eslint-disable-next-line no-await-in-loop
+        const overlay = await getOverlay({
+          size,
+          text: {
+            x: 10,
+            y: 10,
+            text: `${className} (${confidence})`,
+          },
+          rect: {
+            x0: bbox[1],
+            y0: bbox[0],
+            x1: bbox[3],
+            y1: bbox[2],
+            width: LINE_WIDTH,
+          },
+        });
+        // eslint-disable-next-line no-await-in-loop
+        await save(path.join(options.outputFolder, name), image, overlay);
+        totalWrite += Date.now() - beforeWrite;
         x += 1;
       } else {
         break;
@@ -120,10 +132,16 @@ export async function detect(
       filePath: path.join(folder, name),
       bbox: [0, 0, 0, 0],
     });
-    save(options.outputFolder, name, image);
+    const beforeWrite = Date.now();
+    await save(path.join(options.outputFolder, name), image);
+    totalWrite += Date.now() - beforeWrite;
   }
   // TODO: This is the place to catch any exceptions and write an error output
   // detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
+  const elapsed = Date.now() - startTime;
+  console.log(
+    `Detecting ${name} finished in ${elapsedRead} (read) + ${elapsedDetect} (detect) + ${totalWrite} write = ${elapsed} ms`,
+  );
 
   return detections;
 }
