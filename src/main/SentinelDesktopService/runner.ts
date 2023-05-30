@@ -1,6 +1,6 @@
 import * as async from 'async';
 import * as fs from 'node:fs/promises';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../generated/prisma/client';
 import { RunnerState } from '../../models/ModelRunProgress';
 import ERunningImageStatus from '../../components/RunModelView/types/ERunningImageStatus';
 import {

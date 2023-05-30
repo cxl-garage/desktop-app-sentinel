@@ -1,4 +1,4 @@
-import { ModelRun } from '@prisma/client';
+import { ModelRun } from '../../generated/prisma/client';
 import * as RunModelOptions from '../RunModelOptions';
 
 export interface RunnerState {
