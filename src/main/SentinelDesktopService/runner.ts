@@ -32,6 +32,9 @@ export class ModelRunner {
       const detections = await detect(task.folder, task.file, task.options);
 
       const detectionMetadata = getDetectionCounts(detections);
+
+      // update the stats of the current model run with the newest data we
+      // just detected
       await prismaClient.modelRun.update({
         where: { id: task.runId },
         data: {
@@ -104,7 +107,6 @@ export class ModelRunner {
   }): Promise<void> {
     // This information should be exposed to the GUI
     const options: DetectOptions = {
-      // inputSize: 256,
       threshold,
       modelName,
       classNames: await getClassNames(modelName),
