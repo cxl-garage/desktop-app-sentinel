@@ -14,9 +14,9 @@ import fs from 'fs';
 import { PythonShell } from 'python-shell';
 import invariant from 'invariant';
 import * as LogRecord from 'models/LogRecord';
-import * as CXLModelResults from 'models/CXLModelResults';
 import * as DockerVersion from 'models/DockerVersion';
 import * as urllib from 'url';
+import { ModelRun } from '../generated/prisma/client';
 import * as ModelRunProgress from '../models/ModelRunProgress';
 import * as RunModelOptions from '../models/RunModelOptions';
 import MenuBuilder from './menu';
@@ -41,7 +41,7 @@ ipcMain.handle('api/logs/getAll', async (): Promise<LogRecord.T[]> => {
 
 ipcMain.handle(
   'api/cxl-model-results/getAll',
-  async (): Promise<CXLModelResults.T[]> => {
+  async (): Promise<ModelRun[]> => {
     console.log('Calling api/cxl-model-results/getAll');
     const cxlModelResults =
       await SentinelDesktopService.getAllCXLModelResults();
