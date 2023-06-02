@@ -32,6 +32,9 @@ export class ModelRunner {
       const detections = await detect(task.folder, task.file, task.options);
 
       const detectionMetadata = getDetectionCounts(detections);
+
+      // update the stats of the current model run with the newest data we
+      // just detected
       await prismaClient.modelRun.update({
         where: { id: task.runId },
         data: {
@@ -104,7 +107,6 @@ export class ModelRunner {
   }): Promise<void> {
     // This information should be exposed to the GUI
     const options: DetectOptions = {
-      // inputSize: 256,
       threshold,
       modelName,
       classNames: await getClassNames(modelName),
@@ -113,8 +115,8 @@ export class ModelRunner {
     };
     try {
       const files = await fs.readdir(inputFolder);
+      const startTime = Date.now();
       files.forEach((file) => {
-        console.log(`Processing ${file}`);
         this.statusMap.set(file, ERunningImageStatus.NOT_STARTED);
         const task: JobTask = {
           folder: inputFolder,
@@ -124,11 +126,11 @@ export class ModelRunner {
         };
         this.queue.push(task, (_err) => {
           this.statusMap.set(file, ERunningImageStatus.COMPLETED);
-          console.log(`Finished processing ${file}`);
         });
       });
       this.queue.drain(() => {
-        console.log(`All files finished processing`);
+        const elapsed = Date.now() - startTime;
+        console.log(`All files finished processing in ${elapsed}`);
       });
     } catch (error) {
       // ignore

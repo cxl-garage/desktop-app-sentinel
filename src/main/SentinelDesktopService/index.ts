@@ -28,18 +28,6 @@ const LogRecordCSVSchema = z.object({
   message: z.string(),
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const CXLModelResultJSONSchema = z.object({
-  emptyimagecount: z.coerce.number(),
-  imagecount: z.coerce.number(),
-  imagedir: z.string(),
-  modelname: z.string(),
-  objectcount: z.coerce.number(),
-  resultsdir: z.string(),
-  rundate: z.coerce.date(),
-  runid: z.string(),
-});
-
 class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   runner: ModelRunner;
 
