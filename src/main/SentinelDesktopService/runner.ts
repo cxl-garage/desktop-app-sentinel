@@ -115,8 +115,8 @@ export class ModelRunner {
     };
     try {
       const files = await fs.readdir(inputFolder);
+      const startTime = Date.now();
       files.forEach((file) => {
-        console.log(`Processing ${file}`);
         this.statusMap.set(file, ERunningImageStatus.NOT_STARTED);
         const task: JobTask = {
           folder: inputFolder,
@@ -126,11 +126,11 @@ export class ModelRunner {
         };
         this.queue.push(task, (_err) => {
           this.statusMap.set(file, ERunningImageStatus.COMPLETED);
-          console.log(`Finished processing ${file}`);
         });
       });
       this.queue.drain(() => {
-        console.log(`All files finished processing`);
+        const elapsed = Date.now() - startTime;
+        console.log(`All files finished processing in ${elapsed}`);
       });
     } catch (error) {
       // ignore

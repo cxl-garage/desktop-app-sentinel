@@ -4,17 +4,15 @@
  */
 import path from 'path';
 import fs from 'fs';
-// import Jimp from 'jimp';
+import assertUnreachable from '../../util/assertUnreachable';
 import {
-  drawRectangle,
   isSupported,
   read,
   save,
   toDataArray,
-  writeText,
-  loadFont,
+  getOverlay,
+  Image,
 } from './image';
-import assertUnreachable from '../../util/assertUnreachable';
 
 export type OutputStyle = 'class' | 'hierarchy' | 'flat' | 'timelapse' | 'none';
 export type DetectOptions = {
@@ -61,7 +59,60 @@ const DEFAULT_SIZE = 256;
 const DEFAULT_THRESHOLD = 0.4;
 const LINE_WIDTH = 3;
 
-// function writeDetection(image: Jimp): void {}
+async function writeDetection(
+  name: string,
+  image: Image,
+  detection: DetectionResult,
+  detectOptions: DetectOptions,
+): Promise<void> {
+  const { outputStyle, classNames, outputFolder } = detectOptions;
+  const { className, confidence, bbox } = detection;
+  const size = detectOptions.inputSize ?? DEFAULT_SIZE;
+
+  // create the bounding box overlay (which we only have to add to the
+  // image if the detected `className` is not the `EMPTY_IMAGE_CLASS`)
+  const overlay =
+    className === EMPTY_IMAGE_CLASS
+      ? undefined
+      : await getOverlay({
+          size,
+          text: { x: 10, y: 10, text: `${className} (${confidence})` },
+          rect: {
+            x0: bbox[1],
+            y0: bbox[0],
+            x1: bbox[3],
+            y1: bbox[2],
+            width: LINE_WIDTH,
+          },
+        });
+
+  switch (outputStyle) {
+    case 'class': {
+      // check if each animal class subdirectory exists, otherwise create them
+      classNames.concat([EMPTY_IMAGE_CLASS]).forEach((animalClass) => {
+        const animalClassDir = `${outputFolder}/${animalClass}`;
+        if (!fs.existsSync(animalClassDir)) {
+          fs.mkdirSync(animalClassDir);
+        }
+      });
+
+      await save(path.join(outputFolder, className, name), image, overlay);
+      break;
+    }
+
+    case 'hierarchy':
+      throw new Error(`Output style 'hierarchy' is not implemented yet.`);
+    case 'flat':
+      await save(path.join(outputFolder, name), image, overlay);
+      break;
+    case 'timelapse':
+      throw new Error(`Output style 'timelapse' is not implemented yet.`);
+    case 'none':
+      throw new Error(`Output style 'none' is not implemented yet.`);
+    default:
+      assertUnreachable(outputStyle);
+  }
+}
 
 /**
  * This is the main function that calls the endpoint in the docker image that
@@ -85,18 +136,23 @@ export async function detect(
   const detections: DetectionResult[] = [];
 
   // Read the image and resize if necessary if the image type is supported
+  const startTime = Date.now();
   console.log(`Detecting ${name} with threshold ${options.threshold}`);
   if (!isSupported(name)) {
     return detections;
   }
-  const image = await read(folder, name, options.inputSize ?? DEFAULT_SIZE);
-  const data = toDataArray(image);
+  const size = options.inputSize ?? DEFAULT_SIZE;
+  const beforeRead = Date.now();
+  const image = await read(path.join(folder, name), size);
+  const dataArray = toDataArray(image);
+  const elapsedRead = Date.now() - beforeRead;
 
   // Invoke the docker endpoint to detect
+  const beforeDetect = Date.now();
   const url = `http://localhost:8501/v1/models/${options.modelName}:predict`;
   const body = {
     signature_name: 'serving_default',
-    instances: [data],
+    instances: [dataArray],
   };
   // TODO: Should we retry this with a sleep?
   const response = await fetch(url, {
@@ -105,17 +161,14 @@ export async function detect(
     headers: { 'Content-Type': 'application/json' },
   });
   const json = await response.json();
+  const elapsedDetect = Date.now() - beforeDetect;
   const predictions: SentinelPredictions = json.predictions[0];
-
-  // TODO: Make sure font is loaded for writing below
-  const font = await loadFont();
 
   // Look through the output for all results that exceed the confidence threshold,
   // write out the image with the bounding box if detected and return the result
   // from this function.
+  let totalWrite = 0;
   const threshold = options.threshold ?? DEFAULT_THRESHOLD;
-
-  let isSuccessfulDetection;
 
   // check if the first prediction is above our `threshold`, otherwise it means
   // no predictions passed (so we classify this with the `EMPTY_IMAGE_CLASS`)
@@ -129,80 +182,49 @@ export async function detect(
       })
       .filter((prediction) => prediction.confidence > threshold);
 
-    predictionsAboveThreshold.forEach((detection) => {
-      const { bbox, className, classId, confidence } = detection;
+    // process all passing predictions asynchronously
+    await Promise.all(
+      predictionsAboveThreshold.map(async (detection) => {
+        const { bbox, className, classId, confidence } = detection;
+        const detectionResult = {
+          fileName: name,
+          className,
+          classId,
+          confidence,
+          filePath: path.join(folder, name),
+          bbox,
+        };
 
-      // Assume input and output size are the same to simplify bbox computations
-      detections.push({
-        fileName: name,
-        className,
-        classId,
-        confidence,
-        filePath: path.join(folder, name),
-        bbox,
-      });
+        // Assume input and output size are the same to simplify bbox computations
+        detections.push(detectionResult);
 
-      drawRectangle(image, bbox[1], bbox[0], bbox[3], bbox[2], LINE_WIDTH);
-      writeText(font, image, 10, 10, `${className} (${confidence})`);
-      save(options.outputFolder, name, image);
-    });
+        const beforeWrite = Date.now();
+        await writeDetection(name, image, detectionResult, options);
+        totalWrite += Date.now() - beforeWrite;
+      }),
+    );
   } else {
-    detections.push({
+    const detectionResult = {
       fileName: name,
       className: EMPTY_IMAGE_CLASS,
       classId: 0,
       confidence: 0,
       filePath: path.join(folder, name),
-      bbox: [0, 0, 0, 0],
-    });
-    save(options.outputFolder, name, image);
+      bbox: [0, 0, 0, 0] as BoundingBox,
+    };
+
+    detections.push(detectionResult);
+    const beforeWrite = Date.now();
+    await writeDetection(name, image, detectionResult, options);
+    totalWrite += Date.now() - beforeWrite;
   }
 
   // TODO: This is the place to catch any exceptions and write an error output
   // detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
-
-  console.log('detections length', detections.length);
-  console.log('first detection class name', detections[0].className);
-
-  // TODO: YOU ARE HERE. based on the output style:
-  //  1. switch statement
-  //  2. check if necessary subdirectories exist
-  //  3. create them
-  //  4. write the image to the appropriate subdirectory
-  switch (options.outputStyle) {
-    case 'class': {
-      // check if each animal class subdirectory exists, otherwise create them
-      options.classNames.concat([EMPTY_IMAGE_CLASS]).forEach((animalClass) => {
-        const animalClassDir = `${options.outputFolder}/${animalClass}`;
-        if (!fs.existsSync(animalClassDir)) {
-          fs.mkdirSync(animalClassDir);
-        }
-      });
-
-      // now write the file to the appropriate subdirectory based on detection
-      // status
-      console.log('detected?', isSuccessfulDetection);
-      break;
-    }
-
-    case 'hierarchy':
-      throw new Error(`Output style 'hierarchy' is not implemented yet.`);
-    case 'flat':
-      throw new Error(`Output style 'flat' is not implemented yet.`);
-    case 'timelapse':
-      throw new Error(`Output style 'timelapse' is not implemented yet.`);
-    case 'none':
-      throw new Error(`Output style 'none' is not implemented yet.`);
-    default:
-      assertUnreachable(options.outputStyle);
-  }
-
-  console.log('Detection?', {
-    isSuccessfulDetection,
-    name,
-    outputStyle: options.outputStyle,
-    outputDir: options.outputFolder,
-  });
+  const elapsed = Date.now() - startTime;
+  console.log(
+    `Detecting ${name} finished in ${elapsedRead} (read) + ${elapsedDetect} (detect) + ${totalWrite} write = ${elapsed} ms`,
+  );
 
   return detections;
 }
