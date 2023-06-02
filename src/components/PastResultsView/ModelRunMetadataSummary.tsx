@@ -1,8 +1,8 @@
-import { ModelRun } from '@prisma/client';
 import { Card, Col, Row, Space, Tag } from 'antd';
 import Text from 'antd/es/typography/Text';
 
 import Title from 'antd/es/typography/Title';
+import { ModelRun } from '../../generated/prisma/client';
 import { CardShadowWrapper } from './PastResultsViewStyledComponents';
 
 type Props = {

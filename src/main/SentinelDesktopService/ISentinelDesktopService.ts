@@ -1,6 +1,6 @@
 import * as LogRecord from 'models/LogRecord';
 import * as DockerVersion from 'models/DockerVersion';
-import { ModelRun } from '@prisma/client';
+import { ModelRun } from '../../generated/prisma/client';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import * as RunModelOptions from '../../models/RunModelOptions';
 import * as ModelRunProgress from '../../models/ModelRunProgress';

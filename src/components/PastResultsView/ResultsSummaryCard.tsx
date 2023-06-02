@@ -2,8 +2,8 @@ import { Col, Row } from 'antd';
 import { Card } from 'components/ui/Card';
 
 import { useNavigate } from 'react-router-dom';
-import { ModelRun } from '@prisma/client';
 import { getDateFromTimestamp } from 'main/SentinelDesktopService/helpers';
+import { ModelRun } from '../../generated/prisma/client';
 import { ModelRunMetadataSummary } from './ModelRunMetadataSummary';
 import { CardShadowWrapper } from './PastResultsViewStyledComponents';
 import { Button } from '../ui/Button';
