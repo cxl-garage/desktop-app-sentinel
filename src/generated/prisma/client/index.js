@@ -29,11 +29,11 @@ const Prisma = {}
 exports.Prisma = Prisma
 
 /**
- * Prisma Client JS version: 4.14.1
+ * Prisma Client JS version: 4.14.0
  * Query Engine version: d9a4c5988f480fa576d43970d5a23641aa77bc9c
  */
 Prisma.prismaVersion = {
-  client: "4.14.1",
+  client: "4.14.0",
   engine: "d9a4c5988f480fa576d43970d5a23641aa77bc9c"
 }
 
@@ -112,7 +112,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/tristanmonger/dev/data_clinic/desktop-app-sentinel/src/generated/prisma/client",
+      "value": "/Users/juanpablosarmiento/projects/desktop-app-sentinel/src/generated/prisma/client",
       "fromEnvVar": null
     },
     "config": {
@@ -127,7 +127,7 @@ const config = {
     "schemaEnvPath": "../../../../.env"
   },
   "relativePath": "../../../../prisma",
-  "clientVersion": "4.14.1",
+  "clientVersion": "4.14.0",
   "engineVersion": "d9a4c5988f480fa576d43970d5a23641aa77bc9c",
   "datasourceNames": [
     "db"
