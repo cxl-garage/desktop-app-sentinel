@@ -1,13 +1,12 @@
 import { LoadingOutlined } from '@ant-design/icons';
-import { Image, Spin } from 'antd';
+import { Image, Pagination, Spin, Typography } from 'antd';
 import _ from 'lodash';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import ERunningImageStatus from '../types/ERunningImageStatus';
 import IRunningImage from '../types/IRunningImage';
 
 const ImageGrid = styled.div`
-  margin-top: 32px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr));
   gap: 20px;
@@ -41,32 +40,55 @@ function ImagesLoadingProgressGallery({
     status: ERunningImageStatus.COMPLETED,
   }).length;
   const completedPercentage = Math.round((completedCount * 100) / totalCount);
+  const inProgressOrCompletedImages = processingImages.filter(
+    (it) =>
+      it.status === ERunningImageStatus.IN_PROGRESS ||
+      it.status === ERunningImageStatus.COMPLETED,
+  );
+  const DEFAULT_PAGE_SIZE = 10;
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const itemCount = inProgressOrCompletedImages.length;
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const displayItems = inProgressOrCompletedImages.slice(
+    (currentPage - 1) * pageSize,
+    Math.min(currentPage * pageSize, itemCount),
+  );
   return (
-    <div className="flex-1 p-10">
+    <div className="flex-1">
       <div className="flex">
         {completedPercentage !== 100 && <Spin style={{ marginRight: 12 }} />}
-        <span>
+        <Typography.Text>
           {completedPercentage}% Processing images ({completedCount}/
           {totalCount})
-        </span>
+        </Typography.Text>
       </div>
-      <ImageGrid>
-        {processingImages
-          .filter(
-            (it) =>
-              it.status === ERunningImageStatus.IN_PROGRESS ||
-              it.status === ERunningImageStatus.COMPLETED,
-          )
-          .map((it) => {
-            return it.status === ERunningImageStatus.IN_PROGRESS ? (
-              <LoadingImageWrapper key={it.id}>
-                <LoadingOutlined style={{ fontSize: 64, color: '#00AAFF' }} />
-              </LoadingImageWrapper>
-            ) : (
-              <ImageGridImage key={it.id} src={it.url} />
-            );
-          })}
+      <ImageGrid className="mt-8">
+        {displayItems.map((it) => {
+          return it.status === ERunningImageStatus.IN_PROGRESS ? (
+            <LoadingImageWrapper key={it.id}>
+              <LoadingOutlined style={{ fontSize: 64, color: '#00AAFF' }} />
+            </LoadingImageWrapper>
+          ) : (
+            <ImageGridImage key={it.id} src={it.url} />
+          );
+        })}
       </ImageGrid>
+      <div className="mt-8">
+        <Pagination
+          total={itemCount}
+          showTotal={(total, range) =>
+            `${range[0]}-${range[1]} of ${total} images`
+          }
+          defaultCurrent={1}
+          pageSize={pageSize}
+          hideOnSinglePage={itemCount <= DEFAULT_PAGE_SIZE}
+          showSizeChanger
+          onChange={(page, pSize) => {
+            setCurrentPage(page);
+            setPageSize(pSize);
+          }}
+        />
+      </div>
     </div>
   );
 }

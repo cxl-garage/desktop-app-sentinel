@@ -13,11 +13,15 @@ function RunModelResults(): JSX.Element {
   const isDebugging = useIsDebugging();
 
   if (!currentModelRunProgress) {
-    return <Empty />;
+    return (
+      <div className="grid h-72 place-content-center">
+        <Empty />
+      </div>
+    );
   }
   if (!runnerState) {
     return (
-      <div className="flex h-40 items-center justify-center">
+      <div className="grid h-72 place-content-center">
         <Spin spinning tip="Starting" />
       </div>
     );
