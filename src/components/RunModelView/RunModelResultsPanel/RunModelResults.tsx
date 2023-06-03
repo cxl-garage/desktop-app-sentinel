@@ -1,5 +1,5 @@
 import { Empty, Spin } from 'antd';
-import React from 'react';
+import React, { useMemo } from 'react';
 import ReactJson from 'react-json-view';
 import { useIsDebugging } from '../DebuggingContext/IsDebuggingContext';
 import ERunningImageStatus from '../types/ERunningImageStatus';
@@ -12,6 +12,31 @@ function RunModelResults(): JSX.Element {
   const runnerState = currentModelRunProgress?.runnerState;
   const isDebugging = useIsDebugging();
 
+  const outputDirectory =
+    currentModelRunProgress?.startModelOptions.outputDirectory;
+
+  const images: IRunningImage[] = useMemo(() => {
+    return runnerState && outputDirectory
+      ? [
+          ...runnerState.completed.map((fileName) => ({
+            id: fileName,
+            url: `file://${outputDirectory}/${fileName}`,
+            status: ERunningImageStatus.COMPLETED,
+          })),
+          ...runnerState.inProgress.map((fileName) => ({
+            id: fileName,
+            url: `file://${outputDirectory}/${fileName}`,
+            status: ERunningImageStatus.IN_PROGRESS,
+          })),
+          ...runnerState.notStarted.map((fileName) => ({
+            id: fileName,
+            url: `file://${outputDirectory}/${fileName}`,
+            status: ERunningImageStatus.NOT_STARTED,
+          })),
+        ]
+      : [];
+  }, [runnerState, outputDirectory]);
+
   if (!currentModelRunProgress) {
     return (
       <div className="grid h-72 place-content-center">
@@ -19,6 +44,7 @@ function RunModelResults(): JSX.Element {
       </div>
     );
   }
+
   if (!runnerState) {
     return (
       <div className="grid h-72 place-content-center">
@@ -26,27 +52,11 @@ function RunModelResults(): JSX.Element {
       </div>
     );
   }
-  const images: IRunningImage[] = [
-    ...runnerState.completed.map((fileName) => ({
-      id: fileName,
-      url: `file://${currentModelRunProgress.startModelOptions.outputDirectory}/${fileName}`,
-      status: ERunningImageStatus.COMPLETED,
-    })),
-    ...runnerState.inProgress.map((fileName) => ({
-      id: fileName,
-      url: `file://${currentModelRunProgress.startModelOptions.outputDirectory}/${fileName}`,
-      status: ERunningImageStatus.IN_PROGRESS,
-    })),
-    ...runnerState.notStarted.map((fileName) => ({
-      id: fileName,
-      url: `file://${currentModelRunProgress.startModelOptions.outputDirectory}/${fileName}`,
-      status: ERunningImageStatus.NOT_STARTED,
-    })),
-  ];
+
   return (
     <div>
       {images.length === 0 ? (
-        <div className="flex h-40 items-center justify-center">
+        <div className="flex h-72 items-center justify-center">
           <Spin spinning tip="Detecting" />
         </div>
       ) : (

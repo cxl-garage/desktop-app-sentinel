@@ -1,9 +1,12 @@
 import { Spin, Typography } from 'antd';
 import _ from 'lodash';
 import React, { useMemo } from 'react';
+import useLocalStorageState from 'use-local-storage-state';
 import ERunningImageStatus from '../types/ERunningImageStatus';
 import IRunningImage from '../types/IRunningImage';
-import PaginatedImageGrid from './PaginatedImageGrid';
+import EImageGridSize from '../../ui/PaginatedImageGrid/EImageGridSize';
+import ImageGridSizeSelect from '../../ui/GridSizeSelect';
+import PaginatedImageGrid from '../../ui/PaginatedImageGrid';
 
 interface IProps {
   processingImages: IRunningImage[];
@@ -32,6 +35,13 @@ function ImagesLoadingProgressGallery({
   const completedCount = completedImages.length;
   const completedPercentage = Math.round((completedCount * 100) / totalCount);
 
+  const [gridSize, setGridSize] = useLocalStorageState<EImageGridSize>(
+    'gridSize',
+    {
+      defaultValue: EImageGridSize.DEFAULT,
+    },
+  );
+
   return (
     <div className="flex-1">
       <div className="flex justify-between">
@@ -42,11 +52,17 @@ function ImagesLoadingProgressGallery({
             {totalCount})
           </Typography.Text>
         </div>
+        <div>
+          <ImageGridSizeSelect gridSize={gridSize} onChange={setGridSize} />
+        </div>
       </div>
-      <PaginatedImageGrid
-        imageSources={completedImages}
-        inProgressItems={inProgressImages}
-      />
+      <div className="mt-8">
+        <PaginatedImageGrid
+          imageSources={completedImages}
+          inProgressItems={inProgressImages}
+          gridSize={gridSize}
+        />
+      </div>
     </div>
   );
 }

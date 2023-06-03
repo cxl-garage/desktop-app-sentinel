@@ -1,14 +1,14 @@
 import React from 'react';
-import EGridSize from './EGridSize';
+import EImageGridSize from '../PaginatedImageGrid/EImageGridSize';
 
-function PhotoIcon({ size }: { size: EGridSize }): JSX.Element {
+function PhotoIcon({ size }: { size: EImageGridSize }): JSX.Element {
   const w = (() => {
     switch (size) {
-      case EGridSize.LARGE:
+      case EImageGridSize.LARGE:
         return 'w-6 h-6';
-      case EGridSize.SMALL:
+      case EImageGridSize.SMALL:
         return 'w-3.5 h-3.5';
-      case EGridSize.DEFAULT:
+      case EImageGridSize.DEFAULT:
       default:
         return 'w-4.5 h-4.5';
     }
