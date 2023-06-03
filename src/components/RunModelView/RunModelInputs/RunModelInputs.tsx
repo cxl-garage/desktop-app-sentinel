@@ -104,7 +104,7 @@ function RunModelInputs(): JSX.Element {
                 setValue('confidenceThreshold', 20);
                 setValue(
                   'inputDirectory',
-                  '/Users/alee/dev/github/cxl-garage/data-subset',
+                  '/Users/alee/dev/github/cxl-garage/data-subset-2',
                 );
                 setValue(
                   'outputDirectory',

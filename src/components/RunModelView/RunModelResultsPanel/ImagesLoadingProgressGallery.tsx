@@ -1,7 +1,8 @@
 import { LoadingOutlined } from '@ant-design/icons';
-import { Image, Pagination, Radio, Spin, Typography } from 'antd';
+import { Image as AntdImage, Pagination, Radio, Spin, Typography } from 'antd';
+import { AnimatePresence, motion, MotionConfig } from 'framer-motion';
 import _ from 'lodash';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import ERunningImageStatus from '../types/ERunningImageStatus';
 import IRunningImage from '../types/IRunningImage';
@@ -25,7 +26,7 @@ const ImageGrid = styled.div`
   gap: 20px;
 `;
 
-const ImageGridImage = styled(Image)`
+const ImageGridImage = styled(AntdImage)`
   border-radius: 10px;
   object-fit: cover;
   aspect-ratio: 1 / 1;
@@ -72,6 +73,33 @@ function PhotoIcon({ size }: { size: EGridSize }): JSX.Element {
     </span>
   );
 }
+
+const variants = {
+  enter: (direction: number) => {
+    if (Math.abs(direction) > 1) {
+      return { x: `0%` };
+    }
+    return { x: `${direction * 100}%` };
+  },
+  middle: { x: '0%' },
+  exit: (direction: number) => {
+    if (Math.abs(direction) > 1) {
+      return { x: `0%` };
+    }
+    return { x: `${direction * -100}%` };
+  },
+};
+
+function usePrevious<T>(newValue: T): T | undefined {
+  const previousRef = React.useRef<T>();
+
+  React.useEffect(() => {
+    previousRef.current = newValue;
+  });
+
+  return previousRef.current;
+}
+
 interface IProps {
   processingImages: IRunningImage[];
 }
@@ -84,68 +112,116 @@ function ImagesLoadingProgressGallery({
     status: ERunningImageStatus.COMPLETED,
   }).length;
   const completedPercentage = Math.round((completedCount * 100) / totalCount);
-  const inProgressOrCompletedImages = processingImages.filter(
-    (it) =>
-      it.status === ERunningImageStatus.IN_PROGRESS ||
-      it.status === ERunningImageStatus.COMPLETED,
+  const inProgressOrCompletedImages = useMemo(
+    () =>
+      processingImages.filter(
+        (it) =>
+          it.status === ERunningImageStatus.IN_PROGRESS ||
+          it.status === ERunningImageStatus.COMPLETED,
+      ),
+    [processingImages],
   );
   const DEFAULT_PAGE_SIZE = 10;
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
   const itemCount = inProgressOrCompletedImages.length;
   const [currentPage, setCurrentPage] = useState<number>(1);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [pageSize]);
+  const prevPage = usePrevious(currentPage);
+  const direction = currentPage - (prevPage ?? -1);
   const displayItems = inProgressOrCompletedImages.slice(
     (currentPage - 1) * pageSize,
     Math.min(currentPage * pageSize, itemCount),
   );
   const [gridSize, setGridSize] = useState<EGridSize>(EGridSize.DEFAULT);
+  useEffect(() => {
+    const imagesOnNextPage = inProgressOrCompletedImages
+      .slice(
+        currentPage * pageSize,
+        Math.min((currentPage + 1) * pageSize, itemCount),
+      )
+      .filter(({ status }) => status === ERunningImageStatus.COMPLETED);
+    const imagesOnPrevPage = inProgressOrCompletedImages
+      .slice(
+        Math.max((currentPage - 2) * pageSize, 0),
+        Math.min((currentPage - 1) * pageSize, itemCount),
+      )
+      .filter(({ status }) => status === ERunningImageStatus.COMPLETED);
+    [...imagesOnNextPage, ...imagesOnPrevPage].forEach(({ url }) => {
+      const img = new Image();
+      img.src = url;
+    });
+  }, [currentPage, pageSize, inProgressOrCompletedImages, itemCount]);
   return (
-    <div className="flex-1">
-      <div className="flex justify-between">
-        <div>
-          {completedPercentage !== 100 && <Spin style={{ marginRight: 12 }} />}
-          <Typography.Text>
-            {completedPercentage}% Processing images ({completedCount}/
-            {totalCount})
-          </Typography.Text>
+    <MotionConfig transition={{ duration: 0.5 }}>
+      <div className="flex-1">
+        <div className="flex justify-between">
+          <div>
+            {completedPercentage !== 100 && (
+              <Spin style={{ marginRight: 12 }} />
+            )}
+            <Typography.Text className="whitespace-nowrap">
+              {completedPercentage}% Processing images ({completedCount}/
+              {totalCount})
+            </Typography.Text>
+          </div>
+          <Radio.Group
+            size="small"
+            className="whitespace-nowrap"
+            options={[EGridSize.SMALL, EGridSize.DEFAULT, EGridSize.LARGE].map(
+              (it) => ({ label: <PhotoIcon size={it} />, value: it }),
+            )}
+            onChange={(e) => setGridSize(e.target.value)}
+            value={gridSize}
+            optionType="button"
+          />
         </div>
-        <Radio.Group
-          size="small"
-          options={[EGridSize.SMALL, EGridSize.DEFAULT, EGridSize.LARGE].map(
-            (it) => ({ label: <PhotoIcon size={it} />, value: it }),
-          )}
-          onChange={(e) => setGridSize(e.target.value)}
-          value={gridSize}
-          optionType="button"
-        />
+        <div className="relative mt-8 overflow-hidden">
+          <AnimatePresence mode="popLayout" initial={false} custom={direction}>
+            <motion.div
+              key={currentPage}
+              className="-mx-2.5 px-2.5"
+              variants={variants}
+              initial="enter"
+              animate="middle"
+              exit="exit"
+              custom={direction}
+            >
+              <ImageGrid size={gridSize}>
+                {displayItems.map((it) => {
+                  return it.status === ERunningImageStatus.IN_PROGRESS ? (
+                    <LoadingImageWrapper key={it.id}>
+                      <LoadingOutlined
+                        style={{ fontSize: 64, color: '#00AAFF' }}
+                      />
+                    </LoadingImageWrapper>
+                  ) : (
+                    <ImageGridImage key={it.id} src={it.url} />
+                  );
+                })}
+              </ImageGrid>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        <div className="mt-8">
+          <Pagination
+            total={itemCount}
+            showTotal={(total, range) =>
+              `${range[0]}-${range[1]} of ${total} images`
+            }
+            defaultCurrent={1}
+            pageSize={pageSize}
+            hideOnSinglePage={itemCount <= DEFAULT_PAGE_SIZE}
+            showSizeChanger
+            onChange={(page, pSize) => {
+              setCurrentPage(page);
+              setPageSize(pSize);
+            }}
+          />
+        </div>
       </div>
-      <ImageGrid className="mt-8" size={gridSize}>
-        {displayItems.map((it) => {
-          return it.status === ERunningImageStatus.IN_PROGRESS ? (
-            <LoadingImageWrapper key={it.id}>
-              <LoadingOutlined style={{ fontSize: 64, color: '#00AAFF' }} />
-            </LoadingImageWrapper>
-          ) : (
-            <ImageGridImage key={it.id} src={it.url} />
-          );
-        })}
-      </ImageGrid>
-      <div className="mt-8">
-        <Pagination
-          total={itemCount}
-          showTotal={(total, range) =>
-            `${range[0]}-${range[1]} of ${total} images`
-          }
-          defaultCurrent={1}
-          pageSize={pageSize}
-          hideOnSinglePage={itemCount <= DEFAULT_PAGE_SIZE}
-          showSizeChanger
-          onChange={(page, pSize) => {
-            setCurrentPage(page);
-            setPageSize(pSize);
-          }}
-        />
-      </div>
-    </div>
+    </MotionConfig>
   );
 }
 
