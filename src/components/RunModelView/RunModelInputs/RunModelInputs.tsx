@@ -37,7 +37,12 @@ function RunModelInputs(): JSX.Element {
     control,
     formState: { errors, touchedFields },
     setValue,
-  } = useForm<IRunModelInputsFormValues>({ mode: 'onBlur' });
+  } = useForm<IRunModelInputsFormValues>({
+    mode: 'onBlur',
+    defaultValues: {
+      confidenceThreshold: 40,
+    },
+  });
 
   const currentModelRun = currentModelRunProgress?.modelRun;
 
@@ -104,7 +109,7 @@ function RunModelInputs(): JSX.Element {
                 setValue('confidenceThreshold', 20);
                 setValue(
                   'inputDirectory',
-                  '/Users/alee/dev/github/cxl-garage/data-subset',
+                  '/Users/alee/dev/github/cxl-garage/data-subset-2',
                 );
                 setValue(
                   'outputDirectory',
