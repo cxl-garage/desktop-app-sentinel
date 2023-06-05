@@ -96,6 +96,12 @@ async function writeDetection(
         }
       });
 
+      console.log('saving file', {
+        outputFolder,
+        className,
+        name,
+      });
+
       await save(path.join(outputFolder, className, name), image, overlay);
       break;
     }
@@ -155,12 +161,15 @@ export async function detect(
     instances: [dataArray],
   };
   // TODO: Should we retry this with a sleep?
+  console.log('sending http request');
   const response = await fetch(url, {
     method: 'post',
     body: JSON.stringify(body),
     headers: { 'Content-Type': 'application/json' },
   });
+  console.log('got response');
   const json = await response.json();
+  console.log('found predictions', json);
   const elapsedDetect = Date.now() - beforeDetect;
   const predictions: SentinelPredictions = json.predictions[0];
 
@@ -182,6 +191,11 @@ export async function detect(
       })
       .filter((prediction) => prediction.confidence > threshold);
 
+    // TODO: you are here. find out why these aren't writing to disk when blank.
+    //    and why the process hangs in Electron and never ends. and why images
+    //    aren't outputting (answer: bc its not flat anymore so Ang's logic
+    //    doesn't work)
+
     // process all passing predictions asynchronously
     await Promise.all(
       predictionsAboveThreshold.map(async (detection) => {
@@ -194,6 +208,7 @@ export async function detect(
           filePath: path.join(folder, name),
           bbox,
         };
+        console.log('Successful detection result', detectionResult);
 
         // Assume input and output size are the same to simplify bbox computations
         detections.push(detectionResult);
@@ -204,6 +219,7 @@ export async function detect(
       }),
     );
   } else {
+    console.log('Dit not detect anything.');
     const detectionResult = {
       fileName: name,
       className: EMPTY_IMAGE_CLASS,
