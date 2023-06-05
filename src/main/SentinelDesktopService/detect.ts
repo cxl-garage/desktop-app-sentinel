@@ -95,13 +95,6 @@ async function writeDetection(
           fs.mkdirSync(animalClassDir);
         }
       });
-
-      console.log('saving file', {
-        outputFolder,
-        className,
-        name,
-      });
-
       await save(path.join(outputFolder, className, name), image, overlay);
       break;
     }
@@ -161,88 +154,82 @@ export async function detect(
     instances: [dataArray],
   };
   // TODO: Should we retry this with a sleep?
-  console.log('sending http request');
-  const response = await fetch(url, {
-    method: 'post',
-    body: JSON.stringify(body),
-    headers: { 'Content-Type': 'application/json' },
-  });
-  console.log('got response');
-  const json = await response.json();
-  console.log('found predictions', json);
-  const elapsedDetect = Date.now() - beforeDetect;
-  const predictions: SentinelPredictions = json.predictions[0];
+  try {
+    const response = await fetch(url, {
+      method: 'post',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const json = await response.json();
+    const elapsedDetect = Date.now() - beforeDetect;
+    const predictions: SentinelPredictions = json.predictions[0];
 
-  // Look through the output for all results that exceed the confidence threshold,
-  // write out the image with the bounding box if detected and return the result
-  // from this function.
-  let totalWrite = 0;
-  const threshold = options.threshold ?? DEFAULT_THRESHOLD;
+    // Look through the output for all results that exceed the confidence threshold,
+    // write out the image with the bounding box if detected and return the result
+    // from this function.
+    let totalWrite = 0;
+    const threshold = options.threshold ?? DEFAULT_THRESHOLD;
 
-  // check if the first prediction is above our `threshold`, otherwise it means
-  // no predictions passed (so we classify this with the `EMPTY_IMAGE_CLASS`)
-  if (predictions.output_1[0] > threshold) {
-    const predictionsAboveThreshold = predictions.output_1
-      .map((confidence, i) => {
-        const bbox = predictions.output_0[i];
-        const classId = predictions.output_2[i];
-        const className = options.classNames[classId - 1];
-        return { bbox, classId, className, confidence };
-      })
-      .filter((prediction) => prediction.confidence > threshold);
+    // check if the first prediction is above our `threshold`, otherwise it means
+    // no predictions passed (so we classify this with the `EMPTY_IMAGE_CLASS`)
+    if (predictions.output_1[0] > threshold) {
+      const predictionsAboveThreshold = predictions.output_1
+        .map((confidence, i) => {
+          const bbox = predictions.output_0[i];
+          const classId = predictions.output_2[i];
+          const className = options.classNames[classId - 1];
+          return { bbox, classId, className, confidence };
+        })
+        .filter((prediction) => prediction.confidence > threshold);
 
-    // TODO: you are here. find out why these aren't writing to disk when blank.
-    //    and why the process hangs in Electron and never ends. and why images
-    //    aren't outputting (answer: bc its not flat anymore so Ang's logic
-    //    doesn't work)
+      // process all passing predictions asynchronously
+      await Promise.all(
+        predictionsAboveThreshold.map(async (detection) => {
+          const { bbox, className, classId, confidence } = detection;
+          const detectionResult = {
+            fileName: name,
+            className,
+            classId,
+            confidence,
+            filePath: path.join(folder, name),
+            bbox,
+          };
 
-    // process all passing predictions asynchronously
-    await Promise.all(
-      predictionsAboveThreshold.map(async (detection) => {
-        const { bbox, className, classId, confidence } = detection;
-        const detectionResult = {
-          fileName: name,
-          className,
-          classId,
-          confidence,
-          filePath: path.join(folder, name),
-          bbox,
-        };
-        console.log('Successful detection result', detectionResult);
+          // Assume input and output size are the same to simplify bbox computations
+          detections.push(detectionResult);
+          const beforeWrite = Date.now();
+          await writeDetection(name, image, detectionResult, options);
+          totalWrite += Date.now() - beforeWrite;
+        }),
+      );
+    } else {
+      const detectionResult = {
+        fileName: name,
+        className: EMPTY_IMAGE_CLASS,
+        classId: 0,
+        confidence: 0,
+        filePath: path.join(folder, name),
+        bbox: [0, 0, 0, 0] as BoundingBox,
+      };
 
-        // Assume input and output size are the same to simplify bbox computations
-        detections.push(detectionResult);
+      detections.push(detectionResult);
+      const beforeWrite = Date.now();
+      await writeDetection(name, image, detectionResult, options);
+      totalWrite += Date.now() - beforeWrite;
+    }
 
-        const beforeWrite = Date.now();
-        await writeDetection(name, image, detectionResult, options);
-        totalWrite += Date.now() - beforeWrite;
-      }),
+    // TODO: This is the place to catch any exceptions and write an error output
+    // detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
+    const elapsed = Date.now() - startTime;
+    console.log(
+      `Detecting ${name} finished in ${elapsedRead} (read) + ${elapsedDetect} (detect) + ${totalWrite} write = ${elapsed} ms`,
     );
-  } else {
-    console.log('Dit not detect anything.');
-    const detectionResult = {
-      fileName: name,
-      className: EMPTY_IMAGE_CLASS,
-      classId: 0,
-      confidence: 0,
-      filePath: path.join(folder, name),
-      bbox: [0, 0, 0, 0] as BoundingBox,
-    };
 
-    detections.push(detectionResult);
-    const beforeWrite = Date.now();
-    await writeDetection(name, image, detectionResult, options);
-    totalWrite += Date.now() - beforeWrite;
+    return detections;
+  } catch (e) {
+    console.error(`Error detecting for ${name}`, e);
+    throw e;
   }
-
-  // TODO: This is the place to catch any exceptions and write an error output
-  // detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
-  const elapsed = Date.now() - startTime;
-  console.log(
-    `Detecting ${name} finished in ${elapsedRead} (read) + ${elapsedDetect} (detect) + ${totalWrite} write = ${elapsed} ms`,
-  );
-
-  return detections;
 }
 
 export function getDetectionCounts(
