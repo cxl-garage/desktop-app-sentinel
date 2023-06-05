@@ -14,12 +14,9 @@ const preloadImage = (src: string): void => {
   const img = new Image();
   images.set(src, img);
   img.src = src;
-  // img.onload = () => {
-  //   console.log(`finish loading ${src}`);
-  // };
-  // img.onerror = () => {
-  //   console.log(`error loading ${src}`);
-  // };
+  img.onerror = () => {
+    console.error(`error loading image at ${src}`);
+  };
 };
 
 const usePreloadImage = ({ imageSources }: IProps): void => {

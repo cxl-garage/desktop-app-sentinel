@@ -1,4 +1,5 @@
 import React from 'react';
+import assertUnreachable from '../../../util/assertUnreachable';
 import EImageGridSize from '../PaginatedImageGrid/EImageGridSize';
 
 function PhotoIcon({ size }: { size: EImageGridSize }): JSX.Element {
@@ -9,8 +10,10 @@ function PhotoIcon({ size }: { size: EImageGridSize }): JSX.Element {
       case EImageGridSize.SMALL:
         return 'w-3.5 h-3.5';
       case EImageGridSize.DEFAULT:
-      default:
         return 'w-4.5 h-4.5';
+      default:
+        assertUnreachable(size);
+        return '';
     }
   })();
   return (

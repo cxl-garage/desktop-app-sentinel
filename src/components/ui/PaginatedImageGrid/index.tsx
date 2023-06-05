@@ -39,7 +39,7 @@ const LoadingImageWrapper = styled.div`
 
 interface IProps {
   imageSources: string[];
-  inProgressItems?: string[];
+  inProgressItems?: string[]; // each of the in-progress item will cause a spinner to display in the grid. Each item should be the source(string) of an image (This is not currently displayed in the UI).
   gridSize?: EImageGridSize;
 }
 

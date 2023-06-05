@@ -106,15 +106,9 @@ function RunModelInputs(): JSX.Element {
               onClick={() => {
                 setValue('modelName', 'osa_jaguar');
                 setValue('outputStyle', RunModelOptions.EOutputStyle.FLAT);
-                setValue('confidenceThreshold', 20);
-                setValue(
-                  'inputDirectory',
-                  '/Users/alee/dev/github/cxl-garage/data-subset-2',
-                );
-                setValue(
-                  'outputDirectory',
-                  '/Users/alee/dev/github/cxl-garage/output',
-                );
+                setValue('confidenceThreshold', 40);
+                setValue('inputDirectory', './data');
+                setValue('outputDirectory', './results');
               }}
             >
               Prefill Value
