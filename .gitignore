@@ -39,3 +39,6 @@ prisma/dev.db
 prisma/dev.db-journal
 prisma/migrations
 release/app/prisma
+
+# Prisma-generated code
+src/generated/**
