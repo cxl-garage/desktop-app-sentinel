@@ -29,7 +29,6 @@ function DirectoryInput({ value, onChange }: IProps): JSX.Element {
             className="text-red-400"
             onClick={() => {
               if (onChange) {
-                console.log('setting to empty');
                 onChange('');
               }
             }}
