@@ -37,7 +37,6 @@ export function PastResultsView(): JSX.Element {
     );
   } else {
     pageContents = (
-      // eslint-disable-next-line react/jsx-no-useless-fragment
       <div className="mt-4">
         {pastResults.length ? (
           pastResults?.map((modelRunMetadata) => (
