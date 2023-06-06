@@ -1,5 +1,5 @@
 import { Empty, Spin } from 'antd';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import ReactJson from 'react-json-view';
 import { useIsDebugging } from '../DebuggingContext/IsDebuggingContext';
 import ERunningImageStatus from '../types/ERunningImageStatus';
@@ -18,9 +18,11 @@ function RunModelResults(): JSX.Element {
   const images: IRunningImage[] = useMemo(() => {
     return runnerState && outputDirectory
       ? [
-          ...runnerState.completed.map((fileName) => ({
+          ...runnerState.completed.map(({ fileName, parentDir }) => ({
             id: fileName,
-            url: `file://${outputDirectory}/${fileName}`,
+            url: parentDir
+              ? `file://${outputDirectory}/${parentDir}/${fileName}`
+              : `file://${outputDirectory}/${fileName}`,
             status: ERunningImageStatus.COMPLETED,
           })),
           ...runnerState.inProgress.map((fileName) => ({

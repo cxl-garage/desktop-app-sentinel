@@ -132,7 +132,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
 
       // TODO: It takes some time for the image to start, so wait
       await new Promise((resolve) => {
-        setTimeout(resolve, 5000);
+        setTimeout(resolve, 10 * 1000);
       });
 
       this.runner.start({
