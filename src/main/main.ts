@@ -41,10 +41,11 @@ ipcMain.handle('api/logs/getAll', async (): Promise<LogRecord.T[]> => {
 
 ipcMain.handle(
   'api/cxl-model-results/getAll',
-  async (): Promise<ModelRun[]> => {
+  async (_event, modelName?: string): Promise<ModelRun[]> => {
     console.log('Calling api/cxl-model-results/getAll');
-    const cxlModelResults =
-      await SentinelDesktopService.getAllCXLModelResults();
+    const cxlModelResults = await SentinelDesktopService.getAllCXLModelResults(
+      modelName,
+    );
     return cxlModelResults;
   },
 );

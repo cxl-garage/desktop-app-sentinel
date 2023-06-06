@@ -1,42 +1,66 @@
 import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Col, Input, Row } from 'antd';
+import { Col, Empty, Input, Row } from 'antd';
+import _ from 'lodash';
+import { useRef } from 'react';
 import { ResultsSummaryCard } from './ResultsSummaryCard';
-
-const READ_PAST_RESULTS_QUERY = ['allPastResults'];
+import { ResultsSummaryCardSkeleton } from './ResultsSummaryCardSkeleton';
 
 export function PastResultsView(): JSX.Element {
-  // read results written by the python script
+  const [modelSearchTerm, setModelSearchTerm] = React.useState('');
+
   const { data: pastResults } = useQuery({
-    queryFn: window.SentinelDesktopService.getAllCXLModelResults,
-    queryKey: READ_PAST_RESULTS_QUERY,
+    queryFn: () =>
+      window.SentinelDesktopService.getAllCXLModelResults(modelSearchTerm),
+    queryKey: ['allPastResults', modelSearchTerm],
   });
-  const [localPath, setLocalPath] = React.useState('');
+
+  const debouncedSearchTermUpdate = useRef(
+    _.debounce(async (searchTerm) => {
+      setModelSearchTerm(searchTerm);
+    }, 300),
+  ).current;
 
   const handlePathInput = (
     event: React.ChangeEvent<HTMLInputElement>,
   ): void => {
-    setLocalPath(event.target.value);
+    debouncedSearchTermUpdate(event.target.value);
   };
 
+  let pageContents;
   if (!pastResults) {
-    return <div>Loading...</div>;
+    pageContents = (
+      <>
+        <ResultsSummaryCardSkeleton />
+        <ResultsSummaryCardSkeleton />
+      </>
+    );
+  } else {
+    pageContents = (
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      <div className="mt-4">
+        {pastResults.length ? (
+          pastResults?.map((modelRunMetadata) => (
+            <ResultsSummaryCard
+              modelRunMetadata={modelRunMetadata}
+              key={modelRunMetadata.id}
+            />
+          ))
+        ) : (
+          <Empty />
+        )}
+      </div>
+    );
   }
   return (
     <Row gutter={[16, 16]} className="my-4">
       <Col span={22} offset={1}>
         <Input
-          placeholder="Search results... (currently: proof-of-concept local path loader)"
+          placeholder="Search by model name..."
           onChange={handlePathInput}
           className="max-w-lg"
         />
-        {pastResults?.map((modelRunMetadata) => (
-          <ResultsSummaryCard
-            modelRunMetadata={modelRunMetadata}
-            key={modelRunMetadata.id}
-            imagePathOverride={localPath !== '' ? localPath : undefined}
-          />
-        ))}
+        {pageContents}
       </Col>
     </Row>
   );

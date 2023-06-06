@@ -11,7 +11,7 @@ declare global {
     // removed, this type should just be the ISentinelDesktopService type
     SentinelDesktopService: {
       getAllLogRecords: () => Promise<LogRecord.T[]>;
-      getAllCXLModelResults: () => Promise<ModelRun[]>;
+      getAllCXLModelResults: (modelName?: string) => Promise<ModelRun[]>;
       getFilesInDir: (dirPath: string) => Promise<string[]>;
       getImages: () => Promise<ImageInfo[]>;
       getContainers: () => Promise<ContainerInfo[]>;

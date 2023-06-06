@@ -14,17 +14,12 @@ import {
 
 type Props = {
   modelRunMetadata: ModelRun;
-  imagePathOverride?: string;
 };
 
-export function ResultsSummaryCard({
-  modelRunMetadata,
-  imagePathOverride,
-}: Props): JSX.Element {
+export function ResultsSummaryCard({ modelRunMetadata }: Props): JSX.Element {
   const { startTime, outputPath } = modelRunMetadata;
-  const outputPathToUse = imagePathOverride ?? outputPath;
   const navigate = useNavigate();
-  const url = `/past-results/${encodeURIComponent(outputPathToUse)}`;
+  const url = `/past-results/${encodeURIComponent(outputPath)}`;
 
   const runStartDate = getDateFromTimestamp(startTime, 's');
 
@@ -37,8 +32,8 @@ export function ResultsSummaryCard({
           </Col>
           <Col span={12}>
             <Row>
-              {outputPathToUse ? (
-                <ModelRunImagePreview localPath={outputPathToUse} count={6} />
+              {outputPath ? (
+                <ModelRunImagePreview localPath={outputPath} count={6} />
               ) : (
                 <ModelRunImagePreviewPlaceholder count={6} />
               )}
