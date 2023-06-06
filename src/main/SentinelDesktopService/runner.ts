@@ -1,10 +1,12 @@
 import * as async from 'async';
 import * as fs from 'node:fs/promises';
+import assertUnreachable from '../../util/assertUnreachable';
 import { PrismaClient } from '../../generated/prisma/client';
 import { RunnerState } from '../../models/ModelRunProgress';
 import ERunningImageStatus from '../../components/RunModelView/types/ERunningImageStatus';
 import {
   detect,
+  DetectionResult,
   DetectOptions,
   getDetectionCounts,
   OutputStyle,
@@ -18,19 +20,32 @@ type JobTask = {
   runId: number;
 };
 
+type JobStatus =
+  | {
+      status: ERunningImageStatus.NOT_STARTED | ERunningImageStatus.IN_PROGRESS;
+    }
+  | {
+      status: ERunningImageStatus.COMPLETED;
+      detections: DetectionResult[];
+      detectionOptions: DetectOptions;
+    };
+
+type JobResponse = DetectionResult[];
+
 export class ModelRunner {
-  queue: async.QueueObject<any>;
+  queue: async.QueueObject<JobTask>;
 
-  private detectWorker: (task: JobTask, callback: () => void) => Promise<void>;
+  private detectWorker: (task: JobTask) => Promise<JobResponse>;
 
-  statusMap: Map<string, ERunningImageStatus>; // filename ->  status
+  statusMap: Map<string, JobStatus>;
 
   constructor(prismaClient: PrismaClient) {
     this.statusMap = new Map();
-    this.detectWorker = async (task: JobTask, callback) => {
-      this.statusMap.set(task.file, ERunningImageStatus.IN_PROGRESS);
+    this.detectWorker = async (task: JobTask) => {
+      this.statusMap.set(task.file, {
+        status: ERunningImageStatus.IN_PROGRESS,
+      });
       const detections = await detect(task.folder, task.file, task.options);
-
       const detectionMetadata = getDetectionCounts(detections);
 
       // update the stats of the current model run with the newest data we
@@ -45,7 +60,8 @@ export class ModelRunner {
           emptyImageCount: { increment: detectionMetadata.emptyImageCount },
         },
       });
-      callback();
+
+      return detections;
     };
     this.queue = async.queue(this.detectWorker, 3);
   }
@@ -66,9 +82,9 @@ export class ModelRunner {
   getProgress(): RunnerState {
     const notStarted: string[] = [];
     const inProgress: string[] = [];
-    const completed: string[] = [];
-    this.statusMap.forEach((status, file) => {
-      switch (status) {
+    const completed: Array<{ fileName: string; parentDir?: string }> = [];
+    this.statusMap.forEach((jobStatus, file) => {
+      switch (jobStatus.status) {
         case ERunningImageStatus.NOT_STARTED: {
           notStarted.push(file);
           break;
@@ -78,12 +94,24 @@ export class ModelRunner {
           break;
         }
         case ERunningImageStatus.COMPLETED: {
-          completed.push(file);
+          const { detections, detectionOptions } = jobStatus;
+          detections.forEach((detection) => {
+            if (detectionOptions.outputStyle === 'class') {
+              // if output style is 'class' then we need to also pass a `parentDir`
+              // so that the frontend knows how to find this image by taking the
+              // concatenation of {outputDir}/{parentDir}/{file}
+              completed.push({
+                fileName: file,
+                parentDir: detection.className,
+              });
+            } else {
+              completed.push({ fileName: file });
+            }
+          });
           break;
         }
-        default: {
-          break;
-        }
+        default:
+          assertUnreachable(jobStatus);
       }
     });
 
@@ -117,16 +145,30 @@ export class ModelRunner {
       const files = await fs.readdir(inputFolder);
       const startTime = Date.now();
       files.forEach((file) => {
-        this.statusMap.set(file, ERunningImageStatus.NOT_STARTED);
+        this.statusMap.set(file, { status: ERunningImageStatus.NOT_STARTED });
         const task: JobTask = {
           folder: inputFolder,
           file,
           options,
           runId: modelRunId,
         };
-        this.queue.push(task, (_err) => {
-          this.statusMap.set(file, ERunningImageStatus.COMPLETED);
-        });
+        this.queue.push(
+          task,
+          (err?: Error | null, detectionResults?: JobResponse) => {
+            if (err) {
+              console.log('Error procsesing task', task);
+              console.error(err);
+            }
+
+            if (detectionResults) {
+              this.statusMap.set(file, {
+                status: ERunningImageStatus.COMPLETED,
+                detectionOptions: task.options,
+                detections: detectionResults,
+              });
+            }
+          },
+        );
       });
       this.queue.drain(() => {
         const elapsed = Date.now() - startTime;
