@@ -7,7 +7,7 @@ import * as ModelRunProgress from '../../models/ModelRunProgress';
 
 export interface ISentinelDesktopService {
   getAllLogRecords(): Promise<LogRecord.T[]>;
-  getAllCXLModelResults(): Promise<ModelRun[]>;
+  getAllCXLModelResults(modelName?: string): Promise<ModelRun[]>;
   getFilesInDir: (dirPath: string) => Promise<string[]>;
   getImages: () => Promise<ImageInfo[]>;
   getContainers: () => Promise<ContainerInfo[]>;

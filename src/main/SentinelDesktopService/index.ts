@@ -179,15 +179,18 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     });
   }
 
-  /**
-   * Read Results.json, which has been populated by RunCli2.py.
-   * This has the number of objects detected, number of total images, and
-   * number of empty images.
-   *
-   * TODO: this is likely to change as we build out this functionality more.
-   */
-  getAllCXLModelResults(): Promise<ModelRun[]> {
+  getAllCXLModelResults(modelNameFilter?: string): Promise<ModelRun[]> {
+    let whereClause;
+    if (modelNameFilter != null && modelNameFilter.length) {
+      whereClause = {
+        modelName: {
+          contains: modelNameFilter,
+        },
+      };
+    }
+
     return this.prisma.modelRun.findMany({
+      where: whereClause,
       orderBy: [{ startTime: 'desc' }],
     });
   }
