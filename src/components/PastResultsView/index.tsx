@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Col, Empty, Input, Row } from 'antd';
 import _ from 'lodash';
-import { useRef } from 'react';
+import { useCallback } from 'react';
 import { ResultsSummaryCard } from './ResultsSummaryCard';
 import { ResultsSummaryCardSkeleton } from './ResultsSummaryCardSkeleton';
 
@@ -15,11 +15,13 @@ export function PastResultsView(): JSX.Element {
     queryKey: ['allPastResults', modelSearchTerm],
   });
 
-  const debouncedSearchTermUpdate = useRef(
-    _.debounce(async (searchTerm) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSearchTermUpdate = useCallback(
+    _.debounce((searchTerm) => {
       setModelSearchTerm(searchTerm);
     }, 300),
-  ).current;
+    [],
+  );
 
   const handlePathInput = (
     event: React.ChangeEvent<HTMLInputElement>,
