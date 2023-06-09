@@ -192,7 +192,13 @@ export async function detect(
             classId,
             confidence,
             filePath: path.join(folder, name),
-            bbox,
+            // To match Python CLI, normalize bounding box to input size
+            bbox: [
+              bbox[0] / size,
+              bbox[1] / size,
+              bbox[2] / size,
+              bbox[3] / size,
+            ] as BoundingBox,
           };
 
           // Assume input and output size are the same to simplify bbox computations

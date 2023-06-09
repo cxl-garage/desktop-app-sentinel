@@ -12,6 +12,7 @@ import {
   OutputStyle,
 } from './detect';
 import { getClassNames } from './docker';
+import { CsvFile } from './csv';
 
 type JobTask = {
   folder: string;
@@ -133,7 +134,6 @@ export class ModelRunner {
     modelName: string;
     modelRunId: number;
   }): Promise<void> {
-    // This information should be exposed to the GUI
     const options: DetectOptions = {
       threshold,
       modelName,
@@ -141,6 +141,8 @@ export class ModelRunner {
       outputFolder,
       outputStyle,
     };
+
+    const csvFile = new CsvFile(outputFolder);
     try {
       const files = await fs.readdir(inputFolder);
       const startTime = Date.now();
@@ -166,6 +168,9 @@ export class ModelRunner {
                 detectionOptions: task.options,
                 detections: detectionResults,
               });
+              detectionResults.forEach((detection) =>
+                csvFile.append(detection),
+              );
             }
           },
         );
@@ -173,10 +178,12 @@ export class ModelRunner {
       this.queue.drain(() => {
         const elapsed = Date.now() - startTime;
         console.log(`All files finished processing in ${elapsed}`);
+        csvFile.close();
       });
     } catch (error) {
       // ignore
       console.error('Runner Error');
+      csvFile.close();
     }
   }
 }
