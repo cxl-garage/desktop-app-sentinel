@@ -181,9 +181,9 @@ export class ModelRunner {
         csvFile.close();
       });
     } catch (error) {
-      // ignore
       console.error('Runner Error');
       csvFile.close();
+      throw error;
     }
   }
 }

@@ -47,24 +47,13 @@ function RunModelResults(): JSX.Element {
     );
   }
 
-  if (!runnerState) {
-    return (
-      <div className="grid h-72 place-content-center">
-        <div>
-          <Spin spinning />
-          <Typography.Text className="ml-2">Starting ...</Typography.Text>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div>
-      {images.length === 0 ? (
+      {!currentModelRunProgress.runnerState || images.length === 0 ? (
         <div className="flex h-72 items-center justify-center">
           <div>
             <Spin spinning />
-            <Typography.Text className="ml-2">Detecting ...</Typography.Text>
+            <Typography.Text className="ml-2">Starting ...</Typography.Text>
           </div>
         </div>
       ) : (
