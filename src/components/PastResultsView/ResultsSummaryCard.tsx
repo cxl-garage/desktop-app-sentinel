@@ -17,9 +17,9 @@ type Props = {
 };
 
 export function ResultsSummaryCard({ modelRunMetadata }: Props): JSX.Element {
-  const { startTime, outputPath } = modelRunMetadata;
+  const { startTime, id: modelId } = modelRunMetadata;
   const navigate = useNavigate();
-  const url = `/past-results/${encodeURIComponent(outputPath)}`;
+  const url = `/past-results/${encodeURIComponent(modelId)}`;
 
   const runStartDate = getDateFromTimestamp(startTime, 's');
 
@@ -32,8 +32,8 @@ export function ResultsSummaryCard({ modelRunMetadata }: Props): JSX.Element {
           </Col>
           <Col span={12}>
             <Row>
-              {outputPath ? (
-                <ModelRunImagePreview localPath={outputPath} count={6} />
+              {modelId ? (
+                <ModelRunImagePreview modelId={modelId} count={6} />
               ) : (
                 <ModelRunImagePreviewPlaceholder count={6} />
               )}

@@ -43,11 +43,11 @@ export function ModelRunImagePreviewPlaceholder({
 
 // TODO: Paginate
 export function ModelRunImagePreview({
-  localPath,
+  modelId,
   count,
   imagesPerRow,
 }: {
-  localPath: string;
+  modelId: number;
   count?: number;
   imagesPerRow?: number;
 }): JSX.Element {
@@ -56,8 +56,8 @@ export function ModelRunImagePreview({
     isError,
     error,
   } = useQuery({
-    queryFn: () => window.SentinelDesktopService.getFilesInDir(localPath),
-    queryKey: ['fetchDir', localPath],
+    queryFn: () => window.SentinelDesktopService.getModelOutputs(modelId),
+    queryKey: ['getModelOutputs', modelId],
   });
   if (isError) {
     return (

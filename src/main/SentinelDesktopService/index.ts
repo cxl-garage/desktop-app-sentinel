@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable class-methods-use-this */
 import path from 'path';
 import fs from 'fs';
@@ -8,6 +9,7 @@ import * as LogRecord from 'models/LogRecord';
 import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { app } from 'electron';
+import { readdir } from 'fs/promises';
 import { ModelRun, PrismaClient } from '../../generated/prisma/client';
 import * as RunModelOptions from '../../models/RunModelOptions';
 import * as ModelRunProgress from '../../models/ModelRunProgress';
@@ -195,17 +197,32 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     });
   }
 
-  getFilesInDir(dirPath: string): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      fs.readdir(dirPath, (err: unknown, files: string[]) => {
-        if (err) {
-          reject(new Error(`Unable to read directory: ${dirPath}`));
-        } else {
-          // Return full paths
-          resolve(files.map((file) => path.join(dirPath, file)));
-        }
-      });
+  async getFilesInDir(dirPath: string, recursive?: boolean): Promise<string[]> {
+    const dirents = await readdir(dirPath, { withFileTypes: true });
+    const files = await Promise.all(
+      dirents.map((dirent) => {
+        const res = path.resolve(dirPath, dirent.name);
+        return dirent.isDirectory() && recursive
+          ? this.getFilesInDir(res, recursive)
+          : res;
+      }),
+    );
+    return Array.prototype.concat(...files);
+  }
+
+  async getModelOutputs(modelId: number): Promise<string[]> {
+    const model = await this.prisma.modelRun.findUnique({
+      where: { id: modelId },
     });
+    if (model?.outputStyle === 'flat') {
+      return this.getFilesInDir(model.outputPath, false);
+    }
+    if (model?.outputStyle === 'class') {
+      return this.getFilesInDir(model.outputPath, true);
+    }
+    throw new Error(
+      `Output style '${model?.outputStyle}' is not implemented yet.`,
+    );
   }
 }
 
