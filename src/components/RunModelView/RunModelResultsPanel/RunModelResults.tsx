@@ -1,4 +1,4 @@
-import { Empty, Spin } from 'antd';
+import { Empty, Spin, Typography } from 'antd';
 import { useMemo } from 'react';
 import ReactJson from 'react-json-view';
 import { useIsDebugging } from '../DebuggingContext/IsDebuggingContext';
@@ -50,7 +50,10 @@ function RunModelResults(): JSX.Element {
   if (!runnerState) {
     return (
       <div className="grid h-72 place-content-center">
-        <Spin spinning tip="Starting" />
+        <div>
+          <Spin spinning />
+          <Typography.Text className="ml-2">Starting ...</Typography.Text>
+        </div>
       </div>
     );
   }
@@ -59,7 +62,10 @@ function RunModelResults(): JSX.Element {
     <div>
       {images.length === 0 ? (
         <div className="flex h-72 items-center justify-center">
-          <Spin spinning tip="Detecting" />
+          <div>
+            <Spin spinning />
+            <Typography.Text className="ml-2">Detecting ...</Typography.Text>
+          </div>
         </div>
       ) : (
         <ProcessingImagesGallery processingImages={images} />
