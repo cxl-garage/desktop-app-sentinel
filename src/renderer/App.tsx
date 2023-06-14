@@ -95,7 +95,7 @@ export default function App(): JSX.Element {
                       <Route path="/past-results">
                         <Route index element={<PastResultsView />} />
                         <Route
-                          path=":resultsPath"
+                          path=":modelId"
                           element={<PastResultsAllPictures />}
                         />
                       </Route>

@@ -19,8 +19,10 @@ const SentinelDesktopServiceBridge = {
   getAllLogRecords: async () => ipcRenderer.invoke('api/logs/getAll'),
   getAllCXLModelResults: async (modelName?: string) =>
     ipcRenderer.invoke('api/cxl-model-results/getAll', modelName),
-  getFilesInDir: async (dirPath: string) =>
-    ipcRenderer.invoke('api/files/getDir', dirPath),
+  getFilesInDir: async (dirPath: string, recursive?: boolean) =>
+    ipcRenderer.invoke('api/files/getDir', dirPath, recursive),
+  getModelOutputs: async (modelId: string) =>
+    ipcRenderer.invoke('api/files/getModelOutputs', modelId),
   getImages: async () => ipcRenderer.invoke('api/docker/getImages'),
   getContainers: async () => ipcRenderer.invoke('api/docker/getContainers'),
   getVersion: async () => ipcRenderer.invoke('api/docker/getVersion'),

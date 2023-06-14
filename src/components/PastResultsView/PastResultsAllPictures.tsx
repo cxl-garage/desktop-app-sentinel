@@ -1,7 +1,6 @@
 import { Col, Row, Space } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PUBLIC_DOMAIN_PLACEHOLDER_IMAGE } from 'components/RunModelView/tempMockData';
 import { Button } from '../ui/Button';
 import {
   ModelRunImagePreview,
@@ -11,7 +10,7 @@ import {
 const URL = `/past-results/`;
 
 export function PastResultsAllPictures(): JSX.Element {
-  const { resultsPath } = useParams();
+  const { modelId } = useParams();
   const navigate = useNavigate();
 
   return (
@@ -28,10 +27,10 @@ export function PastResultsAllPictures(): JSX.Element {
       </Button>
       <Row gutter={16}>
         <Col span={24}>
-          {resultsPath && resultsPath !== PUBLIC_DOMAIN_PLACEHOLDER_IMAGE ? (
+          {modelId ? (
             // TODO: Paginate image preview page to allow removal of count cap
             <ModelRunImagePreview
-              localPath={resultsPath}
+              modelId={parseInt(modelId, 10)}
               imagesPerRow={4}
               count={100}
             />

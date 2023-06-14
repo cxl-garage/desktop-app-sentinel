@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * This module executes inside of electron's main process. You can start
  * electron renderer process from here and communicate with the other processes
@@ -52,11 +53,18 @@ ipcMain.handle(
 
 ipcMain.handle(
   'api/files/getDir',
-  async (_event, dirPath: string): Promise<string[]> => {
-    // eslint-disable-next-line no-console
+  async (_event, dirPath: string, recursive?: boolean): Promise<string[]> => {
     console.log('Calling api/files/getDir');
     // TODO: Handle exceptions cleanly somehow, pass custom errors to client
-    return SentinelDesktopService.getFilesInDir(dirPath);
+    return SentinelDesktopService.getFilesInDir(dirPath, recursive);
+  },
+);
+
+ipcMain.handle(
+  'api/files/getModelOutputs',
+  async (_event, modelId: number): Promise<string[]> => {
+    console.log('api/files/getModelOutputs');
+    return SentinelDesktopService.getModelOutputs(modelId);
   },
 );
 
