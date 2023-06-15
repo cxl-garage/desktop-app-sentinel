@@ -1,7 +1,7 @@
 import { LoadingOutlined } from '@ant-design/icons';
-import { Form } from 'antd';
+import { Alert, Form } from 'antd';
 import _ from 'lodash';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import ReactJson from 'react-json-view';
 import styled from 'styled-components';
@@ -63,17 +63,30 @@ function RunModelInputs(): JSX.Element {
     }
   }, [currentModelRun, setValue]);
 
-  const onSubmit: SubmitHandler<IRunModelInputsFormValues> = (values) => {
-    return window.SentinelDesktopService.startModel({
-      modelName: values.modelName,
-      outputStyle: values.outputStyle,
-      confidenceThreshold: values.confidenceThreshold / 100.0,
-      outputDirectory: values.outputDirectory,
-      inputDirectory: values.inputDirectory,
-    });
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const onSubmit: SubmitHandler<IRunModelInputsFormValues> = async (values) => {
+    setSubmissionError(null);
+    setIsSubmitting(true);
+    try {
+      await window.SentinelDesktopService.startModel({
+        modelName: values.modelName,
+        outputStyle: values.outputStyle,
+        confidenceThreshold: values.confidenceThreshold / 100.0,
+        outputDirectory: values.outputDirectory,
+        inputDirectory: values.inputDirectory,
+      });
+    } catch (error) {
+      setSubmissionError(
+        error instanceof Error ? error.message : String(error),
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isDebugging = useIsDebugging();
+  const isRunning = isSubmitting || isModelRunInProgress;
 
   return (
     <Form
@@ -87,14 +100,22 @@ function RunModelInputs(): JSX.Element {
         <FormOutputStyle control={control} />
         <FormConfidenceThreshold control={control} />
         <FormOutputDirectory control={control} />
+        {submissionError && (
+          <Alert
+            type="error"
+            message="Failed to start model"
+            description={submissionError}
+            closable
+          />
+        )}
         <div>
           <Button
             type="primary"
             htmlType="submit"
-            disabled={isModelRunInProgress}
-            icon={isModelRunInProgress ? <LoadingOutlined /> : undefined}
+            disabled={isRunning}
+            icon={isRunning ? <LoadingOutlined /> : undefined}
           >
-            {isModelRunInProgress ? 'RUNNING' : 'RUN MODEL'}
+            {isRunning ? 'RUNNING' : 'RUN MODEL'}
           </Button>
         </div>
       </Wrapper>

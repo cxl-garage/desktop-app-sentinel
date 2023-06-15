@@ -74,6 +74,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   }
 
   cleanup(): Promise<void> {
+    this.registeredModelRunOptions = null;
     this.registeredModelRun = null;
     return cleanup();
   }
@@ -137,7 +138,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
         setTimeout(resolve, 10 * 1000);
       });
 
-      this.runner.start({
+      await this.runner.start({
         inputFolder: options.inputDirectory,
         outputFolder: options.outputDirectory,
         outputStyle: options.outputStyle,
@@ -148,7 +149,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
 
       return modelRun.id;
     } catch (error) {
-      console.error(`Failed to start model`);
+      this.cleanup();
       throw error; // rethrow
     } finally {
       this.isPreparingForModelRun = false;

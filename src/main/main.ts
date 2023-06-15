@@ -91,7 +91,8 @@ ipcMain.handle(
   'api/docker/start',
   async (_event, options: RunModelOptions.T): Promise<number> => {
     console.log('Calling api/docker/start');
-    return SentinelDesktopService.startModel(options);
+    const id = await SentinelDesktopService.startModel(options);
+    return id;
   },
 );
 
