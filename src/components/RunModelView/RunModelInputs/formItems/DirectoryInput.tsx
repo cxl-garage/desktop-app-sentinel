@@ -1,4 +1,4 @@
-import { CloseOutlined, FolderOutlined } from '@ant-design/icons';
+import { DeleteTwoTone, FolderOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import React from 'react';
 
@@ -18,7 +18,7 @@ function DirectoryInput({ value, onChange }: IProps): JSX.Element {
           }
         }}
       >
-        Choose a directory
+        Choose a folder
       </Button>
       {value && (
         <div className="ml-1 mt-2 flex items-baseline text-gray-500">
@@ -26,14 +26,14 @@ function DirectoryInput({ value, onChange }: IProps): JSX.Element {
           <span>{value}</span>
           <button
             type="button"
-            className="text-red-400"
+            className="ml-2"
             onClick={() => {
               if (onChange) {
                 onChange('');
               }
             }}
           >
-            <CloseOutlined />
+            <DeleteTwoTone twoToneColor="#f87171" />
           </button>
         </div>
       )}
