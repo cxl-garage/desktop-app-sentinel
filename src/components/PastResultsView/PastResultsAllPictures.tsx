@@ -15,11 +15,9 @@ export function PastResultsAllPictures(): JSX.Element {
 
   return (
     <Space direction="vertical" size="middle" className="mx-8 my-4">
-      {/* Vertical alignment needed becase icon by default
-              sits too low and looks awkward visually. */}
       <Button
         size="large"
-        icon={<LeftOutlined className="align-[1px]" />}
+        icon={<LeftOutlined />}
         onClick={() => navigate(URL)}
         type="text"
       >
