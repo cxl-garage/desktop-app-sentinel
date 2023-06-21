@@ -19,7 +19,7 @@ export function PastResultsAllPictures(): JSX.Element {
   });
 
   return (
-    <Space direction="vertical" size="middle" className="mx-8 my-4">
+    <Space direction="vertical" size="middle" className="w-full px-8 py-4">
       <Button
         size="large"
         icon={<LeftOutlined />}
