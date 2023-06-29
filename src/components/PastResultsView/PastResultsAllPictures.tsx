@@ -1,11 +1,10 @@
-import { Col, Row, Space } from 'antd';
+import { Space } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
+import PaginatedImageGrid from 'components/ui/PaginatedImageGrid';
+import EImageGridSize from 'components/ui/PaginatedImageGrid/EImageGridSize';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '../ui/Button';
-import {
-  ModelRunImagePreview,
-  ModelRunImagePreviewPlaceholder,
-} from './ImagePreviews';
 
 const URL = `/past-results/`;
 
@@ -13,8 +12,14 @@ export function PastResultsAllPictures(): JSX.Element {
   const { modelId } = useParams();
   const navigate = useNavigate();
 
+  const { data: files } = useQuery({
+    queryFn: () =>
+      window.SentinelDesktopService.getModelOutputs(parseInt(modelId!, 10)),
+    queryKey: ['getModelOutputs', modelId],
+  });
+
   return (
-    <Space direction="vertical" size="middle" className="mx-8 my-4">
+    <Space direction="vertical" size="middle" className="w-full px-8 py-4">
       <Button
         size="large"
         icon={<LeftOutlined />}
@@ -23,20 +28,11 @@ export function PastResultsAllPictures(): JSX.Element {
       >
         Back
       </Button>
-      <Row gutter={16}>
-        <Col span={24}>
-          {modelId ? (
-            // TODO: Paginate image preview page to allow removal of count cap
-            <ModelRunImagePreview
-              modelId={parseInt(modelId, 10)}
-              imagesPerRow={4}
-              count={100}
-            />
-          ) : (
-            <ModelRunImagePreviewPlaceholder count={20} imagesPerRow={4} />
-          )}
-        </Col>
-      </Row>
+      <PaginatedImageGrid
+        imageSources={files?.map((path) => `localfile://${path}`) ?? []}
+        inProgressItems={[]}
+        gridSize={EImageGridSize.DEFAULT}
+      />
     </Space>
   );
 }
