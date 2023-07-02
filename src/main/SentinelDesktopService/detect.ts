@@ -5,16 +5,9 @@
 import path from 'path';
 import fs from 'fs';
 import assertUnreachable from '../../util/assertUnreachable';
-import {
-  isSupported,
-  read,
-  save,
-  toDataArray,
-  getOverlay,
-  Image,
-} from './image';
+import { read, save, toDataArray, getOverlay, Image } from './image';
 
-export type OutputStyle = 'class' | 'hierarchy' | 'flat' | 'timelapse' | 'none';
+export type OutputStyle = 'class' | 'hierarchy' | 'flat' | 'none';
 export type DetectOptions = {
   inputSize?: number;
   threshold?: number;
@@ -36,8 +29,9 @@ export type DetectionResult = {
   className: string;
   classId: number;
   confidence: number;
-  filePath: string;
+  inputPath: string;
   bbox: BoundingBox;
+  outputPath: string;
 };
 
 type SentinelPredictions = {
@@ -59,14 +53,35 @@ const DEFAULT_SIZE = 256;
 const DEFAULT_THRESHOLD = 0.4;
 const LINE_WIDTH = 3;
 
+function getOutputPath(
+  inputFolder: string,
+  inputPath: string,
+  outputFolder: string,
+  outputStyle: OutputStyle,
+  className: string,
+): string {
+  switch (outputStyle) {
+    case 'class':
+      return path.join(outputFolder, className, path.basename(inputPath));
+    case 'hierarchy':
+      return path.join(outputFolder, path.relative(inputFolder, inputPath));
+    case 'flat':
+      return path.join(outputFolder, path.basename(inputPath));
+    case 'none':
+      throw new Error(`Output style 'none' is not implemented yet.`);
+    default:
+      // Note: if we just assert here, function doesn't have return value
+      throw new Error(`Output style unknown.`);
+  }
+}
+
 async function writeDetection(
-  name: string,
   image: Image,
   detection: DetectionResult,
   detectOptions: DetectOptions,
 ): Promise<void> {
   const { outputStyle, classNames, outputFolder } = detectOptions;
-  const { className, confidence, bbox } = detection;
+  const { className, confidence, bbox, outputPath } = detection;
   const size = detectOptions.inputSize ?? DEFAULT_SIZE;
 
   // create the bounding box overlay (which we only have to add to the
@@ -78,10 +93,10 @@ async function writeDetection(
           size,
           text: { x: 10, y: 10, text: `${className} (${confidence})` },
           rect: {
-            x0: bbox[1],
-            y0: bbox[0],
-            x1: bbox[3],
-            y1: bbox[2],
+            x0: bbox[1] * size,
+            y0: bbox[0] * size,
+            x1: bbox[3] * size,
+            y1: bbox[2] * size,
             width: LINE_WIDTH,
           },
         });
@@ -95,17 +110,13 @@ async function writeDetection(
           fs.mkdirSync(animalClassDir);
         }
       });
-      await save(path.join(outputFolder, className, name), image, overlay);
+      await save(outputPath, image, overlay);
       break;
     }
-
     case 'hierarchy':
-      throw new Error(`Output style 'hierarchy' is not implemented yet.`);
     case 'flat':
-      await save(path.join(outputFolder, name), image, overlay);
+      await save(outputPath, image, overlay);
       break;
-    case 'timelapse':
-      throw new Error(`Output style 'timelapse' is not implemented yet.`);
     case 'none':
       throw new Error(`Output style 'none' is not implemented yet.`);
     default:
@@ -129,22 +140,22 @@ async function writeDetection(
  */
 export async function detect(
   folder: string,
-  name: string,
+  inputPath: string,
   options: DetectOptions,
 ): Promise<DetectionResult[]> {
   const detections: DetectionResult[] = [];
 
   // Read the image and resize if necessary if the image type is supported
   const startTime = Date.now();
-  console.log(`Detecting ${name} with threshold ${options.threshold}`);
-  if (!isSupported(name)) {
-    return detections;
-  }
+  console.log(`Detecting ${inputPath} with threshold ${options.threshold}`);
   const size = options.inputSize ?? DEFAULT_SIZE;
   const beforeRead = Date.now();
-  const image = await read(path.join(folder, name), size);
+  const image = await read(inputPath, size);
   const dataArray = toDataArray(image);
   const elapsedRead = Date.now() - beforeRead;
+
+  // Get the last part of the input path
+  const name = path.basename(inputPath);
 
   // Invoke the docker endpoint to detect
   const beforeDetect = Date.now();
@@ -191,7 +202,14 @@ export async function detect(
             className,
             classId,
             confidence,
-            filePath: path.join(folder, name),
+            inputPath,
+            outputPath: getOutputPath(
+              folder,
+              inputPath,
+              options.outputFolder,
+              options.outputStyle,
+              className,
+            ),
             // To match Python CLI, normalize bounding box to input size
             bbox: [
               bbox[0] / size,
@@ -204,7 +222,7 @@ export async function detect(
           // Assume input and output size are the same to simplify bbox computations
           detections.push(detectionResult);
           const beforeWrite = Date.now();
-          await writeDetection(name, image, detectionResult, options);
+          await writeDetection(image, detectionResult, options);
           totalWrite += Date.now() - beforeWrite;
         }),
       );
@@ -214,13 +232,20 @@ export async function detect(
         className: EMPTY_IMAGE_CLASS,
         classId: 0,
         confidence: 0,
-        filePath: path.join(folder, name),
+        inputPath,
+        outputPath: getOutputPath(
+          folder,
+          inputPath,
+          options.outputFolder,
+          options.outputStyle,
+          EMPTY_IMAGE_CLASS,
+        ),
         bbox: [0, 0, 0, 0] as BoundingBox,
       };
 
       detections.push(detectionResult);
       const beforeWrite = Date.now();
-      await writeDetection(name, image, detectionResult, options);
+      await writeDetection(image, detectionResult, options);
       totalWrite += Date.now() - beforeWrite;
     }
 
@@ -228,12 +253,12 @@ export async function detect(
     // detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
     const elapsed = Date.now() - startTime;
     console.log(
-      `Detecting ${name} finished in ${elapsedRead} (read) + ${elapsedDetect} (detect) + ${totalWrite} write = ${elapsed} ms`,
+      `Detecting ${inputPath} finished in ${elapsedRead} (read) + ${elapsedDetect} (detect) + ${totalWrite} write = ${elapsed} ms`,
     );
 
     return detections;
   } catch (e) {
-    console.error(`Error detecting for ${name}`, e);
+    console.error(`Error detecting for ${inputPath}`, e);
     throw e;
   }
 }

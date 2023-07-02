@@ -40,10 +40,6 @@ function FormOutputStyle({ control }: IProps): JSX.Element {
             value: RunModelOptions.EOutputStyle.FLAT,
           },
           {
-            label: 'Timelapse',
-            value: RunModelOptions.EOutputStyle.TIMELAPSE,
-          },
-          {
             label: 'None',
             value: RunModelOptions.EOutputStyle.NONE,
           },

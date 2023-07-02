@@ -4,7 +4,7 @@ import * as RunModelOptions from '../RunModelOptions';
 export interface RunnerState {
   notStarted: string[];
   inProgress: string[];
-  completed: Array<{ fileName: string; parentDir?: string }>;
+  completed: Array<{ inputPath: string; outputPath: string }>;
 }
 
 interface ModelRunProgress {
