@@ -34,7 +34,7 @@ export class CsvFile {
       detection.className,
       detection.classId,
       detection.confidence,
-      detection.filePath,
+      detection.inputPath,
       // To match the format output by the Python CLI
       `[${detection.bbox[0]}, ${detection.bbox[1]}, ${detection.bbox[2]}, ${detection.bbox[3]}]`,
     ]);

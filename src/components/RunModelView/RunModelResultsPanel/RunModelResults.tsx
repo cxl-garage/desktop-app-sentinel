@@ -12,32 +12,27 @@ function RunModelResults(): JSX.Element {
   const runnerState = currentModelRunProgress?.runnerState;
   const isDebugging = useIsDebugging();
 
-  const outputDirectory =
-    currentModelRunProgress?.startModelOptions.outputDirectory;
-
   const images: IRunningImage[] = useMemo(() => {
-    return runnerState && outputDirectory
+    return runnerState
       ? [
-          ...runnerState.completed.map(({ fileName, parentDir }) => ({
-            id: fileName,
-            url: parentDir
-              ? `file://${outputDirectory}/${parentDir}/${fileName}`
-              : `file://${outputDirectory}/${fileName}`,
+          ...runnerState.completed.map(({ inputPath, outputPath }) => ({
+            id: inputPath,
+            url: `file://${outputPath}`,
             status: ERunningImageStatus.COMPLETED,
           })),
           ...runnerState.inProgress.map((fileName) => ({
             id: fileName,
-            url: `file://${outputDirectory}/${fileName}`,
+            url: '', // Not currently used
             status: ERunningImageStatus.IN_PROGRESS,
           })),
           ...runnerState.notStarted.map((fileName) => ({
             id: fileName,
-            url: `file://${outputDirectory}/${fileName}`,
+            url: '', // Not currently used
             status: ERunningImageStatus.NOT_STARTED,
           })),
         ]
       : [];
-  }, [runnerState, outputDirectory]);
+  }, [runnerState]);
 
   if (!currentModelRunProgress) {
     return (

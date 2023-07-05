@@ -2,7 +2,6 @@ export enum EOutputStyle {
   CLASS = 'class',
   HIERARCHY = 'hierarchy', // is there a typo in https://github.com/cxl-garage/sentinel-cli ?
   FLAT = 'flat',
-  TIMELAPSE = 'timelapse',
   NONE = 'none',
 }
 

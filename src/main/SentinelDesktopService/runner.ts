@@ -1,5 +1,5 @@
 import * as async from 'async';
-import * as fs from 'node:fs/promises';
+import recursive from 'recursive-readdir';
 import assertUnreachable from '../../util/assertUnreachable';
 import { PrismaClient } from '../../generated/prisma/client';
 import { RunnerState } from '../../models/ModelRunProgress';
@@ -13,10 +13,11 @@ import {
 } from './detect';
 import { getClassNames } from './docker';
 import { CsvFile } from './csv';
+import { isSupported } from './image';
 
 type JobTask = {
   folder: string;
-  file: string;
+  inputPath: string;
   options: DetectOptions;
   runId: number;
 };
@@ -43,10 +44,14 @@ export class ModelRunner {
   constructor(prismaClient: PrismaClient) {
     this.statusMap = new Map();
     this.detectWorker = async (task: JobTask) => {
-      this.statusMap.set(task.file, {
+      this.statusMap.set(task.inputPath, {
         status: ERunningImageStatus.IN_PROGRESS,
       });
-      const detections = await detect(task.folder, task.file, task.options);
+      const detections = await detect(
+        task.folder,
+        task.inputPath,
+        task.options,
+      );
       const detectionMetadata = getDetectionCounts(detections);
 
       // update the stats of the current model run with the newest data we
@@ -83,7 +88,10 @@ export class ModelRunner {
   getProgress(): RunnerState {
     const notStarted: string[] = [];
     const inProgress: string[] = [];
-    const completed: Array<{ fileName: string; parentDir?: string }> = [];
+    const completed: Array<{
+      inputPath: string;
+      outputPath: string;
+    }> = [];
     this.statusMap.forEach((jobStatus, file) => {
       switch (jobStatus.status) {
         case ERunningImageStatus.NOT_STARTED: {
@@ -95,19 +103,14 @@ export class ModelRunner {
           break;
         }
         case ERunningImageStatus.COMPLETED: {
-          const { detections, detectionOptions } = jobStatus;
+          const { detections } = jobStatus;
           detections.forEach((detection) => {
-            if (detectionOptions.outputStyle === 'class') {
-              // if output style is 'class' then we need to also pass a `parentDir`
-              // so that the frontend knows how to find this image by taking the
-              // concatenation of {outputDir}/{parentDir}/{file}
-              completed.push({
-                fileName: file,
-                parentDir: detection.className,
-              });
-            } else {
-              completed.push({ fileName: file });
-            }
+            completed.push({
+              inputPath: file,
+              // If we support outputStyle = 'none' at some point, perhaps
+              // make 'outputPath' possibly undefined?
+              outputPath: detection.outputPath,
+            });
           });
           break;
         }
@@ -143,38 +146,49 @@ export class ModelRunner {
     };
 
     const csvFile = new CsvFile(outputFolder);
+    const startTime = Date.now();
     try {
-      const files = await fs.readdir(inputFolder);
-      const startTime = Date.now();
-      files.forEach((file) => {
-        this.statusMap.set(file, { status: ERunningImageStatus.NOT_STARTED });
-        const task: JobTask = {
-          folder: inputFolder,
-          file,
-          options,
-          runId: modelRunId,
-        };
-        this.queue.push(
-          task,
-          (err?: Error | null, detectionResults?: JobResponse) => {
-            if (err) {
-              console.log('Error procsesing task', task);
-              console.error(err);
-            }
+      // Look for all image files recursively in all directories
+      recursive(
+        inputFolder,
+        [(file, stats) => !stats.isDirectory() && !isSupported(file)],
+        (_error: Error, files: string[]) => {
+          files.forEach((inputPath) => {
+            console.log(inputPath);
+            this.statusMap.set(inputPath, {
+              status: ERunningImageStatus.NOT_STARTED,
+            });
+            const task: JobTask = {
+              folder: inputFolder,
+              inputPath,
+              options,
+              runId: modelRunId,
+            };
+            this.queue.push(
+              task,
+              (err?: Error | null, detectionResults?: JobResponse) => {
+                if (err) {
+                  console.log('Error processing task', task);
+                  console.error(err);
+                }
 
-            if (detectionResults) {
-              this.statusMap.set(file, {
-                status: ERunningImageStatus.COMPLETED,
-                detectionOptions: task.options,
-                detections: detectionResults,
-              });
-              detectionResults.forEach((detection) =>
-                csvFile.append(detection),
-              );
-            }
-          },
-        );
-      });
+                if (detectionResults) {
+                  this.statusMap.set(inputPath, {
+                    status: ERunningImageStatus.COMPLETED,
+                    detectionOptions: task.options,
+                    detections: detectionResults,
+                  });
+                  detectionResults.forEach((detection) =>
+                    csvFile.append(detection),
+                  );
+                }
+              },
+            );
+          });
+        },
+      );
+
+      // Wait until all jobs are handled
       this.queue.drain(() => {
         const elapsed = Date.now() - startTime;
         console.log(`All files finished processing in ${elapsed}`);

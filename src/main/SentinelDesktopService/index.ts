@@ -23,6 +23,7 @@ import {
   getVersion,
   start,
 } from './docker';
+import { isSupported } from './image';
 
 // Declare the expected CSV schema
 const LogRecordCSVSchema = z.object({
@@ -208,7 +209,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
           : res;
       }),
     );
-    return Array.prototype.concat(...files);
+    return Array.prototype.concat(...files).filter((f) => isSupported(f));
   }
 
   async getModelOutputs(modelId: number): Promise<string[]> {
@@ -218,7 +219,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     if (model?.outputStyle === 'flat') {
       return this.getFilesInDir(model.outputPath, false);
     }
-    if (model?.outputStyle === 'class') {
+    if (model?.outputStyle === 'class' || model?.outputStyle === 'hierarchy') {
       return this.getFilesInDir(model.outputPath, true);
     }
     throw new Error(

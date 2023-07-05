@@ -1,7 +1,8 @@
 /**
  * Utility methods to prepare and process image files.
  */
-
+import fs from 'fs';
+import path from 'path';
 import sharp from 'sharp';
 
 export type Image = {
@@ -35,10 +36,10 @@ export type OverlapProps = {
  * @param size optional size will resize the image
  * @returns an image promise
  */
-export async function read(path: string, size?: number): Promise<Image> {
+export async function read(inputPath: string, size?: number): Promise<Image> {
   const image = size
-    ? sharp(path).resize({ width: size, height: size, fit: 'fill' })
-    : sharp(path);
+    ? sharp(inputPath).resize({ width: size, height: size, fit: 'fill' })
+    : sharp(inputPath);
   return image.raw().toBuffer({ resolveWithObject: true });
 }
 
@@ -105,7 +106,7 @@ export async function getOverlay(props: OverlapProps): Promise<Buffer> {
  * @param image the image to save
  */
 export async function save(
-  path: string,
+  outputPath: string,
   image: Image,
   overlay?: Buffer,
 ): Promise<void> {
@@ -121,7 +122,12 @@ export async function save(
     baseImage = baseImage.composite([{ input: overlay, gravity: 'northwest' }]);
   }
   try {
-    await baseImage.toFile(path);
+    // Create any directories as needed
+    const basePath = path.dirname(outputPath);
+    if (!fs.existsSync(basePath)) {
+      fs.mkdirSync(path.dirname(outputPath));
+    }
+    await baseImage.toFile(outputPath);
   } catch (error) {
     console.log(`Error: ${error}`);
   }
