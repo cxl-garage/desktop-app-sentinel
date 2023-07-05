@@ -70,8 +70,7 @@ function getOutputPath(
     case 'none':
       throw new Error(`Output style 'none' is not implemented yet.`);
     default:
-      // Note: if we just assert here, function doesn't have return value
-      throw new Error(`Output style unknown.`);
+      return assertUnreachable(outputStyle);
   }
 }
 
