@@ -168,7 +168,7 @@ export class ModelRunner {
               task,
               (err?: Error | null, detectionResults?: JobResponse) => {
                 if (err) {
-                  console.log('Error procsesing task', task);
+                  console.log('Error processing task', task);
                   console.error(err);
                 }
 
