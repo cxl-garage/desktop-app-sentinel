@@ -1,13 +1,25 @@
 import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Col, Empty, Input, Row } from 'antd';
+import { Col, Empty, Input, Pagination, Row } from 'antd';
 import _ from 'lodash';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import { formatInteger } from 'components/RunModelView/utils/commonUtils';
+import useLocalStorageState from 'use-local-storage-state';
 import { ResultsSummaryCard } from './ResultsSummaryCard';
 import { ResultsSummaryCardSkeleton } from './ResultsSummaryCardSkeleton';
 
+const DEFAULT_PAGE_SIZE = 3;
+const PAGE_SIZE_OPTIONS = [3, 5, 10];
+
 export function PastResultsView(): JSX.Element {
   const [modelSearchTerm, setModelSearchTerm] = React.useState('');
+  const [pageSize, setPageSize] = useLocalStorageState<number>(
+    'pastResultsPageSize',
+    {
+      defaultValue: DEFAULT_PAGE_SIZE,
+    },
+  );
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const { data: pastResults } = useQuery({
     queryFn: () =>
@@ -39,14 +51,36 @@ export function PastResultsView(): JSX.Element {
     );
   } else {
     pageContents = (
-      <div className="mt-4">
+      <div className="mb-4 mt-4">
         {pastResults.length ? (
-          pastResults?.map((modelRunMetadata) => (
-            <ResultsSummaryCard
-              modelRunMetadata={modelRunMetadata}
-              key={modelRunMetadata.id}
+          <>
+            {pastResults
+              ?.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+              .map((modelRunMetadata) => (
+                <ResultsSummaryCard
+                  modelRunMetadata={modelRunMetadata}
+                  key={modelRunMetadata.id}
+                />
+              ))}
+            <Pagination
+              total={pastResults.length}
+              showTotal={(total, range) =>
+                `${formatInteger(range[0])}-${formatInteger(
+                  range[1],
+                )} of ${formatInteger(total)} results`
+              }
+              defaultCurrent={1}
+              current={currentPage}
+              pageSize={pageSize}
+              hideOnSinglePage={pastResults.length <= DEFAULT_PAGE_SIZE}
+              showSizeChanger
+              onChange={(page, pSize) => {
+                setCurrentPage(page);
+                setPageSize(pSize);
+              }}
+              pageSizeOptions={PAGE_SIZE_OPTIONS}
             />
-          ))
+          </>
         ) : (
           <Empty />
         )}
