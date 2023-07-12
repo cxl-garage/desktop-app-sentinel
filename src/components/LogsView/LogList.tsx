@@ -1,4 +1,3 @@
-import './LogList.css';
 import { DateTime } from 'luxon';
 import * as LogRecord from 'models/LogRecord';
 import { Table, Tooltip } from 'antd';
