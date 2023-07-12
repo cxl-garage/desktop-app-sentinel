@@ -1,10 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable class-methods-use-this */
 import path from 'path';
-import fs from 'fs';
-import csvParser from 'csv-parser';
-import { z } from 'zod';
-import { v4 as uuid } from 'uuid';
 import * as LogRecord from 'models/LogRecord';
 import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
@@ -24,12 +20,6 @@ import {
   start,
 } from './docker';
 import { isSupported } from './image';
-
-// Declare the expected CSV schema
-const LogRecordCSVSchema = z.object({
-  timestamp: z.coerce.date(),
-  message: z.string(),
-});
 
 class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   runner: ModelRunner;
@@ -158,31 +148,31 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   }
 
   /**
-   * Read log file and convert each log to a LogRecord model.
-   *
-   * TODO: this is unlikely how we actually want to read and treat logs.
-   * This is just a placeholder function. It will likely change a lot.
+   * Get all log files from the database.
    */
-  getAllLogRecords(): Promise<LogRecord.T[]> {
-    return new Promise((resolve) => {
-      const results: LogRecord.T[] = [];
+  async getAllLogRecords(): Promise<LogRecord.T[]> {
+    console.log('Fetching all log records');
 
-      fs.createReadStream(path.join(__dirname, '../../py/logfile.csv'))
-        .pipe(csvParser())
-        .on('data', (data: unknown) => {
-          const logRecord = LogRecordCSVSchema.parse(data);
-          results.push({
-            id: uuid(),
-            level: 'INFO', // placeholder for now
-            ...logRecord,
-          });
-        })
-        .on('end', () => {
-          resolve(results);
-        });
+    const allModelRuns = await this.prisma.modelRun.findMany({
+      orderBy: [{ startTime: 'desc' }],
     });
+
+    const logRecords: LogRecord.T[] = allModelRuns.map((modelRun) => ({
+      id: modelRun.id,
+      timestamp: new Date(modelRun.startTime * 1000),
+      outputPath: modelRun.outputPath,
+      modelName: modelRun.modelName,
+
+      // TODO: we should eventually be able to indicate when a log has an
+      // error
+      logResult: 'SUCCESS',
+    }));
+    return logRecords;
   }
 
+  /**
+   * Get all CXL model results from the database.
+   */
   getAllCXLModelResults(modelNameFilter?: string): Promise<ModelRun[]> {
     let whereClause;
     if (modelNameFilter != null && modelNameFilter.length) {
