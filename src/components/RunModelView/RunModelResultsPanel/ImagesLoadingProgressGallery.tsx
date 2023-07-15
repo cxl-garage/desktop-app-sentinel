@@ -1,4 +1,3 @@
-import { Spin, Typography } from 'antd';
 import _ from 'lodash';
 import React, { useMemo } from 'react';
 import useLocalStorageState from 'use-local-storage-state';
@@ -7,6 +6,7 @@ import IRunningImage from '../types/IRunningImage';
 import EImageGridSize from '../../ui/PaginatedImageGrid/EImageGridSize';
 import ImageGridSizeSelect from '../../ui/GridSizeSelect';
 import PaginatedImageGrid from '../../ui/PaginatedImageGrid';
+import RunModelProgressStats from './RunModelProgressStats';
 
 interface IProps {
   processingImages: IRunningImage[];
@@ -31,10 +31,6 @@ function ImagesLoadingProgressGallery({
     [processingImages],
   );
 
-  const totalCount = processingImages.length;
-  const completedCount = completedImages.length;
-  const completedPercentage = Math.round((completedCount * 100) / totalCount);
-
   const [gridSize, setGridSize] = useLocalStorageState<EImageGridSize>(
     'gridSize',
     {
@@ -45,13 +41,7 @@ function ImagesLoadingProgressGallery({
   return (
     <div className="flex-1">
       <div className="flex justify-between">
-        <div>
-          {completedPercentage !== 100 && <Spin style={{ marginRight: 12 }} />}
-          <Typography.Text className="whitespace-nowrap">
-            {completedPercentage}% Processing images ({completedCount}/
-            {totalCount})
-          </Typography.Text>
-        </div>
+        <RunModelProgressStats processingImages={processingImages} />
         <div>
           <ImageGridSizeSelect gridSize={gridSize} onChange={setGridSize} />
         </div>

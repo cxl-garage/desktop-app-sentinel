@@ -22,13 +22,14 @@ declare global {
       getModelNames: () => Promise<string[]>;
       getCurrentModelRunProgress: () => Promise<ModelRunProgress.T | null>;
       getIsModelRunInProgress: () => Promise<boolean>;
+      selectInputFolder: () => Promise<any>;
+      selectOutputFolder: () => Promise<any>;
+      openFile: (filePath: string) => Promise<void>;
 
       // deprecated functions (need refactoring)
       findOrgModels: (arg: any) => Promise<any>;
       runModel: (arg?: any) => Promise<any>;
       writeUserInputJson: (arg: any) => Promise<any>;
-      selectInputFolder: () => Promise<any>;
-      selectOutputFolder: () => Promise<any>;
       readUpdate: () => Promise<any>;
       readModels: () => Promise<any>;
       openWindow: (arg: any) => Promise<any>;

@@ -121,21 +121,18 @@ ipcMain.handle(
 // below 2 functions handle openning and selecting a new directory, using electron's dialog.showOpenDialog
 // used in afterorg.tsx to select folder to get images from and folder to download images to
 
-ipcMain.handle(
-  'DEPRECATED/dialog:openDirectoryInput',
-  async (): Promise<string> => {
-    invariant(mainWindow, 'Main BrowserWindow must exist');
-    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-      properties: ['openDirectory'],
-    });
-    if (canceled) {
-      return 'cancelled'; // returns cancelled if folder finding is cancelled
-    }
-    return filePaths[0]; // returns filepath of folder
-  },
-);
+ipcMain.handle('dialog:openDirectoryInput', async (): Promise<string> => {
+  invariant(mainWindow, 'Main BrowserWindow must exist');
+  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory'],
+  });
+  if (canceled) {
+    return 'cancelled'; // returns cancelled if folder finding is cancelled
+  }
+  return filePaths[0]; // returns filepath of folder
+});
 
-ipcMain.handle('DEPRECATED/dialog:openDirectoryOutput', async () => {
+ipcMain.handle('dialog:openDirectoryOutput', async () => {
   invariant(mainWindow, 'Main BrowserWindow must exist');
   const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory'],
@@ -144,6 +141,11 @@ ipcMain.handle('DEPRECATED/dialog:openDirectoryOutput', async () => {
     return 'cancelled'; // returns that it is cancelled if you cancel request
   }
   return filePaths[0]; // return filepath of folder
+});
+
+ipcMain.handle('openFile', async (_event, filepath) => {
+  _event.preventDefault();
+  shell.openPath(filepath);
 });
 
 // used in setup.tsx to open up link to docker desktop

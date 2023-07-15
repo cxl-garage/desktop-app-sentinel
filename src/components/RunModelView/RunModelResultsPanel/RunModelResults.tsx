@@ -2,10 +2,10 @@ import { Empty, Spin, Typography } from 'antd';
 import { useMemo } from 'react';
 import ReactJson from 'react-json-view';
 import { useIsDebugging } from '../DebuggingContext/IsDebuggingContext';
-import ERunningImageStatus from '../types/ERunningImageStatus';
 import useCurrentModelRunProgress from '../hooks/useCurrentModelRunProgress';
+import ERunningImageStatus from '../types/ERunningImageStatus';
 import IRunningImage from '../types/IRunningImage';
-import ProcessingImagesGallery from './ImagesLoadingProgressGallery';
+import RunModelResultsContent from './RunModelResultsContent';
 
 function RunModelResults(): JSX.Element {
   const { data: currentModelRunProgress } = useCurrentModelRunProgress();
@@ -52,7 +52,11 @@ function RunModelResults(): JSX.Element {
           </div>
         </div>
       ) : (
-        <ProcessingImagesGallery processingImages={images} />
+        <RunModelResultsContent
+          outputStyle={currentModelRunProgress.startModelOptions.outputStyle}
+          processingImages={images}
+          csvFilePath={`${currentModelRunProgress.startModelOptions.outputDirectory}/detections.csv`}
+        />
       )}
       {isDebugging && currentModelRunProgress && (
         <ReactJson

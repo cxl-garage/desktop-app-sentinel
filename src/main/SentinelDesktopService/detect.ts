@@ -68,7 +68,7 @@ function getOutputPath(
     case 'flat':
       return path.join(outputFolder, path.basename(inputPath));
     case 'none':
-      throw new Error(`Output style 'none' is not implemented yet.`);
+      return 'not available (Output Style: None)';
     default:
       return assertUnreachable(outputStyle);
   }
@@ -117,7 +117,8 @@ async function writeDetection(
       await save(outputPath, image, overlay);
       break;
     case 'none':
-      throw new Error(`Output style 'none' is not implemented yet.`);
+      // noop
+      break;
     default:
       assertUnreachable(outputStyle);
   }
