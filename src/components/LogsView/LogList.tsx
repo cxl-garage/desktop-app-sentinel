@@ -68,6 +68,7 @@ export function LogList({ logs = [] }: Props): JSX.Element {
       dataSource={logs}
       rowKey="id"
       pagination={false}
+      bordered
       expandable={{
         expandedRowRender: (logRecord: LogRecord.T) =>
           `This is where we would show the logs for ${logRecord.modelName}`,

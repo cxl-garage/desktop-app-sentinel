@@ -15,8 +15,8 @@ export function Sidebar(): JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   return (
-    <Layout className="h-full border-r-2 border-gray-200 dark:border-gray-600">
-      <Row className="justify-center">
+    <Layout className="h-full">
+      <Row className="mt-6 justify-center">
         <img
           alt=""
           src={icon}

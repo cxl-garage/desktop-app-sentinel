@@ -11,7 +11,7 @@ export function LogsView(): JSX.Element {
   });
 
   return (
-    <div className="pb-12">
+    <div className="mx-8 mt-12 pb-12">
       <div className="LogsView__log-component-wrapper">
         <LogList logs={logs} />
       </div>
