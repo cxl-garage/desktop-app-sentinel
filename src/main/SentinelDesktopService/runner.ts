@@ -34,6 +34,14 @@ type JobStatus =
 
 type JobResponse = DetectionResult[];
 
+const DB_WRITE_ATTEMPT_LIMIT = 5;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 export class ModelRunner {
   queue: async.QueueObject<JobTask>;
 
@@ -56,16 +64,30 @@ export class ModelRunner {
 
       // update the stats of the current model run with the newest data we
       // just detected
-      await prismaClient.modelRun.update({
-        where: { id: task.runId },
-        data: {
-          imageCount: { increment: detectionMetadata.imagesInspectedCount },
-          detectedObjectCount: {
-            increment: detectionMetadata.detectedObjectCount,
-          },
-          emptyImageCount: { increment: detectionMetadata.emptyImageCount },
-        },
-      });
+      for (let i = 1; i <= DB_WRITE_ATTEMPT_LIMIT; i += 1) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          await prismaClient.modelRun.update({
+            where: { id: task.runId },
+            data: {
+              imageCount: { increment: detectionMetadata.imagesInspectedCount },
+              detectedObjectCount: {
+                increment: detectionMetadata.detectedObjectCount,
+              },
+              emptyImageCount: { increment: detectionMetadata.emptyImageCount },
+            },
+          });
+          break;
+        } catch (e) {
+          console.log('DB Connection Error Caught');
+          console.log(e);
+          if (i < DB_WRITE_ATTEMPT_LIMIT) {
+            console.log('Retrying...');
+            // eslint-disable-next-line no-await-in-loop
+            await sleep(Math.random() * 100 + 50);
+          }
+        }
+      }
 
       return detections;
     };
