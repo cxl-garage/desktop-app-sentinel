@@ -212,6 +212,9 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     if (model?.outputStyle === 'class' || model?.outputStyle === 'hierarchy') {
       return this.getFilesInDir(model.outputPath, true);
     }
+    if (model?.outputStyle === 'none') {
+      return [];
+    }
     throw new Error(
       `Output style '${model?.outputStyle}' is not implemented yet.`,
     );

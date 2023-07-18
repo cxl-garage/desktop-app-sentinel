@@ -34,6 +34,12 @@ const SentinelDesktopServiceBridge = {
     ipcRenderer.invoke('api/docker/getCurrentModelRunProgress'),
   getIsModelRunInProgress: async () =>
     ipcRenderer.invoke('api/docker/getIsModelRunInProgress'),
+  selectInputFolder: async () =>
+    ipcRenderer.invoke('dialog:openDirectoryInput'), // allows to select directory for input folder of user's images
+  selectOutputFolder: async () =>
+    ipcRenderer.invoke('dialog:openDirectoryOutput'), // allows to select directory for output folder of the model results of user's images
+  openFile: async (filePath: string) =>
+    ipcRenderer.invoke('openFile', filePath), // allows to select directory for output folder of the model results of user's images
 
   // Legacy functions.
   // TODO: These should be either refactored or removed.
@@ -42,10 +48,6 @@ const SentinelDesktopServiceBridge = {
   runModel: async (arg?: any) => ipcRenderer.invoke('run/model', arg), // runs all user inputs and outputs results of user inputted model
   writeUserInputJson: async (arg: any) =>
     ipcRenderer.send('DEPRECATED/write/user-inputs-json', arg), // writes file of user input data from afterorg.tsx
-  selectInputFolder: async () =>
-    ipcRenderer.invoke('DEPRECATED/dialog:openDirectoryInput'), // allows to select directory for input folder of user's images
-  selectOutputFolder: async () =>
-    ipcRenderer.invoke('DEPRECATED/dialog:openDirectoryOutput'), // allows to select directory for output folder of the model results of user's images
   readUpdate: async () => ipcRenderer.invoke('DEPRECATED/read/update-file'), // read update.json file
   readModels: async () => ipcRenderer.invoke('DEPRECATED/read/models-file'), // read Models populated by runOrg.py for the inputed organization
   openWindow: async (arg: any) =>
