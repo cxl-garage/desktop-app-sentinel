@@ -9,7 +9,7 @@ import recreational from '../../../assets/marketplace/recreational-placeholder.p
 
 export function ModelMarketplaceView(): JSX.Element {
   return (
-    <div className="pb-12">
+    <div className="mt-12 pb-12">
       <div className="flex w-full justify-center">
         <Typography.Title level={2}>The Model Marketplace</Typography.Title>
       </div>

@@ -88,7 +88,7 @@ export function PastResultsView(): JSX.Element {
     );
   }
   return (
-    <Row gutter={[16, 16]} className="my-4">
+    <Row gutter={[16, 16]} className="my-4 mt-12">
       <Col span={22} offset={1}>
         <Input
           placeholder="Search by model name..."
