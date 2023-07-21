@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Col, Row } from 'antd';
 import Paragraph from 'antd/es/typography/Paragraph';
-import { Image } from 'components/ui/Image';
+import { ImageGridImage } from 'components/ui/PaginatedImageGrid/ImageGridImage';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
@@ -19,7 +19,7 @@ function ImageGrid({
     <Row gutter={16}>
       {filePaths.map((imageFilePath) => (
         <Col span={span} key={imageFilePath}>
-          <Image src={imageFilePath} />
+          <ImageGridImage src={imageFilePath} />
         </Col>
       ))}
     </Row>
@@ -41,7 +41,7 @@ function SkeletonImageGrid({
         // eslint-disable-next-line react/no-array-index-key
         <Col span={span} key={index}>
           <div className="animate-pulse">
-            <Image src="placeholder" placeholder />
+            <ImageGridImage src="placeholder" placeholder />
           </div>
         </Col>
       ))}
