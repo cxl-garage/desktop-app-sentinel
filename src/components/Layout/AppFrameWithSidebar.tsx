@@ -76,7 +76,7 @@ function AppFrameWithSidebar({
               size="small"
               icon={
                 isSidebarExpanded ? (
-                  <span className="mr-2">
+                  <span className="mr-2 text-gray-500">
                     <DoubleLeftOutlined />
                   </span>
                 ) : (
@@ -93,7 +93,11 @@ function AppFrameWithSidebar({
                 }
               }}
             >
-              {isSidebarExpanded ? 'Collapse sidebar' : null}
+              {isSidebarExpanded && (
+                <span className="font-light text-gray-500">
+                  Collapse sidebar
+                </span>
+              )}
             </Button>
           </Tooltip>
         </div>
