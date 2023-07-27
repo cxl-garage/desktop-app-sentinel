@@ -1,5 +1,5 @@
+import * as React from 'react';
 import { DateTime } from 'luxon';
-import * as LogRecord from 'models/LogRecord';
 import { Table, TablePaginationConfig, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -12,8 +12,10 @@ import {
 import useLocalStorageState from 'use-local-storage-state';
 import assertUnreachable from '../../util/assertUnreachable';
 import { formatInteger } from '../RunModelView/utils/commonUtils';
+import * as LogRecord from '../../models/LogRecord';
+import LogContents from './LogContents';
 
-const DEFAULT_PAGE_SIZE = 25;
+const DEFAULT_PAGE_SIZE = 10;
 
 type Props = {
   logs?: LogRecord.T[];
@@ -77,11 +79,15 @@ export function LogList({ logs = [] }: Props): JSX.Element {
     }
   };
 
+  const renderExpandedRow = React.useCallback((logRecord: LogRecord.T) => {
+    return <LogContents logRecord={logRecord} />;
+  }, []);
+
   return (
     <Table
       columns={columns}
       dataSource={logs}
-      rowKey="id"
+      rowKey="modelRunId"
       onChange={handleChange}
       pagination={{
         pageSize,
@@ -95,8 +101,8 @@ export function LogList({ logs = [] }: Props): JSX.Element {
       }}
       bordered
       expandable={{
-        expandedRowRender: (logRecord: LogRecord.T) =>
-          `This is where we would show the logs for ${logRecord.modelName}`,
+        expandedRowRender: renderExpandedRow,
+
         // Potential future refactor to eliminate eslint error, however,
         // expandIcon follows the recommendation from antd
         // eslint-disable-next-line react/no-unstable-nested-components

@@ -17,6 +17,9 @@ declare global {
       getImages: () => Promise<ImageInfo[]>;
       getContainers: () => Promise<ContainerInfo[]>;
       getVersion: () => Promise<DockerVersion.T>;
+      getLogContents: (
+        modelRunId: number,
+      ) => Promise<LogRecord.LogMessage[] | null>;
       startModel: (options: RunModelOptions.T) => Promise<number>;
       cleanup: () => Promise<void>;
       getModelNames: () => Promise<string[]>;

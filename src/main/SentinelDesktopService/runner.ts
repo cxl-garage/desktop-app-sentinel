@@ -1,5 +1,6 @@
 import * as async from 'async';
 import recursive from 'recursive-readdir';
+import winston from 'winston';
 import sleep from '../../util/sleep';
 import assertUnreachable from '../../util/assertUnreachable';
 import { PrismaClient } from '../../generated/prisma/client';
@@ -23,6 +24,8 @@ type JobTask = {
   runId: number;
 };
 
+export const LOG_FILE_NAME = 'output.log';
+
 type JobStatus =
   | {
       status: ERunningImageStatus.NOT_STARTED | ERunningImageStatus.IN_PROGRESS;
@@ -44,9 +47,20 @@ export class ModelRunner {
 
   statusMap: Map<string, JobStatus>;
 
+  logger: winston.Logger = winston.createLogger();
+
   constructor(prismaClient: PrismaClient) {
     this.statusMap = new Map();
     this.detectWorker = async (task: JobTask) => {
+      try {
+        throw new Error('This is an error!!');
+      } catch (error) {
+        this.logger.error({
+          message: 'Caught the error',
+          stack: (error as Error).stack,
+        });
+      }
+
       this.statusMap.set(task.inputPath, {
         status: ERunningImageStatus.IN_PROGRESS,
       });
@@ -54,6 +68,7 @@ export class ModelRunner {
         task.folder,
         task.inputPath,
         task.options,
+        this.logger,
       );
       const detectionMetadata = getDetectionCounts(detections);
 
@@ -74,10 +89,14 @@ export class ModelRunner {
           });
           break;
         } catch (e) {
-          console.log('DB Connection Error Caught');
-          console.log(e);
+          this.logger.error({
+            message: 'DB Connection Error Caught',
+            stack: (e as Error).stack,
+          });
+          console.error(e);
+
           if (i < DB_WRITE_ATTEMPT_LIMIT) {
-            console.log('Retrying...');
+            this.logger.debug('Retrying...');
             // eslint-disable-next-line no-await-in-loop
             await sleep(Math.random() * 100 + 50);
           }
@@ -87,6 +106,26 @@ export class ModelRunner {
       return detections;
     };
     this.queue = async.queue(this.detectWorker, 3);
+  }
+
+  /**
+   * This resets the winston logger to write to a new output directory.
+   * This should get called whenever we are starting a new model run.
+   */
+  resetLogger(outputDirectory: string): void {
+    this.logger = winston.createLogger({
+      level: 'debug',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(),
+      ),
+      transports: [
+        new winston.transports.Console(),
+        new winston.transports.File({
+          filename: `${outputDirectory}/${LOG_FILE_NAME}`,
+        }),
+      ],
+    });
   }
 
   stats(): { idle: boolean; length: number } {
@@ -154,6 +193,8 @@ export class ModelRunner {
     modelName: string;
     modelRunId: number;
   }): Promise<void> {
+    this.resetLogger(outputFolder);
+
     const options: DetectOptions = {
       threshold,
       modelName,
@@ -171,7 +212,6 @@ export class ModelRunner {
         [(file, stats) => !stats.isDirectory() && !isSupported(file)],
         (_error: Error, files: string[]) => {
           files.forEach((inputPath) => {
-            console.log(inputPath);
             this.statusMap.set(inputPath, {
               status: ERunningImageStatus.NOT_STARTED,
             });
@@ -185,7 +225,11 @@ export class ModelRunner {
               task,
               (err?: Error | null, detectionResults?: JobResponse) => {
                 if (err) {
-                  console.log('Error processing task', task);
+                  this.logger.error({
+                    message: 'Error processing task',
+                    task,
+                    stack: (err as Error).stack,
+                  });
                   console.error(err);
                 }
 
@@ -208,11 +252,14 @@ export class ModelRunner {
       // Wait until all jobs are handled
       this.queue.drain(() => {
         const elapsed = Date.now() - startTime;
-        console.log(`All files finished processing in ${elapsed}`);
+        this.logger.info(`All files finished processing in ${elapsed}ms`);
         csvFile.close();
       });
     } catch (error) {
-      console.error('Runner Error');
+      this.logger.error({
+        message: 'Runner Error',
+        stack: (error as Error).stack,
+      });
       csvFile.close();
       throw error;
     }
