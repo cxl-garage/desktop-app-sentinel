@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { Col, Row } from 'antd';
+import Link from 'antd/es/typography/Link';
 import Paragraph from 'antd/es/typography/Paragraph';
 import { ImageGridImage } from 'components/ui/PaginatedImageGrid/ImageGridImage';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
+import ErrorSummary from './ErrorSummary';
 
 function ImageGrid({
   filePaths,
@@ -100,11 +102,19 @@ export function ModelRunImagePreviewSection({
   const navigate = useNavigate();
   const url = `/past-results/${encodeURIComponent(modelId)}`;
   if (isError) {
+    if (error instanceof Error) {
+      return <ErrorSummary error={error} />;
+    }
     return (
       <Paragraph>
-        {error instanceof Error
-          ? `Error loading images: ${error.message}`
-          : `Error loading images`}
+        Something unexpected has occurred, please try reopening this page. If
+        the issue persists, contact CXL or file an issue on github:
+        <Link
+          href="https://github.com/cxl-garage/desktop-app-sentinel/issues"
+          target="_blank"
+        >
+          https://github.com/cxl-garage/desktop-app-sentinel/issues
+        </Link>
       </Paragraph>
     );
   }

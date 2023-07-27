@@ -6,6 +6,7 @@ import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { app } from 'electron';
 import { readdir, readFile } from 'fs/promises';
+import { existsSync } from 'fs';
 import { ModelRun, PrismaClient } from '../../generated/prisma/client';
 import * as RunModelOptions from '../../models/RunModelOptions';
 import * as ModelRunProgress from '../../models/ModelRunProgress';
@@ -20,6 +21,7 @@ import {
   start,
 } from './docker';
 import { isSupported } from './image';
+import { MISSING_DIR_ERROR_MESSAGE } from './errors';
 
 class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   runner: ModelRunner;
@@ -216,6 +218,9 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   }
 
   async getFilesInDir(dirPath: string, recursive?: boolean): Promise<string[]> {
+    if (!existsSync(dirPath)) {
+      throw new Error(MISSING_DIR_ERROR_MESSAGE);
+    }
     const dirents = await readdir(dirPath, { withFileTypes: true });
     const files = await Promise.all(
       dirents.map((dirent) => {
