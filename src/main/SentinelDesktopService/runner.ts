@@ -52,15 +52,6 @@ export class ModelRunner {
   constructor(prismaClient: PrismaClient) {
     this.statusMap = new Map();
     this.detectWorker = async (task: JobTask) => {
-      try {
-        throw new Error('This is an error!!');
-      } catch (error) {
-        this.logger.error({
-          message: 'Caught the error',
-          stack: (error as Error).stack,
-        });
-      }
-
       this.statusMap.set(task.inputPath, {
         status: ERunningImageStatus.IN_PROGRESS,
       });

@@ -162,10 +162,6 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       timestamp: new Date(modelRun.startTime * 1000),
       outputPath: modelRun.outputPath,
       modelName: modelRun.modelName,
-
-      // TODO: we should eventually be able to indicate when a log has an
-      // error
-      logResult: 'SUCCESS',
     }));
     return logRecords;
   }

@@ -1,11 +1,8 @@
-export type LogResultType = 'SUCCESS' | 'WARNING' | 'ERROR';
-
 /**
  * This model type represents a single log entry during a CXL Model execution.
  */
 type LogRecord = {
   modelRunId: number;
-  logResult: LogResultType;
   timestamp: Date;
   outputPath: string;
   modelName: string;

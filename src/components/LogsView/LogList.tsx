@@ -1,16 +1,9 @@
 import * as React from 'react';
 import { DateTime } from 'luxon';
-import { Table, TablePaginationConfig, Tooltip } from 'antd';
+import { Table, TablePaginationConfig } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import {
-  StopFilled,
-  WarningFilled,
-  CheckCircleFilled,
-  RightOutlined,
-  DownOutlined,
-} from '@ant-design/icons';
+import { RightOutlined, DownOutlined } from '@ant-design/icons';
 import useLocalStorageState from 'use-local-storage-state';
-import assertUnreachable from '../../util/assertUnreachable';
 import { formatInteger } from '../RunModelView/utils/commonUtils';
 import * as LogRecord from '../../models/LogRecord';
 import LogContents from './LogContents';
@@ -21,32 +14,7 @@ type Props = {
   logs?: LogRecord.T[];
 };
 
-const levelIcons = (level: LogRecord.LogResultType): JSX.Element => {
-  switch (level) {
-    case 'ERROR':
-      return <StopFilled className="text-red-600" />;
-    case 'WARNING':
-      return <WarningFilled className="text-oragen-500" />;
-    case 'SUCCESS':
-      return (
-        <CheckCircleFilled className="rounded-full text-blue-500 ring-2 ring-blue-300" />
-      );
-    default:
-      assertUnreachable(level, { throwError: false });
-      return <div />;
-  }
-};
-
 const columns: ColumnsType<LogRecord.T> = [
-  {
-    title: '',
-    key: 'logResult',
-    dataIndex: 'logResult',
-    width: '1%',
-    render: (level: LogRecord.LogResultType) => {
-      return <Tooltip title={level}>{levelIcons(level)}</Tooltip>;
-    },
-  },
   {
     title: 'Date',
     key: 'timestamp',
