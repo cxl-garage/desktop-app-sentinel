@@ -19,7 +19,7 @@ function ImagesLoadingProgressGallery({
     () =>
       _.filter(processingImages, {
         status: ERunningImageStatus.IN_PROGRESS,
-      }).map((it) => it.url),
+      }).map((it) => it.id),
     [processingImages],
   );
 

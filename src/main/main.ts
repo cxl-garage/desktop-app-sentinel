@@ -41,6 +41,18 @@ ipcMain.handle('api/logs/getAll', async (): Promise<LogRecord.T[]> => {
 });
 
 ipcMain.handle(
+  'api/logs/getContents',
+  async (
+    _event,
+    modelRunId: number,
+  ): Promise<LogRecord.LogMessage[] | null> => {
+    console.log('Calling api/logs/getContents', { modelRunId });
+    const logs = await SentinelDesktopService.getLogContents(modelRunId);
+    return logs;
+  },
+);
+
+ipcMain.handle(
   'api/cxl-model-results/getAll',
   async (_event, modelName?: string): Promise<ModelRun[]> => {
     console.log('Calling api/cxl-model-results/getAll');
