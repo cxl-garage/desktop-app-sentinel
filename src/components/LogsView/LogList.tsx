@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import * as LogRecord from 'models/LogRecord';
-import { Table, Tooltip } from 'antd';
+import { Table, TablePaginationConfig, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   StopFilled,
@@ -9,7 +9,11 @@ import {
   RightOutlined,
   DownOutlined,
 } from '@ant-design/icons';
+import useLocalStorageState from 'use-local-storage-state';
 import assertUnreachable from '../../util/assertUnreachable';
+import { formatInteger } from '../RunModelView/utils/commonUtils';
+
+const DEFAULT_PAGE_SIZE = 25;
 
 type Props = {
   logs?: LogRecord.T[];
@@ -62,12 +66,33 @@ const columns: ColumnsType<LogRecord.T> = [
 ];
 
 export function LogList({ logs = [] }: Props): JSX.Element {
+  const [pageSize, setPageSize] = useLocalStorageState<number>(
+    'logListPageSize',
+    { defaultValue: DEFAULT_PAGE_SIZE },
+  );
+
+  const handleChange = (pagination: TablePaginationConfig): void => {
+    if (pagination.pageSize && pagination.pageSize !== pageSize) {
+      setPageSize(pagination.pageSize);
+    }
+  };
+
   return (
     <Table
       columns={columns}
       dataSource={logs}
       rowKey="id"
-      pagination={false}
+      onChange={handleChange}
+      pagination={{
+        pageSize,
+        showSizeChanger: true,
+        pageSizeOptions: ['10', '25', '50', '100'],
+        hideOnSinglePage: true,
+        showTotal: (total, range) =>
+          `${formatInteger(range[0])}-${formatInteger(
+            range[1],
+          )} of ${formatInteger(total)} entries`,
+      }}
       bordered
       expandable={{
         expandedRowRender: (logRecord: LogRecord.T) =>
