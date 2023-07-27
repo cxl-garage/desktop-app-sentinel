@@ -1,50 +1,20 @@
+import * as React from 'react';
 import { DateTime } from 'luxon';
-import * as LogRecord from 'models/LogRecord';
-import { Table, TablePaginationConfig, Tooltip } from 'antd';
+import { Table, TablePaginationConfig } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import {
-  StopFilled,
-  WarningFilled,
-  CheckCircleFilled,
-  RightOutlined,
-  DownOutlined,
-} from '@ant-design/icons';
+import { RightOutlined, DownOutlined } from '@ant-design/icons';
 import useLocalStorageState from 'use-local-storage-state';
-import assertUnreachable from '../../util/assertUnreachable';
 import { formatInteger } from '../RunModelView/utils/commonUtils';
+import * as LogRecord from '../../models/LogRecord';
+import LogContents from './LogContents';
 
-const DEFAULT_PAGE_SIZE = 25;
+const DEFAULT_PAGE_SIZE = 10;
 
 type Props = {
   logs?: LogRecord.T[];
 };
 
-const levelIcons = (level: LogRecord.LogResultType): JSX.Element => {
-  switch (level) {
-    case 'ERROR':
-      return <StopFilled className="text-red-600" />;
-    case 'WARNING':
-      return <WarningFilled className="text-oragen-500" />;
-    case 'SUCCESS':
-      return (
-        <CheckCircleFilled className="rounded-full text-blue-500 ring-2 ring-blue-300" />
-      );
-    default:
-      assertUnreachable(level, { throwError: false });
-      return <div />;
-  }
-};
-
 const columns: ColumnsType<LogRecord.T> = [
-  {
-    title: '',
-    key: 'logResult',
-    dataIndex: 'logResult',
-    width: '1%',
-    render: (level: LogRecord.LogResultType) => {
-      return <Tooltip title={level}>{levelIcons(level)}</Tooltip>;
-    },
-  },
   {
     title: 'Date',
     key: 'timestamp',
@@ -77,11 +47,15 @@ export function LogList({ logs = [] }: Props): JSX.Element {
     }
   };
 
+  const renderExpandedRow = React.useCallback((logRecord: LogRecord.T) => {
+    return <LogContents logRecord={logRecord} />;
+  }, []);
+
   return (
     <Table
       columns={columns}
       dataSource={logs}
-      rowKey="id"
+      rowKey="modelRunId"
       onChange={handleChange}
       pagination={{
         pageSize,
@@ -95,8 +69,8 @@ export function LogList({ logs = [] }: Props): JSX.Element {
       }}
       bordered
       expandable={{
-        expandedRowRender: (logRecord: LogRecord.T) =>
-          `This is where we would show the logs for ${logRecord.modelName}`,
+        expandedRowRender: renderExpandedRow,
+
         // Potential future refactor to eliminate eslint error, however,
         // expandIcon follows the recommendation from antd
         // eslint-disable-next-line react/no-unstable-nested-components

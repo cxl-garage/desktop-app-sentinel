@@ -2,6 +2,7 @@
  * Functions to invoke the docker container to detect features
  * in an image.
  */
+import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
 import assertUnreachable from '../../util/assertUnreachable';
@@ -142,12 +143,13 @@ export async function detect(
   folder: string,
   inputPath: string,
   options: DetectOptions,
+  logger: winston.Logger,
 ): Promise<DetectionResult[]> {
   const detections: DetectionResult[] = [];
 
   // Read the image and resize if necessary if the image type is supported
   const startTime = Date.now();
-  console.log(`Detecting ${inputPath} with threshold ${options.threshold}`);
+  logger.info(`Detecting ${inputPath} with threshold ${options.threshold}`);
   const size = options.inputSize ?? DEFAULT_SIZE;
   const beforeRead = Date.now();
   const image = await read(inputPath, size);
@@ -252,13 +254,16 @@ export async function detect(
     // TODO: This is the place to catch any exceptions and write an error output
     // detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
     const elapsed = Date.now() - startTime;
-    console.log(
+    logger.info(
       `Detecting ${inputPath} finished in ${elapsedRead} (read) + ${elapsedDetect} (detect) + ${totalWrite} write = ${elapsed} ms`,
     );
 
     return detections;
   } catch (e) {
-    console.error(`Error detecting for ${inputPath}`, e);
+    logger.error({
+      message: `Error detecting for ${inputPath}`,
+      stack: (e as Error).stack,
+    });
     throw e;
   }
 }

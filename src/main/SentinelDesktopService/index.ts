@@ -5,11 +5,11 @@ import * as LogRecord from 'models/LogRecord';
 import * as DockerVersion from 'models/DockerVersion';
 import type { ImageInfo, ContainerInfo } from 'dockerode';
 import { app } from 'electron';
-import { readdir } from 'fs/promises';
+import { readdir, readFile } from 'fs/promises';
 import { ModelRun, PrismaClient } from '../../generated/prisma/client';
 import * as RunModelOptions from '../../models/RunModelOptions';
 import * as ModelRunProgress from '../../models/ModelRunProgress';
-import { ModelRunner } from './runner';
+import { ModelRunner, LOG_FILE_NAME } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
 import {
   cleanup,
@@ -158,16 +158,42 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     });
 
     const logRecords: LogRecord.T[] = allModelRuns.map((modelRun) => ({
-      id: modelRun.id,
+      modelRunId: modelRun.id,
       timestamp: new Date(modelRun.startTime * 1000),
       outputPath: modelRun.outputPath,
       modelName: modelRun.modelName,
-
-      // TODO: we should eventually be able to indicate when a log has an
-      // error
-      logResult: 'SUCCESS',
     }));
     return logRecords;
+  }
+
+  /**
+   * Given a modelRunId, fetch the logs for this run. If the log file could
+   * not be found then return `null`
+   */
+  async getLogContents(
+    modelRunId: number,
+  ): Promise<LogRecord.LogMessage[] | null> {
+    const modelRun = await this.prisma.modelRun.findUnique({
+      where: { id: modelRunId },
+    });
+
+    if (modelRun) {
+      try {
+        const fileText = await readFile(
+          `${modelRun.outputPath}/${LOG_FILE_NAME}`,
+          { encoding: 'utf8' },
+        );
+        const lines = fileText.split('\n').filter((txt) => !!txt);
+        const logObjs = lines.map((txt) => JSON.parse(txt));
+        return logObjs;
+      } catch (error) {
+        console.error(error);
+        // if there was an error reading the file then return `null`
+        return null;
+      }
+    }
+
+    return null;
   }
 
   /**

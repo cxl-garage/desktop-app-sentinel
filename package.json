@@ -127,7 +127,6 @@
     "react-hook-form": "^7.43.8",
     "react-json-view": "^1.21.3",
     "react-loading": "^2.0.3",
-    "react-papaparse": "^4.1.0",
     "react-router-dom": "^6.8.2",
     "read-file-utf8": "^2.0.4",
     "recursive-readdir": "^2.2.3",

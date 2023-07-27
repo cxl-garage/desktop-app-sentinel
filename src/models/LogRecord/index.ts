@@ -1,11 +1,8 @@
-export type LogResultType = 'SUCCESS' | 'WARNING' | 'ERROR';
-
 /**
  * This model type represents a single log entry during a CXL Model execution.
  */
 type LogRecord = {
-  id: number;
-  logResult: LogResultType;
+  modelRunId: number;
   timestamp: Date;
   outputPath: string;
   modelName: string;
@@ -13,6 +10,14 @@ type LogRecord = {
 
 export const QueryKeys = {
   allLogRecords: ['allLogRecords'],
+  getLogContents: (modelRunId: number) => ['logs', modelRunId],
+};
+
+export type LogMessage = {
+  [key: string]: string;
+  level: string;
+  message: string;
+  timestamp: string;
 };
 
 export { LogRecord as T };
