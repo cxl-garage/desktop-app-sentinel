@@ -1,33 +1,15 @@
 import { LoadingOutlined } from '@ant-design/icons';
-import { Image, Pagination } from 'antd';
+import { Pagination } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import useLocalStorageState from 'use-local-storage-state';
 import { formatInteger } from '../../RunModelView/utils/commonUtils';
 import EImageGridSize from './EImageGridSize';
 import usePreloadImage from '../../RunModelView/RunModelResultsPanel/usePreloadImage';
+import { ImageGridImage } from './ImageGridImage';
+import { ImageGrid } from './ImageGrid';
 
 const DEFAULT_PAGE_SIZE = 10;
-
-const ImageGrid = styled.div`
-  display: grid;
-  grid-template-columns: ${({
-    size = EImageGridSize.DEFAULT,
-  }: {
-    size: EImageGridSize;
-  }) => `repeat(
-      auto-fill,
-      minmax(min(${size}px, 100%), 1fr)
-    );`};
-  gap: 20px;
-`;
-
-const ImageGridImage = styled(Image)`
-  border-radius: 10px;
-  object-fit: cover;
-  aspect-ratio: 1 / 1;
-  box-shadow: 0 4px 4px 0px rgb(0 0 0 / 0.25);
-`;
 
 const LoadingImageWrapper = styled.div`
   background-color: #eaeaea;

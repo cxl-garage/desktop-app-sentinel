@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { Col, Row } from 'antd';
 import Paragraph from 'antd/es/typography/Paragraph';
-import { Image } from 'components/ui/Image';
-// Image license details here: https://commons.wikimedia.org/wiki/File:Standing_jaguar.jpg
-const PUBLIC_DOMAIN_PLACEHOLDER_IMAGE =
-  'https://upload.wikimedia.org/wikipedia/commons/0/0a/Standing_jaguar.jpg';
+import { ImageGridImage } from 'components/ui/PaginatedImageGrid/ImageGridImage';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../ui/Button';
 
-export function ImageGrid({
+function ImageGrid({
   filePaths,
   imagesPerRow,
 }: {
@@ -19,30 +19,68 @@ export function ImageGrid({
     <Row gutter={16}>
       {filePaths.map((imageFilePath) => (
         <Col span={span} key={imageFilePath}>
-          <Image src={imageFilePath} />
+          <ImageGridImage src={imageFilePath} />
         </Col>
       ))}
     </Row>
   );
 }
 
-export function ModelRunImagePreviewPlaceholder({
+function SkeletonImageGrid({
+  numImages,
+  imagesPerRow,
+}: {
+  numImages: number;
+  imagesPerRow?: number;
+}): JSX.Element {
+  // Grid width is 24 cells, define span to get desired row width className="h-40 w-40 px-1.5"
+  const span = Math.round(24 / (imagesPerRow ?? 3));
+  return (
+    <Row gutter={16}>
+      {Array.from(Array(numImages)).map((_, index) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <Col span={span} key={index}>
+          <div className="animate-pulse">
+            <ImageGridImage src="placeholder" placeholder />
+          </div>
+        </Col>
+      ))}
+    </Row>
+  );
+}
+
+export function ModelRunImagePreviewPlaceholderSection({
   count,
   imagesPerRow,
+  delay,
 }: {
   count: number;
   imagesPerRow?: number;
+  delay?: number;
 }): JSX.Element {
-  const imageFilePaths = Array.from(
-    { length: count },
-    (_value, index: number) =>
-      `${PUBLIC_DOMAIN_PLACEHOLDER_IMAGE}?index=${index}`,
+  const [isShown, setIsShown] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsShown(true);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  // Don't immediately render to help avoid
+  // flicker when load is fast
+  if (!isShown) {
+    return <div />;
+  }
+
+  return (
+    <Row>
+      <SkeletonImageGrid numImages={count} imagesPerRow={imagesPerRow} />
+    </Row>
   );
-  return <ImageGrid filePaths={imageFilePaths} imagesPerRow={imagesPerRow} />;
 }
 
-// TODO: Paginate
-export function ModelRunImagePreview({
+export function ModelRunImagePreviewSection({
   modelId,
   count,
   imagesPerRow,
@@ -59,6 +97,8 @@ export function ModelRunImagePreview({
     queryFn: () => window.SentinelDesktopService.getModelOutputs(modelId),
     queryKey: ['getModelOutputs', modelId],
   });
+  const navigate = useNavigate();
+  const url = `/past-results/${encodeURIComponent(modelId)}`;
   if (isError) {
     return (
       <Paragraph>
@@ -69,7 +109,13 @@ export function ModelRunImagePreview({
     );
   }
   if (!files) {
-    return <div>Loading...</div>;
+    return (
+      <ModelRunImagePreviewPlaceholderSection
+        count={count || 6}
+        imagesPerRow={imagesPerRow}
+        delay={300}
+      />
+    );
   }
 
   const imageFilePaths: string[] = files
@@ -81,9 +127,20 @@ export function ModelRunImagePreview({
     )
     .map((file: string) => `localfile://${file}`);
   return (
-    <ImageGrid
-      filePaths={imageFilePaths.slice(0, count)}
-      imagesPerRow={imagesPerRow}
-    />
+    <>
+      <Row>
+        <ImageGrid
+          filePaths={imageFilePaths.slice(0, count)}
+          imagesPerRow={imagesPerRow}
+        />
+      </Row>
+      <Row>
+        <div className="ml-auto">
+          <Button size="large" type="text" onClick={() => navigate(url)}>
+            View all images
+          </Button>
+        </div>
+      </Row>
+    </>
   );
 }
