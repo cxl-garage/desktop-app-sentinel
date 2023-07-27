@@ -1,5 +1,6 @@
 import * as async from 'async';
 import recursive from 'recursive-readdir';
+import sleep from '../../util/sleep';
 import assertUnreachable from '../../util/assertUnreachable';
 import { PrismaClient } from '../../generated/prisma/client';
 import { RunnerState } from '../../models/ModelRunProgress';
@@ -35,12 +36,6 @@ type JobStatus =
 type JobResponse = DetectionResult[];
 
 const DB_WRITE_ATTEMPT_LIMIT = 5;
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 export class ModelRunner {
   queue: async.QueueObject<JobTask>;
