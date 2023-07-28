@@ -2,11 +2,14 @@
  * Functions to interact with docker.
  */
 import * as DockerVersion from 'models/DockerVersion';
-import Docker, { ImageInfo, ContainerInfo } from 'dockerode';
+import Docker, { ContainerInfo } from 'dockerode';
+import * as DockerImage from 'models/DockerImage';
+import { TensorflowModel } from './tensorflow';
 
 // TODO: Maybe this all should be encapsulated in a class
 const docker = new Docker();
 const CONTAINER_NAME = 'sentinel';
+const REPO_TAG = 'tensorflow/serving:latest';
 
 /**
  * Gets basic version information about the docker engine, including
@@ -32,19 +35,25 @@ export async function getVersion(): Promise<DockerVersion.T> {
  * Checks whether the needed image is installed in docker locally.
  * @returns the docker image info if found
  */
-export async function findImage(): Promise<ImageInfo | undefined> {
+export async function findImage(): Promise<DockerImage.T | undefined> {
   // eslint-disable-next-line promise/catch-or-return
-  return (await docker.listImages()).find((image) =>
-    image.RepoTags?.some((tag) => tag.endsWith('dataclinic:latest')),
+  const imageInfo = (await docker.listImages()).find((image) =>
+    image.RepoTags?.some((tag) => tag === REPO_TAG),
   );
+  console.log(JSON.stringify(imageInfo, null, 2));
+  return imageInfo
+    ? {
+        id: imageInfo?.Id,
+        name: REPO_TAG,
+        created: imageInfo?.Created,
+      }
+    : undefined;
 }
 
-/**
- * Gets all of the installed docker images.
- * @returns an array of image infos
- */
-export async function getImages(): Promise<ImageInfo[]> {
-  return docker.listImages();
+export async function pullImage(): Promise<void> {
+  console.log('Pulling image from docker...');
+  await docker.pull(REPO_TAG);
+  console.log('Done Pulling image from docker...');
 }
 
 /**
@@ -53,51 +62,6 @@ export async function getImages(): Promise<ImageInfo[]> {
  */
 export async function getContainers(): Promise<ContainerInfo[]> {
   return docker.listContainers();
-}
-
-async function getImageEnv(): Promise<string[]> {
-  // TODO: Assumes there is only a single suitable docker image
-  // installed. What if more than one?
-  try {
-    const imageInfo = await findImage();
-    if (!imageInfo) {
-      console.log('Failed to find suitable docker image.');
-      return [];
-    }
-    const dockerImage = docker.getImage(imageInfo.Id);
-    return (await dockerImage.inspect()).Config.Env;
-  } catch (error) {
-    console.log('Failed to find available models', error);
-    return [];
-  }
-}
-
-export async function getModelNames(): Promise<string[]> {
-  const models = (await getImageEnv()).find((value) =>
-    value.startsWith('AVAILABLE_MODELS'),
-  );
-  if (models) {
-    const tokens = models.split('=');
-    console.log(`Available models: ${tokens[1]}`);
-    if (tokens.length > 1) {
-      return tokens[1].split(',');
-    }
-  }
-  return [];
-}
-
-export async function getClassNames(modelName: string): Promise<string[]> {
-  const classNames = (await getImageEnv()).find((value) =>
-    value.startsWith(`${modelName.toUpperCase()}_CLASSES`),
-  );
-  if (classNames) {
-    const tokens = classNames.split('=');
-    if (tokens.length > 1) {
-      console.log(`For ${modelName}, class names: ${tokens[1]}`);
-      return tokens[1].split(',');
-    }
-  }
-  return [];
 }
 
 /**
@@ -122,7 +86,7 @@ export async function cleanup(): Promise<void> {
   console.log('done pruning containers');
 }
 
-export async function start(modelName: string): Promise<void> {
+export async function start(tensorflow: TensorflowModel): Promise<void> {
   // Find the right image
   const imageInfo = await findImage();
   if (imageInfo === undefined) {
@@ -136,14 +100,16 @@ export async function start(modelName: string): Promise<void> {
     name: CONTAINER_NAME,
     Tty: false,
     HostConfig: {
+      Binds: [`${tensorflow.savedModelPath}:/models/${tensorflow.modelName}`],
       PortBindings: {
         '8501/tcp': [{ HostPort: '8501' }],
       },
     },
-    Env: [`MODEL_NAME=${modelName}`],
+    Env: [`MODEL_NAME=${tensorflow.modelName}`],
+    Volumes: { [`/models/${tensorflow.modelName}`]: {} },
   };
 
   console.log('starting docker...');
-  docker.run(imageInfo.Id, [], process.stdout, createOptions);
+  docker.run(imageInfo.id, [], process.stdout, createOptions);
   console.log('container started...');
 }

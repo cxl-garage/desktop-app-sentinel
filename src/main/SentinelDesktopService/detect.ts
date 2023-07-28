@@ -12,7 +12,7 @@ export type DetectOptions = {
   inputSize?: number;
   threshold?: number;
   modelName: string;
-  classNames: string[];
+  classNames: Map<number, string>;
   outputFolder: string;
   outputStyle: OutputStyle;
 };
@@ -103,7 +103,10 @@ async function writeDetection(
   switch (outputStyle) {
     case 'class': {
       // check if each animal class subdirectory exists, otherwise create them
-      classNames.concat([EMPTY_IMAGE_CLASS]).forEach((animalClass) => {
+      if (!fs.existsSync(EMPTY_IMAGE_CLASS)) {
+        fs.mkdirSync(EMPTY_IMAGE_CLASS);
+      }
+      classNames.forEach((animalClass) => {
         const animalClassDir = `${outputFolder}/${animalClass}`;
         if (!fs.existsSync(animalClassDir)) {
           fs.mkdirSync(animalClassDir);
@@ -171,7 +174,9 @@ export async function detect(
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
     });
-    const json = await response.json();
+    const text = await response.text();
+    console.log(`Result: ${text}`);
+    const json = JSON.parse(text);
     const elapsedDetect = Date.now() - beforeDetect;
     const predictions: SentinelPredictions = json.predictions[0];
 
@@ -188,7 +193,7 @@ export async function detect(
         .map((confidence, i) => {
           const bbox = predictions.output_0[i];
           const classId = predictions.output_2[i];
-          const className = options.classNames[classId - 1];
+          const className = options.classNames.get(classId) ?? 'unknown';
           return { bbox, classId, className, confidence };
         })
         .filter((prediction) => prediction.confidence > threshold);

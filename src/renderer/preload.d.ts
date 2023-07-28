@@ -1,6 +1,7 @@
 import * as LogRecord from 'models/LogRecord';
 import * as DockerVersion from 'models/DockerVersion';
-import type { ImageInfo, ContainerInfo } from 'dockerode';
+import * as DockerImage from 'models/DockerImage';
+import type { ContainerInfo } from 'dockerode';
 import { ModelRun } from '../../generated/prisma/client';
 import * as RunModelOptions from '../models/RunModelOptions';
 import * as ModelRunProgress from '../models/ModelRunProgress';
@@ -14,12 +15,12 @@ declare global {
       getAllCXLModelResults: (modelName?: string) => Promise<ModelRun[]>;
       getFilesInDir: (dirPath: string, boolean?: string) => Promise<string[]>;
       getModelOutputs: (modelId: number) => Promise<string[]>;
-      getImages: () => Promise<ImageInfo[]>;
+      findImage: () => Promise<DockerImage.T | undefined>;
+      pullImage: () => Promise<void>;
       getContainers: () => Promise<ContainerInfo[]>;
       getVersion: () => Promise<DockerVersion.T>;
       startModel: (options: RunModelOptions.T) => Promise<number>;
       cleanup: () => Promise<void>;
-      getModelNames: () => Promise<string[]>;
       getCurrentModelRunProgress: () => Promise<ModelRunProgress.T | null>;
       getIsModelRunInProgress: () => Promise<boolean>;
       selectInputFolder: () => Promise<any>;

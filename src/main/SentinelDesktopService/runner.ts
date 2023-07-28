@@ -12,7 +12,6 @@ import {
   getDetectionCounts,
   OutputStyle,
 } from './detect';
-import { getClassNames } from './docker';
 import { CsvFile } from './csv';
 import { isSupported } from './image';
 
@@ -144,6 +143,7 @@ export class ModelRunner {
     outputFolder,
     outputStyle,
     threshold,
+    classNames,
     modelName,
     modelRunId,
   }: {
@@ -151,13 +151,14 @@ export class ModelRunner {
     outputFolder: string;
     outputStyle: OutputStyle;
     threshold: number;
+    classNames: Map<number, string>;
     modelName: string;
     modelRunId: number;
   }): Promise<void> {
     const options: DetectOptions = {
       threshold,
       modelName,
-      classNames: await getClassNames(modelName),
+      classNames,
       outputFolder,
       outputStyle,
     };
