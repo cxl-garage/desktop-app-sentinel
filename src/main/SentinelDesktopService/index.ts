@@ -3,7 +3,7 @@
 import path from 'path';
 import * as LogRecord from 'models/LogRecord';
 import * as DockerVersion from 'models/DockerVersion';
-import type { ImageInfo, ContainerInfo } from 'dockerode';
+import type { ContainerInfo } from 'dockerode';
 import { app } from 'electron';
 import { readdir, readFile } from 'fs/promises';
 import { existsSync } from 'fs';
@@ -14,14 +14,16 @@ import { ModelRunner, LOG_FILE_NAME } from './runner';
 import type { ISentinelDesktopService } from './ISentinelDesktopService';
 import {
   cleanup,
-  getModelNames,
+  findImage,
   getContainers,
-  getImages,
   getVersion,
+  pullImage,
   start,
 } from './docker';
 import { isSupported } from './image';
 import { MISSING_DIR_ERROR_MESSAGE } from './errors';
+import * as DockerImage from '../../models/DockerImage';
+import { getTensorflowModel } from './tensorflow';
 
 class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   runner: ModelRunner;
@@ -56,8 +58,12 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     return getVersion();
   }
 
-  getImages(): Promise<ImageInfo[]> {
-    return getImages();
+  findImage(): Promise<DockerImage.T | undefined> {
+    return findImage();
+  }
+
+  pullImage(): Promise<void> {
+    return pullImage();
   }
 
   async getContainers(): Promise<ContainerInfo[]> {
@@ -80,9 +86,13 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     console.log(modelRuns);
   }
 
-  registerRun(options: RunModelOptions.T): Promise<ModelRun> {
+  registerRun(
+    options: RunModelOptions.T,
+    modelName: string,
+  ): Promise<ModelRun> {
     const data = {
-      modelName: options.modelName,
+      modelPath: options.modelDirectory,
+      modelName,
       inputPath: options.inputDirectory,
       outputPath: options.outputDirectory,
       startTime: Math.round(Date.now() / 1000),
@@ -90,11 +100,6 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       confidenceThreshold: options.confidenceThreshold,
     };
     return this.prisma.modelRun.create({ data });
-  }
-
-  async getModelNames(): Promise<string[]> {
-    const modelNames = getModelNames();
-    return modelNames;
   }
 
   async getCurrentModelRunProgress(): Promise<ModelRunProgress.T | null> {
@@ -122,8 +127,14 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     try {
       await cleanup();
       this.runner.cleanup();
-      await start(options.modelName);
-      const modelRun = await this.registerRun(options);
+
+      // Parse the model directory to see if it contains a valid tensor flow
+      // model
+      // TODO: handle malformed model directories here.
+      const tensorflow = getTensorflowModel(options.modelDirectory);
+
+      await start(tensorflow);
+      const modelRun = await this.registerRun(options, tensorflow.modelName);
       this.registeredModelRun = modelRun;
 
       // TODO: It takes some time for the image to start, so wait
@@ -133,10 +144,12 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
 
       await this.runner.start({
         inputFolder: options.inputDirectory,
+        inputSize: tensorflow.inputSize,
         outputFolder: options.outputDirectory,
         outputStyle: options.outputStyle,
         threshold: options.confidenceThreshold,
-        modelName: options.modelName,
+        classNames: tensorflow.classNames,
+        modelName: tensorflow.modelName,
         modelRunId: modelRun.id,
       });
 

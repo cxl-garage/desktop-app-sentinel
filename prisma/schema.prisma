@@ -13,6 +13,7 @@ datasource db {
 
 model ModelRun {
   id         Int     @id @default(autoincrement())
+  modelPath  String  @default("")
   modelName  String
   outputPath String
   startTime  Int

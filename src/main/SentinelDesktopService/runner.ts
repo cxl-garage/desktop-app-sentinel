@@ -13,7 +13,6 @@ import {
   getDetectionCounts,
   OutputStyle,
 } from './detect';
-import { getClassNames } from './docker';
 import { CsvFile } from './csv';
 import { isSupported } from './image';
 
@@ -171,16 +170,20 @@ export class ModelRunner {
 
   async start({
     inputFolder,
+    inputSize,
     outputFolder,
     outputStyle,
     threshold,
+    classNames,
     modelName,
     modelRunId,
   }: {
     inputFolder: string;
+    inputSize: number;
     outputFolder: string;
     outputStyle: OutputStyle;
     threshold: number;
+    classNames: Map<number, string>;
     modelName: string;
     modelRunId: number;
   }): Promise<void> {
@@ -189,9 +192,10 @@ export class ModelRunner {
     const options: DetectOptions = {
       threshold,
       modelName,
-      classNames: await getClassNames(modelName),
+      classNames,
       outputFolder,
       outputStyle,
+      inputSize,
     };
 
     const csvFile = new CsvFile(outputFolder);

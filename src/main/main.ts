@@ -16,6 +16,7 @@ import { PythonShell } from 'python-shell';
 import invariant from 'invariant';
 import * as LogRecord from 'models/LogRecord';
 import * as DockerVersion from 'models/DockerVersion';
+import * as DockerImage from 'models/DockerImage';
 import * as urllib from 'url';
 import { ModelRun } from '../generated/prisma/client';
 import * as ModelRunProgress from '../models/ModelRunProgress';
@@ -96,9 +97,17 @@ ipcMain.handle(
   },
 );
 
-ipcMain.handle('api/docker/getImages', async (): Promise<any[]> => {
-  console.log('Calling api/docker/getImages');
-  return SentinelDesktopService.getImages();
+ipcMain.handle(
+  'api/docker/findImage',
+  async (): Promise<DockerImage.T | undefined> => {
+    console.log('Calling api/docker/findImage');
+    return SentinelDesktopService.findImage();
+  },
+);
+
+ipcMain.handle('api/docker/pullImage', async (): Promise<void> => {
+  console.log('Calling api/docker/pullImage');
+  return SentinelDesktopService.pullImage();
 });
 
 ipcMain.handle('api/docker/getContainers', async (): Promise<any[]> => {
@@ -121,14 +130,6 @@ ipcMain.handle(
     console.log('Calling api/docker/start');
     const id = await SentinelDesktopService.startModel(options);
     return id;
-  },
-);
-
-ipcMain.handle(
-  'api/docker/getModelNames',
-  async (_event): Promise<string[]> => {
-    console.log('Calling api/docker/getModelNames');
-    return SentinelDesktopService.getModelNames();
   },
 );
 

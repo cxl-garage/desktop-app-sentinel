@@ -1,7 +1,7 @@
 import * as RunModelOptions from '../../../models/RunModelOptions';
 
 interface IRunModelInputsFormValues {
-  modelName: string;
+  modelDirectory: string;
   dataset: string;
   outputStyle: RunModelOptions.EOutputStyle;
   confidenceThreshold: number;

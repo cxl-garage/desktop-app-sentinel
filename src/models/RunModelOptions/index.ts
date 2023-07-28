@@ -6,7 +6,7 @@ export enum EOutputStyle {
 }
 
 interface RunModelOptions {
-  modelName: string;
+  modelDirectory: string;
   outputStyle: EOutputStyle;
   confidenceThreshold: number;
   inputDirectory: string; // dataset location
