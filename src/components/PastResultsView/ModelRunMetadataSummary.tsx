@@ -2,12 +2,8 @@ import { Card, Col, Row, Space, Tag } from 'antd';
 import Text from 'antd/es/typography/Text';
 
 import Title from 'antd/es/typography/Title';
-import { ModelRun } from '../../generated/prisma/client';
+import { useModelRun } from './ModelRunContext/ModelRunContext';
 import { CardShadowWrapper } from './PastResultsViewStyledComponents';
-
-type Props = {
-  modelRunMetadata: ModelRun;
-};
 
 function MetricDisplay({
   metricName,
@@ -84,16 +80,15 @@ function toPercentageStr(
     : undefined;
 }
 
-export function ModelRunMetadataSummary({
-  modelRunMetadata,
-}: Props): JSX.Element {
+export function ModelRunMetadataSummary(): JSX.Element {
+  const { modelRun } = useModelRun();
   const {
     emptyImageCount,
     imageCount,
     detectedObjectCount,
     outputPath,
     modelName,
-  } = modelRunMetadata;
+  } = modelRun;
   return (
     <>
       <Row gutter={[16, 0]}>

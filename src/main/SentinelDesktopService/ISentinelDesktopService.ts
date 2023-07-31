@@ -21,4 +21,8 @@ export interface ISentinelDesktopService {
   getModelNames: () => Promise<string[]>;
   isInProgress: boolean;
   getCurrentModelRunProgress: () => Promise<ModelRunProgress.T | null>;
+  updateModelRun: (
+    modelId: number,
+    outputDirectory: string,
+  ) => Promise<ModelRun>;
 }

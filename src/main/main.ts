@@ -80,6 +80,22 @@ ipcMain.handle(
   },
 );
 
+ipcMain.handle(
+  'api/model-runs/updateModelRun',
+  async (
+    _event,
+    modelId: number,
+    outputDirectory: string,
+  ): Promise<ModelRun> => {
+    console.log('api/model-runs/updateModelRun');
+    const result = await SentinelDesktopService.updateModelRun(
+      modelId,
+      outputDirectory,
+    );
+    return result;
+  },
+);
+
 ipcMain.handle('api/docker/getImages', async (): Promise<any[]> => {
   console.log('Calling api/docker/getImages');
   return SentinelDesktopService.getImages();

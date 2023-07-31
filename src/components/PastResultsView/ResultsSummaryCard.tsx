@@ -9,31 +9,34 @@ import {
   ModelRunImagePreviewSection,
   ModelRunImagePreviewPlaceholderSection,
 } from './ImagePreviews';
+import ModelRunContextProvider from './ModelRunContext/ModelRunContextProvider';
 
 type Props = {
   modelRunMetadata: ModelRun;
 };
 
 export function ResultsSummaryCard({ modelRunMetadata }: Props): JSX.Element {
-  const { startTime, id: modelId } = modelRunMetadata;
+  const { startTime } = modelRunMetadata;
   const runStartDate = getDateFromTimestamp(startTime, 's');
 
   return (
-    <CardShadowWrapper className="my-4">
-      <Card title={runStartDate.toLocaleDateString('en-US')}>
-        <Row gutter={16}>
-          <Col span={12}>
-            <ModelRunMetadataSummary modelRunMetadata={modelRunMetadata} />
-          </Col>
-          <Col span={12}>
-            {modelId ? (
-              <ModelRunImagePreviewSection modelId={modelId} count={6} />
-            ) : (
-              <ModelRunImagePreviewPlaceholderSection count={6} />
-            )}
-          </Col>
-        </Row>
-      </Card>
-    </CardShadowWrapper>
+    <ModelRunContextProvider modelRunInput={modelRunMetadata}>
+      <CardShadowWrapper className="my-4">
+        <Card title={runStartDate.toLocaleDateString('en-US')}>
+          <Row gutter={16}>
+            <Col span={12}>
+              <ModelRunMetadataSummary />
+            </Col>
+            <Col span={12}>
+              {modelRunMetadata ? (
+                <ModelRunImagePreviewSection count={6} />
+              ) : (
+                <ModelRunImagePreviewPlaceholderSection count={6} />
+              )}
+            </Col>
+          </Row>
+        </Card>
+      </CardShadowWrapper>
+    </ModelRunContextProvider>
   );
 }

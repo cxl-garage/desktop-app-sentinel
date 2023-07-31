@@ -21,7 +21,7 @@ function DirectoryInput({ value, onChange }: IProps): JSX.Element {
         Choose a folder
       </Button>
       {value && (
-        <div className="ml-1 mt-2 flex items-baseline text-gray-500">
+        <div className="ml-1 mt-2 flex items-baseline break-all text-gray-500">
           <FolderOutlined className="mr-1" />
           <span>{value}</span>
           <button

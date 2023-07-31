@@ -42,6 +42,12 @@ const SentinelDesktopServiceBridge = {
     ipcRenderer.invoke('dialog:openDirectoryOutput'), // allows to select directory for output folder of the model results of user's images
   openFile: async (filePath: string) =>
     ipcRenderer.invoke('openFile', filePath), // allows to select directory for output folder of the model results of user's images
+  updateModelRun: async (modelId: string, outputDirectory: string) =>
+    ipcRenderer.invoke(
+      'api/model-runs/updateModelRun',
+      modelId,
+      outputDirectory,
+    ),
 
   // Legacy functions.
   // TODO: These should be either refactored or removed.

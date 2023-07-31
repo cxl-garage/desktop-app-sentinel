@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import ErrorSummary from './ErrorSummary';
+import { useModelRun } from './ModelRunContext/ModelRunContext';
 
 function ImageGrid({
   filePaths,
@@ -83,24 +84,26 @@ export function ModelRunImagePreviewPlaceholderSection({
 }
 
 export function ModelRunImagePreviewSection({
-  modelId,
   count,
   imagesPerRow,
 }: {
-  modelId: number;
   count?: number;
   imagesPerRow?: number;
 }): JSX.Element {
+  const { modelRun } = useModelRun();
   const {
     data: files,
     isError,
     error,
   } = useQuery({
-    queryFn: () => window.SentinelDesktopService.getModelOutputs(modelId),
-    queryKey: ['getModelOutputs', modelId],
+    queryFn: () => window.SentinelDesktopService.getModelOutputs(modelRun.id),
+    queryKey: ['getModelOutputs', modelRun.outputPath],
+    retryOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
   const navigate = useNavigate();
-  const url = `/past-results/${encodeURIComponent(modelId)}`;
+  const url = `/past-results/${encodeURIComponent(modelRun.id)}`;
   if (isError) {
     if (error instanceof Error) {
       return <ErrorSummary error={error} />;
