@@ -250,6 +250,19 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       `Output style '${model?.outputStyle}' is not implemented yet.`,
     );
   }
+
+  async updateModelRun(
+    modelId: number,
+    outputDirectory: string,
+  ): Promise<ModelRun> {
+    console.log(`Updating outputpath for ${modelId} to ${outputDirectory}`);
+    return this.prisma.modelRun.update({
+      where: { id: modelId },
+      data: {
+        outputPath: outputDirectory,
+      },
+    });
+  }
 }
 
 export const SentinelDesktopService = new SentinelDesktopServiceImpl();

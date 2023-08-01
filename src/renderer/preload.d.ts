@@ -28,6 +28,10 @@ declare global {
       selectInputFolder: () => Promise<any>;
       selectOutputFolder: () => Promise<any>;
       openFile: (filePath: string) => Promise<void>;
+      updateModelRun: (
+        modelId: number,
+        outputDirectory: string,
+      ) => Promise<ModelRun>;
 
       // deprecated functions (need refactoring)
       findOrgModels: (arg: any) => Promise<any>;
