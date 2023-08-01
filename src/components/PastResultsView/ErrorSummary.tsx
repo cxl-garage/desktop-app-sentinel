@@ -53,7 +53,7 @@ export default function ErrorSummary({ error }: { error: Error }): JSX.Element {
         onOk={() => {
           setIsModalOpen(false);
           const newModelRun = { ...modelRun, outputPath: outputDirectory };
-          setModelRun(newModelRun); // optimistically set model before query completess
+          setModelRun(newModelRun); // optimistically set model before query completes
           mutate({
             modelRunId: modelRun.id,
             newOutputDirectory: outputDirectory,
