@@ -1,5 +1,5 @@
-import { ModelRun } from 'generated/prisma/client';
 import { createContext, useContext } from 'react';
+import { ModelRun } from '../../../generated/prisma/client';
 
 interface IModelRunContext {
   modelRun: ModelRun;

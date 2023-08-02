@@ -5,7 +5,7 @@ import { MISSING_DIR_ERROR_MESSAGE } from 'main/SentinelDesktopService/errors';
 import { useState } from 'react';
 import DirectoryInput from 'components/RunModelView/RunModelInputs/formItems/DirectoryInput';
 import { useMutation } from '@tanstack/react-query';
-import { ModelRun } from 'generated/prisma/client';
+import { ModelRun } from '../../generated/prisma/client';
 import { useModelRun } from './ModelRunContext/ModelRunContext';
 
 export default function ErrorSummary({ error }: { error: Error }): JSX.Element {
