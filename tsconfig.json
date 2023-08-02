@@ -26,5 +26,5 @@
     "skipLibCheck": true,
     "strictNullChecks": true
   },
-  "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"]
+  "exclude": ["test", "release/build", "release/app/dist", ".erb/dll", "src/generated", "node_modules"]
 }
