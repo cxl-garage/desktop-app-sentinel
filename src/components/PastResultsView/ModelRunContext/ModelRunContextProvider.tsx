@@ -1,6 +1,6 @@
-import { ModelRun } from 'generated/prisma/client';
 import React, { useMemo, useState } from 'react';
 import { ModelRunContext } from './ModelRunContext';
+import { ModelRun } from '../../../generated/prisma/client';
 
 interface IProps {
   modelRunInput: ModelRun;

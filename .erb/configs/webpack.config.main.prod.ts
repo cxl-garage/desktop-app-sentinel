@@ -3,6 +3,7 @@
  */
 
 import path from 'path';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import webpack from 'webpack';
 import { merge } from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
@@ -66,6 +67,18 @@ const configuration: webpack.Configuration = {
 
     new webpack.DefinePlugin({
       'process.type': '"browser"',
+    }),
+
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.join(
+            webpackPaths.srcMainPath,
+            '../generated/prisma/client/schema.prisma',
+          ),
+          to: path.join(webpackPaths.distMainPath, 'schema.prisma'),
+        },
+      ],
     }),
   ],
 
