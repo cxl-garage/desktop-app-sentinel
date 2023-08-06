@@ -23,10 +23,6 @@ body {
   font-family: Oxygen, sans-serif;
 }
 
-.App .SplitPane {
-  background: rgba(0, 0, 0, 0.06);
-}
-
 .App .Resizer {
   background: #4b5563;
   opacity: 0.2;
