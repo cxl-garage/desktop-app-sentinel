@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon';
 import { useQuery } from '@tanstack/react-query';
+import { Button } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
 import * as LogRecord from '../../models/LogRecord';
 
 type Props = {
@@ -22,8 +24,40 @@ export default function LogContents({ logRecord }: Props): JSX.Element {
     return <div>Couldn&apos;t find any logs in this directory</div>;
   }
 
+  // get all log contents as a single string to make it copyable to
+  // the clipboard
+  const logContentsText = logContents
+    .map((log) => {
+      const logLevel = log.level.toUpperCase();
+      const dateString = DateTime.fromISO(log.timestamp).toFormat(
+        'yyyy-MM-dd HH:mm:ss.SSS',
+      );
+      return `${logLevel} | ${dateString} | ${log.message}`;
+    })
+    .join('\n');
+
   return (
     <div className="h-96 space-y-2 overflow-y-auto">
+      <div className="align-right flex">
+        <Button
+          onClick={() => {
+            const logDate = DateTime.fromJSDate(logRecord.timestamp).toFormat(
+              'yyyy-MM-dd',
+            );
+
+            const anchorElt = document.createElement('a');
+            const file = new Blob([logContentsText], { type: 'text/plain' });
+            anchorElt.href = URL.createObjectURL(file);
+            anchorElt.download = `${logRecord.modelName}-${logDate}.txt`;
+            document.body.appendChild(anchorElt); // required for Firefox
+            anchorElt.click();
+            document.body.removeChild(anchorElt); // clean up
+          }}
+        >
+          <DownloadOutlined />
+          Download log file
+        </Button>
+      </div>
       {logContents.map((log, i) => {
         return (
           // logs are not rearrangeable so its safe to use index as they key
