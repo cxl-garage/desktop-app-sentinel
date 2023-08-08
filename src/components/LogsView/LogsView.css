@@ -1,9 +1,3 @@
 .LogsView__log-component-wrapper {
   margin: 30px;
 }
-
-.LogsView__start-button {
-  display: flex;
-  justify-content: flex-end;
-  margin-right: 30px;
-}

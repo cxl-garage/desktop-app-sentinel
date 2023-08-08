@@ -8,6 +8,8 @@ type Props = {
   logRecord: LogRecord.T;
 };
 
+const CXL_EMAIL = 'info@conservationxlabs.org';
+
 export default function LogContents({ logRecord }: Props): JSX.Element {
   const { data: logContents, isLoading } = useQuery({
     queryKey: LogRecord.QueryKeys.getLogContents(logRecord.modelRunId),
@@ -37,8 +39,8 @@ export default function LogContents({ logRecord }: Props): JSX.Element {
     .join('\n');
 
   return (
-    <div className="h-96 space-y-2 overflow-y-auto">
-      <div className="align-right flex">
+    <div className="max-h-96 space-y-2 overflow-y-auto">
+      <div className="space-x-2">
         <Button
           onClick={() => {
             const logDate = DateTime.fromJSDate(logRecord.timestamp).toFormat(
@@ -56,6 +58,20 @@ export default function LogContents({ logRecord }: Props): JSX.Element {
         >
           <DownloadOutlined />
           Download log file
+        </Button>
+        <Button
+          onClick={() => {
+            const to = encodeURIComponent(CXL_EMAIL);
+            const subject = encodeURIComponent(
+              `ISSUE: Problem running ${logRecord.modelName} model`,
+            );
+            const body = encodeURIComponent(
+              `Hello,\nI encountered a problem running the ${logRecord.modelName} model. The content of the log file is:\n\n${logContentsText}`,
+            );
+            window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+          }}
+        >
+          Report Issue
         </Button>
       </div>
       {logContents.map((log, i) => {

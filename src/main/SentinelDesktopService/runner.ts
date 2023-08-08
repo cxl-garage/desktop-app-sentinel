@@ -188,6 +188,16 @@ export class ModelRunner {
     modelRunId: number;
   }): Promise<void> {
     this.resetLogger(outputFolder);
+    this.logger.info('Starting model run');
+    this.logger.info(`Model Name: ${modelName}`);
+    this.logger.info(`Input Folder: ${inputFolder}`);
+    this.logger.info(`Input Size: ${inputSize}`);
+    this.logger.info(`Output Folder: ${outputFolder}`);
+    this.logger.info(`Output Style: ${outputStyle}`);
+    this.logger.info(`Threshold: ${threshold}`);
+    this.logger.info(
+      `Class Names: ${Array.from(classNames.entries()).toString()}`,
+    );
 
     const options: DetectOptions = {
       threshold,

@@ -151,7 +151,11 @@ export async function detect(
 
   // Read the image and resize if necessary if the image type is supported
   const startTime = Date.now();
-  logger.info(`Detecting ${inputPath} with threshold ${options.threshold}`);
+
+  // intentionally not using `logger` here because we dont want to write this
+  // to the log file (it'll be too big)
+  console.log(`Detecting ${inputPath} with threshold ${options.threshold}`);
+
   const size = options.inputSize;
   const beforeRead = Date.now();
   const image = await read(inputPath, size);
@@ -256,7 +260,10 @@ export async function detect(
     // TODO: This is the place to catch any exceptions and write an error output
     // detections.push([name, 'blank', 0, 0, path.join(folder, name), '']);
     const elapsed = Date.now() - startTime;
-    logger.info(
+
+    // intentionally not using `logger` here because we dont want to write this
+    // to the log file (it'll be too big)
+    console.log(
       `Detecting ${inputPath} finished in ${elapsedRead} (read) + ${elapsedDetect} (detect) + ${totalWrite} write = ${elapsed} ms`,
     );
 
