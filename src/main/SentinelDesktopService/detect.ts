@@ -10,10 +10,10 @@ import { read, save, toDataArray, getOverlay, Image } from './image';
 
 export type OutputStyle = 'class' | 'hierarchy' | 'flat' | 'none';
 export type DetectOptions = {
-  inputSize?: number;
+  inputSize: number;
   threshold?: number;
   modelName: string;
-  classNames: string[];
+  classNames: Map<number, string>;
   outputFolder: string;
   outputStyle: OutputStyle;
 };
@@ -50,7 +50,6 @@ type SentinelPredictions = {
 };
 
 const EMPTY_IMAGE_CLASS = 'blank';
-const DEFAULT_SIZE = 256;
 const DEFAULT_THRESHOLD = 0.4;
 const LINE_WIDTH = 3;
 
@@ -82,7 +81,7 @@ async function writeDetection(
 ): Promise<void> {
   const { outputStyle, classNames, outputFolder } = detectOptions;
   const { className, confidence, bbox, outputPath } = detection;
-  const size = detectOptions.inputSize ?? DEFAULT_SIZE;
+  const size = detectOptions.inputSize;
 
   // create the bounding box overlay (which we only have to add to the
   // image if the detected `className` is not the `EMPTY_IMAGE_CLASS`)
@@ -104,7 +103,10 @@ async function writeDetection(
   switch (outputStyle) {
     case 'class': {
       // check if each animal class subdirectory exists, otherwise create them
-      classNames.concat([EMPTY_IMAGE_CLASS]).forEach((animalClass) => {
+      if (!fs.existsSync(EMPTY_IMAGE_CLASS)) {
+        fs.mkdirSync(EMPTY_IMAGE_CLASS);
+      }
+      classNames.forEach((animalClass) => {
         const animalClassDir = `${outputFolder}/${animalClass}`;
         if (!fs.existsSync(animalClassDir)) {
           fs.mkdirSync(animalClassDir);
@@ -150,7 +152,7 @@ export async function detect(
   // Read the image and resize if necessary if the image type is supported
   const startTime = Date.now();
   logger.info(`Detecting ${inputPath} with threshold ${options.threshold}`);
-  const size = options.inputSize ?? DEFAULT_SIZE;
+  const size = options.inputSize;
   const beforeRead = Date.now();
   const image = await read(inputPath, size);
   const dataArray = toDataArray(image);
@@ -190,7 +192,7 @@ export async function detect(
         .map((confidence, i) => {
           const bbox = predictions.output_0[i];
           const classId = predictions.output_2[i];
-          const className = options.classNames[classId - 1];
+          const className = options.classNames.get(classId) ?? 'unknown';
           return { bbox, classId, className, confidence };
         })
         .filter((prediction) => prediction.confidence > threshold);

@@ -23,7 +23,8 @@ const SentinelDesktopServiceBridge = {
     ipcRenderer.invoke('api/files/getDir', dirPath, recursive),
   getModelOutputs: async (modelId: string) =>
     ipcRenderer.invoke('api/files/getModelOutputs', modelId),
-  getImages: async () => ipcRenderer.invoke('api/docker/getImages'),
+  findImage: async () => ipcRenderer.invoke('api/docker/findImage'),
+  pullImage: async () => ipcRenderer.invoke('api/docker/pullImage'),
   getContainers: async () => ipcRenderer.invoke('api/docker/getContainers'),
   getLogContents: async (modelRunId: number) =>
     ipcRenderer.invoke('api/logs/getContents', modelRunId),
@@ -31,7 +32,6 @@ const SentinelDesktopServiceBridge = {
   startModel: async (options: RunModelOptions.T) =>
     ipcRenderer.invoke('api/docker/start', options),
   cleanup: async () => ipcRenderer.invoke('api/docker/cleanup'),
-  getModelNames: async () => ipcRenderer.invoke('api/docker/getModelNames'),
   getCurrentModelRunProgress: async () =>
     ipcRenderer.invoke('api/docker/getCurrentModelRunProgress'),
   getIsModelRunInProgress: async () =>

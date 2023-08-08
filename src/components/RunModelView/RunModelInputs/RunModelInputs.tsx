@@ -49,7 +49,7 @@ function RunModelInputs(): JSX.Element {
   useEffect(() => {
     // If there was a model run, fill the form with the input values of the existing model run
     if (currentModelRun) {
-      setValue('modelName', currentModelRun.modelName);
+      setValue('modelDirectory', currentModelRun.modelPath);
       setValue(
         'outputStyle',
         currentModelRun.outputStyle as RunModelOptions.EOutputStyle,
@@ -70,7 +70,7 @@ function RunModelInputs(): JSX.Element {
     setIsSubmitting(true);
     try {
       await window.SentinelDesktopService.startModel({
-        modelName: values.modelName,
+        modelDirectory: values.modelDirectory,
         outputStyle: values.outputStyle,
         confidenceThreshold: values.confidenceThreshold / 100.0,
         outputDirectory: values.outputDirectory,
@@ -125,7 +125,7 @@ function RunModelInputs(): JSX.Element {
           <div className="my-4">
             <Button
               onClick={() => {
-                setValue('modelName', 'osa_jaguar');
+                setValue('modelDirectory', './model');
                 setValue('outputStyle', RunModelOptions.EOutputStyle.FLAT);
                 setValue('confidenceThreshold', 40);
                 setValue('inputDirectory', './data');

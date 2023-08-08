@@ -1,8 +1,8 @@
-import { Form, Select } from 'antd';
+import { Form } from 'antd';
 import { useController } from 'react-hook-form';
 import { Control } from 'react-hook-form/dist/types';
-import useModelNames from '../hooks/useModelNames';
 import IRunModelInputsFormValues from '../types/IRunModelInputsFormValues';
+import DirectoryInput from './formItems/DirectoryInput';
 
 interface IProps {
   control?: Control<IRunModelInputsFormValues>;
@@ -11,24 +11,18 @@ interface IProps {
 function FormImportModel({ control }: IProps): JSX.Element {
   const { field, fieldState } = useController({
     control,
-    name: 'modelName',
+    name: 'modelDirectory',
     rules: { required: 'Model is required' },
   });
-  const { data: modelNames } = useModelNames();
 
-  /* eslint-disable react/jsx-props-no-spreading */
   return (
     <Form.Item
-      label="Import model"
+      label="Select Model"
       required
       validateStatus={fieldState.error && 'error'}
       help={fieldState.error?.message}
-      wrapperCol={{ span: 24 }}
     >
-      <Select
-        options={modelNames?.map((name) => ({ label: name, value: name }))}
-        {...field}
-      />
+      <DirectoryInput value={field.value} onChange={field.onChange} />
     </Form.Item>
   );
 }
