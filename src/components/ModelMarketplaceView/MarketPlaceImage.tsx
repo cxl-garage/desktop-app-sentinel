@@ -15,7 +15,7 @@ export function MarketPlaceImage({
   return (
     <div>
       <div className="flex w-full justify-center">
-        <Image src={src} preview={false} />
+        <Image src={src} />
       </div>
       <div className="flex w-full justify-center">
         <Typography.Title level={titleLevel}>{title}</Typography.Title>
