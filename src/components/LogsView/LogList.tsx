@@ -1,9 +1,17 @@
 import * as React from 'react';
 import { DateTime } from 'luxon';
-import { Table, TablePaginationConfig } from 'antd';
+import { Tooltip, Table, TablePaginationConfig } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { RightOutlined, DownOutlined } from '@ant-design/icons';
+import {
+  StopFilled,
+  InfoCircleFilled,
+  CheckCircleFilled,
+  RightOutlined,
+  DownOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
 import useLocalStorageState from 'use-local-storage-state';
+import assertUnreachable from 'util/assertUnreachable';
 import { formatInteger } from '../RunModelView/utils/commonUtils';
 import * as LogRecord from '../../models/LogRecord';
 import LogContents from './LogContents';
@@ -22,6 +30,41 @@ const columns: ColumnsType<LogRecord.T> = [
     width: '25%',
     render: (timestamp: Date) =>
       DateTime.fromJSDate(timestamp).toFormat('MMMM d, yyyy | HH:MM:ss'),
+  },
+  {
+    title: '',
+    key: 'status',
+    dataIndex: 'status',
+    render: (logStatus: LogRecord.T['status']) => {
+      switch (logStatus) {
+        case 'IN_PROGRESS':
+          return (
+            <Tooltip title="This model is still running">
+              <LoadingOutlined className="text-blue-600" />
+            </Tooltip>
+          );
+        case 'SUCCESS':
+          return (
+            <Tooltip title="The model completed successfully">
+              <CheckCircleFilled className="rounded-full text-blue-500 ring-2 ring-blue-300" />
+            </Tooltip>
+          );
+        case 'FINISHED_WITH_ERRORS':
+          return (
+            <Tooltip title="The model completed with errors">
+              <StopFilled className="text-red-600" />
+            </Tooltip>
+          );
+        case 'UNKNOWN':
+          return (
+            <Tooltip title="The model completed without logging a final status. You will need to open the logs to view if any errors occurred.">
+              <InfoCircleFilled className="rounded-full text-orange-500 ring-2 ring-orange-300" />
+            </Tooltip>
+          );
+        default:
+          return assertUnreachable(logStatus);
+      }
+    },
   },
   {
     title: 'Model',

@@ -25,6 +25,17 @@ import { MISSING_DIR_ERROR_MESSAGE } from './errors';
 import * as DockerImage from '../../models/DockerImage';
 import { getTensorflowModel } from './tensorflow';
 
+function getModelRunFinalStatus(status: string): LogRecord.T['status'] {
+  switch (status) {
+    case 'IN_PROGRESS':
+    case 'SUCCESS':
+    case 'FINISHED_WITH_ERRORS':
+      return status;
+    default:
+      return 'UNKNOWN';
+  }
+}
+
 class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   runner: ModelRunner;
 
@@ -86,6 +97,9 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     console.log(modelRuns);
   }
 
+  /**
+   * Write a modelRun to the database
+   */
   registerRun(
     options: RunModelOptions.T,
     modelName: string,
@@ -98,6 +112,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       startTime: Math.round(Date.now() / 1000),
       outputStyle: options.outputStyle,
       confidenceThreshold: options.confidenceThreshold,
+      status: 'IN_PROGRESS',
     };
     return this.prisma.modelRun.create({ data });
   }
@@ -172,12 +187,16 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       orderBy: [{ startTime: 'desc' }],
     });
 
-    const logRecords: LogRecord.T[] = allModelRuns.map((modelRun) => ({
-      modelRunId: modelRun.id,
-      timestamp: new Date(modelRun.startTime * 1000),
-      outputPath: modelRun.outputPath,
-      modelName: modelRun.modelName,
-    }));
+    const logRecords: LogRecord.T[] = allModelRuns.map((modelRun) => {
+      return {
+        modelRunId: modelRun.id,
+        timestamp: new Date(modelRun.startTime * 1000),
+        outputPath: modelRun.outputPath,
+        modelName: modelRun.modelName,
+        status: getModelRunFinalStatus(modelRun.status),
+      };
+    });
+
     return logRecords;
   }
 

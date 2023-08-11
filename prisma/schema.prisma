@@ -26,4 +26,7 @@ model ModelRun {
   imageCount Int @default(0)
   emptyImageCount Int @default(0)
   detectedObjectCount Int @default(0)
+  errorCount Int @default(0)
+
+  status String @default("")
 }
