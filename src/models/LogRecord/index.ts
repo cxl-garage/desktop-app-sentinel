@@ -6,6 +6,7 @@ type LogRecord = {
   timestamp: Date;
   outputPath: string;
   modelName: string;
+  status: 'SUCCESS' | 'FINISHED_WITH_ERRORS' | 'IN_PROGRESS' | 'UNKNOWN';
 };
 
 export const QueryKeys = {
