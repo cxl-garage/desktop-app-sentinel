@@ -23,7 +23,7 @@ import {
 import { isSupported } from './image';
 import { MISSING_DIR_ERROR_MESSAGE } from './errors';
 import * as DockerImage from '../../models/DockerImage';
-import { getTensorflowModel } from './tensorflow';
+import { getTensorflowModel, waitForStartup } from './tensorflow';
 
 function getModelRunFinalStatus(status: string): LogRecord.T['status'] {
   switch (status) {
@@ -148,14 +148,16 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       // TODO: handle malformed model directories here.
       const tensorflow = getTensorflowModel(options.modelDirectory);
 
+      // Setup the logger before we start the docker container so we can
+      // log tensorflow ready status
+      this.runner.resetLogger(options.outputDirectory);
+
       await start(tensorflow);
       const modelRun = await this.registerRun(options, tensorflow.modelName);
       this.registeredModelRun = modelRun;
 
-      // TODO: It takes some time for the image to start, so wait
-      await new Promise((resolve) => {
-        setTimeout(resolve, 10 * 1000);
-      });
+      // It takes some time for the image to start, so wait
+      await waitForStartup(tensorflow.modelName, this.runner.logger);
 
       await this.runner.start({
         inputFolder: options.inputDirectory,

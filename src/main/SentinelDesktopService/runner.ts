@@ -243,7 +243,7 @@ export class ModelRunner {
    * This resets the winston logger to write to a new output directory.
    * This should get called whenever we are starting a new model run.
    */
-  private resetLogger(outputDirectory: string): void {
+  resetLogger(outputDirectory: string): void {
     this.logger = winston.createLogger({
       level: 'debug',
       format: winston.format.combine(
@@ -330,8 +330,6 @@ export class ModelRunner {
     modelName: string;
     modelRunId: number;
   }): Promise<void> {
-    this.resetLogger(outputFolder);
-
     // log the modelRun options
     this.logger.info('Starting model run');
     this.logger.info(`Model Name: ${modelName}`);
