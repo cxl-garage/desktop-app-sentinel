@@ -1,6 +1,6 @@
 import { Typography } from 'antd';
 import { DockerVersionPanel } from './DockerVersionPanel';
-import { InstalledImagePanel } from './InstalledImagePanel';
+import { InstalledImagePanel } from './InstalledImagePanel/InstalledImagePanel';
 
 export function SettingsView(): JSX.Element {
   return (
