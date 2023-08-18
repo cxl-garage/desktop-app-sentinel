@@ -82,7 +82,7 @@ export default function App(): JSX.Element {
           <div className={`App${isDarkMode ? ' dark' : ''}`}>
             <Router>
               <AppFrameWithSidebar onChangeDarkMode={setIsDarkMode}>
-                <Layout className="h-full min-h-screen">
+                <Layout className="h-full min-h-screen overflow-auto">
                   <Routes>
                     <Route path="/" element={<Navigate to="/run-model" />} />
                     <Route path="/run-model" element={<RunModelView />} />
