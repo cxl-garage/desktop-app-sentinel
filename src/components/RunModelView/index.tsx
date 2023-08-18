@@ -1,9 +1,19 @@
+import { Alert, Modal } from 'antd';
 import * as React from 'react';
+import { useState } from 'react';
+import { DockerVersionPanel } from '../SettingsView/DockerVersionPanel';
+import useIsDependenciesMissing from '../SettingsView/hooks/useIsDependenciesMissing';
+import { TensorflowImagePanel } from '../SettingsView/TensorflowImagePanel/TensorflowImagePanel';
 import IsDebuggingContextProvider from './DebuggingContext/IsDebuggingContextProvider';
 import RunModelInputs from './RunModelInputs/RunModelInputs';
 import RunModelResults from './RunModelResultsPanel/RunModelResults';
 
 export function RunModelView(): JSX.Element {
+  const { isDependenciesMissing } = useIsDependenciesMissing();
+  const [
+    isMissingDependenciesModalDismissed,
+    setIsMissingDependenciesModalDismissed,
+  ] = useState<boolean>(false);
   return (
     <IsDebuggingContextProvider>
       <div className="flex h-full overflow-y-hidden">
@@ -14,6 +24,29 @@ export function RunModelView(): JSX.Element {
           <RunModelResults />
         </div>
       </div>
+      <Modal
+        title="Missing dependencies"
+        open={isDependenciesMissing && !isMissingDependenciesModalDismissed}
+        onOk={() => {
+          setIsMissingDependenciesModalDismissed(true);
+        }}
+        onCancel={() => {
+          setIsMissingDependenciesModalDismissed(true);
+        }}
+        okButtonProps={{ type: 'default' }}
+        cancelButtonProps={{ style: { display: 'none' } }}
+        width={540}
+      >
+        <div className="mb-8 mt-6 flex flex-col gap-4">
+          <Alert
+            showIcon
+            type="warning"
+            description="You will not be able to run a model until all the dependencies are installed. Please check the settings below."
+          />
+          <DockerVersionPanel />
+          <TensorflowImagePanel />
+        </div>
+      </Modal>
     </IsDebuggingContextProvider>
   );
 }

@@ -4,7 +4,7 @@ import * as DockerImage from '../../../models/DockerImage';
 
 const QUERY_KEY = ['docker', 'findImage'];
 
-const useInstalledDockerImage = (): UseQueryResult<
+const useInstalledTensorflowImage = (): UseQueryResult<
   DockerImage.T | undefined,
   Error
 > => {
@@ -14,10 +14,10 @@ const useInstalledDockerImage = (): UseQueryResult<
   });
 };
 
-export const invalidateInstalledDockerImage = (
+export const invalidateInstalledTensorflowImage = (
   queryClient: QueryClient,
 ): Promise<void> => {
   return queryClient.invalidateQueries(QUERY_KEY);
 };
 
-export default useInstalledDockerImage;
+export default useInstalledTensorflowImage;

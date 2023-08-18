@@ -1,13 +1,13 @@
 import { CaretLeftOutlined } from '@ant-design/icons';
 import { Collapse, Spin } from 'antd';
 import React from 'react';
-import ImagePanel from './ImagePanel';
-import InstallImageButton from './InstallImageButton';
+import ImageInfo from './ImageInfo';
+import InstallIButton from './InstallIButton';
 import PanelHeader from './PanelHeader';
-import useInstalledDockerImage from './useInstalledDockerImage';
+import useInstalledTensorflowImage from '../hooks/useInstalledTensorflowImage';
 
-export function InstalledImagePanel(): JSX.Element {
-  const { data: image, isLoading } = useInstalledDockerImage();
+export function TensorflowImagePanel(): JSX.Element {
+  const { data: image, isLoading } = useInstalledTensorflowImage();
 
   return (
     <Collapse
@@ -34,7 +34,7 @@ export function InstalledImagePanel(): JSX.Element {
           if (isLoading) {
             return null;
           }
-          return image ? <ImagePanel image={image} /> : <InstallImageButton />;
+          return image ? <ImageInfo image={image} /> : <InstallIButton />;
         })()}
       </Collapse.Panel>
     </Collapse>

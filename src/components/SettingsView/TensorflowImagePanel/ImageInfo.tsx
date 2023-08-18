@@ -6,7 +6,7 @@ interface IProps {
   image: DockerImage.T;
 }
 
-function ImagePanel({ image }: IProps): JSX.Element {
+function ImageInfo({ image }: IProps): JSX.Element {
   return (
     <div>
       <Typography.Paragraph>
@@ -27,4 +27,4 @@ function ImagePanel({ image }: IProps): JSX.Element {
   );
 }
 
-export default ImagePanel;
+export default ImageInfo;

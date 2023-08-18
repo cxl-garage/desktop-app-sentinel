@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { UseMutationResult } from '@tanstack/react-query/src/types';
-import { invalidateInstalledDockerImage } from './useInstalledDockerImage';
+import { invalidateInstalledTensorflowImage } from './useInstalledTensorflowImage';
 
-const useInstallDockerImage = (): UseMutationResult<void, Error, void> => {
+const useInstallTensorflowImage = (): UseMutationResult<void, Error, void> => {
   const queryClient = useQueryClient();
   return useMutation<void, Error, void>({
     mutationFn: () => window.SentinelDesktopService.pullImage(),
     onSettled: () => {
-      invalidateInstalledDockerImage(queryClient);
+      invalidateInstalledTensorflowImage(queryClient);
     },
   });
 };
 
-export default useInstallDockerImage;
+export default useInstallTensorflowImage;

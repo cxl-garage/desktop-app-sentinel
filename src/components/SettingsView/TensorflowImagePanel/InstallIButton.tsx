@@ -1,16 +1,17 @@
 import { LoadingOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import React from 'react';
-import useInstallDockerImage from './useInstallDockerImage';
+import useInstallTensorflowImage from '../hooks/useInstallTensorflowImage';
 
-function InstallImageButton(): JSX.Element {
-  const { mutate: installDockerImage, isLoading } = useInstallDockerImage();
+function InstallIButton(): JSX.Element {
+  const { mutate: installTensorflowImage, isLoading } =
+    useInstallTensorflowImage();
   return (
     <Button
       disabled={isLoading}
       icon={isLoading ? <LoadingOutlined /> : undefined}
       onClick={() => {
-        installDockerImage();
+        installTensorflowImage();
       }}
     >
       {isLoading ? 'Installing...' : 'Install'}
@@ -18,4 +19,4 @@ function InstallImageButton(): JSX.Element {
   );
 }
 
-export default InstallImageButton;
+export default InstallIButton;
