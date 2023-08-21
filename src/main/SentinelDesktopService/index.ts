@@ -180,6 +180,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
         classNames: tensorflow.classNames,
         modelName: tensorflow.modelName,
         modelRunId: modelRun.id,
+        framework: tensorflow.framework,
       });
 
       return modelRun.id;
