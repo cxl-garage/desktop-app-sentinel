@@ -4,8 +4,10 @@ import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import ReactJson from 'react-json-view';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import * as RunModelOptions from '../../../models/RunModelOptions';
+import useIsDependenciesMissing from '../../SettingsView/hooks/useIsDependenciesMissing';
 import { Button } from '../../ui/Button';
 import { useIsDebugging } from '../DebuggingContext/IsDebuggingContext';
 import useCurrentModelRunProgress from '../hooks/useCurrentModelRunProgress';
@@ -28,6 +30,7 @@ const Wrapper = styled.div`
 `;
 
 function RunModelInputs(): JSX.Element {
+  const { isDependenciesMissing } = useIsDependenciesMissing();
   const { data: isModelRunInProgress } = useIsModelRunInProgress();
   const { data: currentModelRunProgress } = useCurrentModelRunProgress();
 
@@ -93,7 +96,24 @@ function RunModelInputs(): JSX.Element {
       layout="vertical"
       onFinish={handleSubmit(onSubmit)}
       requiredMark={false}
+      disabled={isDependenciesMissing}
     >
+      {isDependenciesMissing && (
+        <div className="mb-4">
+          <Alert
+            type="error"
+            showIcon
+            message="Missing dependencies"
+            description={
+              <span>
+                Some dependencies required to run a model are missing. You
+                cannot run a model without them. Please check{' '}
+                <Link to="/settings">Settings</Link> for more details
+              </span>
+            }
+          />
+        </div>
+      )}
       <Wrapper>
         <FormImportModel control={control} />
         <FormImportDataset control={control} />
@@ -112,7 +132,7 @@ function RunModelInputs(): JSX.Element {
           <Button
             type="primary"
             htmlType="submit"
-            disabled={isRunning}
+            disabled={isDependenciesMissing || isRunning}
             icon={isRunning ? <LoadingOutlined /> : undefined}
           >
             {isRunning ? 'RUNNING' : 'RUN MODEL'}

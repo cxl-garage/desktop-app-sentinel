@@ -1,5 +1,4 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import * as DockerVersion from 'models/DockerVersion';
 import { Collapse, Typography, Row, Col } from 'antd';
 import {
@@ -7,12 +6,10 @@ import {
   CheckSquareFilled,
   CloseSquareFilled,
 } from '@ant-design/icons';
+import useDockerVersion from './hooks/useDockerVersion';
 
 export function DockerVersionPanel(): JSX.Element {
-  const { data: version } = useQuery({
-    queryFn: () => window.SentinelDesktopService.getVersion(),
-    queryKey: ['docker', 'getVersion'],
-  });
+  const { data: version } = useDockerVersion();
 
   function dockerHeader(): React.ReactNode {
     return (

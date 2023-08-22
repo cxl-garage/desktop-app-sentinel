@@ -1,6 +1,6 @@
 import { Typography } from 'antd';
 import { DockerVersionPanel } from './DockerVersionPanel';
-import { InstalledImagePanel } from './InstalledImagePanel';
+import { TensorflowImagePanel } from './TensorflowImagePanel/TensorflowImagePanel';
 
 export function SettingsView(): JSX.Element {
   return (
@@ -12,7 +12,7 @@ export function SettingsView(): JSX.Element {
         <DockerVersionPanel />
       </div>
       <div className="mx-8 mt-4">
-        <InstalledImagePanel />
+        <TensorflowImagePanel />
       </div>
     </div>
   );
