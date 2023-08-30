@@ -6,6 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import winston from 'winston';
+import { z, ZodError } from 'zod';
 import sleep from '../../util/sleep';
 
 export type TensorflowModel = {
@@ -16,25 +17,63 @@ export type TensorflowModel = {
   inputSize: number;
 };
 
+const ModelClassDefinition = z.object({
+  name: z.string(),
+  id: z.number(),
+});
+
+const ModelConfig = z.object({
+  algName: z.string(),
+  inputSize: z.number(),
+  classes: z.array(ModelClassDefinition),
+});
+type ModelConfig = z.infer<typeof ModelConfig>;
+
+function readAndValidateModelConfig(modelPath: string): ModelConfig {
+  let json;
+  try {
+    const data = fs.readFileSync(`${modelPath}/config.json`, 'utf-8');
+    json = JSON.parse(data);
+  } catch (error) {
+    throw Error(
+      `Failed to read model config.json! Original error: ${
+        (error as Error).message
+      }`,
+    );
+  }
+
+  try {
+    return ModelConfig.parse(json);
+  } catch (error) {
+    throw Error(
+      `Invalid model config! Original error: ${(error as ZodError).message}`,
+    );
+  }
+}
+
 export function getTensorflowModel(modelPath: string): TensorflowModel {
-  // TODO: Handle errors, validate config.json, etc.
-  const data = fs.readFileSync(`${modelPath}/config.json`, 'utf-8');
-  const json = JSON.parse(data);
+  const parsedModelConfig = readAndValidateModelConfig(modelPath);
+  const savedModelPath = path.join(modelPath, 'data');
+
+  if (!fs.existsSync(savedModelPath)) {
+    throw Error(`No "data" directory present in model ${modelPath} !`);
+  }
 
   // Parse out the class names of the form [{"name": "xxx", "id": y}, ...]
   const classNames = new Map<number, string>();
-  json.classes.forEach((clazz: { name: string; id: number }) => {
+  parsedModelConfig.classes.forEach((clazz: { name: string; id: number }) => {
     const { name, id } = clazz;
     if (id !== null) {
       classNames.set(id, name);
     }
   });
+
   return {
     modelPath,
     classNames,
-    modelName: json.algName,
-    inputSize: json.inputSize,
-    savedModelPath: path.join(modelPath, 'data'),
+    modelName: parsedModelConfig.algName,
+    inputSize: parsedModelConfig.inputSize,
+    savedModelPath,
   };
 }
 
