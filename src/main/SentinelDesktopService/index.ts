@@ -24,6 +24,7 @@ import { isSupported } from './image';
 import { MISSING_DIR_ERROR_MESSAGE } from './errors';
 import * as DockerImage from '../../models/DockerImage';
 import { getTensorflowModel, waitForStartup } from './tensorflow';
+import { DB_PATH } from '../util';
 
 function getModelRunFinalStatus(status: string): LogRecord.T['status'] {
   switch (status) {
@@ -48,15 +49,18 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   private isPreparingForModelRun: boolean = false;
 
   constructor() {
+    console.log('user data', app.getPath('userData'));
+    // TODO:
+    //   - if app.isPackaged, run db migration to ensure db is set up and up to date
+    //      `yarn prisma migrate dev --name init`
+    //   - need to override the `DATABASE_URL` with the userData path
+    // if you need the resources path for any reason it is here: process.resourcesPath,
     this.prisma = new PrismaClient(
       app.isPackaged
         ? {
             datasources: {
               db: {
-                url: `file:${path.join(
-                  process.resourcesPath,
-                  'prisma/dev.db',
-                )}`,
+                url: `file:${DB_PATH}`,
               },
             },
           }

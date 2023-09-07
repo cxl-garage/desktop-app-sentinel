@@ -22,7 +22,12 @@ import { ModelRun } from '../generated/prisma/client';
 import * as ModelRunProgress from '../models/ModelRunProgress';
 import * as RunModelOptions from '../models/RunModelOptions';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
+import {
+  DB_PATH,
+  IS_APP_PACKAGED,
+  resolveHtmlPath,
+  runPrismaCommand,
+} from './util';
 import { SentinelDesktopService } from './SentinelDesktopService';
 
 class AppUpdater {
@@ -431,7 +436,7 @@ async function createWindow(): Promise<void> {
     },
   });
 
-  mainWindow.loadURL(resolveHtmlPath.fn('index.html'));
+  mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -492,7 +497,40 @@ async function setupApp(): Promise<void> {
       }
     });
   });
+
+  // set up the database if the app is packaged
+  // This is written following the guidance from these resources:
+  // - https://dev.to/awohletz/running-prisma-migrate-in-an-electron-app-1ehm
+  // - https://github.com/awohletz/electron-prisma-trpc-example
+  if (IS_APP_PACKAGED) {
+    const dbExists = fs.existsSync(DB_PATH);
+    console.log('Using db path', DB_PATH);
+    if (!dbExists) {
+      // prisma for whatever reason has trouble if the database file does
+      // not exist yet. So just touch it here
+      fs.closeSync(fs.openSync(DB_PATH, 'w'));
+
+      // now perform the migration
+      try {
+        const schemaPath = path.join(
+          process.resourcesPath,
+          'prisma',
+          'schema.prisma',
+        );
+
+        await runPrismaCommand({
+          command: ['migrate', 'dev', '--schema', schemaPath, '--name', 'init'],
+          dbURL: `file:${DB_PATH}?connection_limit=1&socket_timeout=5`,
+        });
+      } catch (e) {
+        console.error(e);
+        process.exit(1);
+      }
+    }
+  }
+
   createWindow();
+
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.

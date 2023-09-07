@@ -17,7 +17,7 @@ yarn prisma migrate dev --name init
 rm -rf $PROJECT_DIR/release/build
 $PROJECT_DIR/node_modules/.bin/ts-node $PROJECT_DIR/.erb/scripts/clean.js dist
 npm run build
-$PROJECT_DIR/node_modules/.bin/electron-builder build --publish never
+$PROJECT_DIR/node_modules/.bin/electron-builder build --publish never --mac --win
 
 # Restore the old db we had backed up
 if [ -e $PROJECT_DIR/dev.db.bak ]; then
