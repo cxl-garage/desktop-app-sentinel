@@ -103,8 +103,9 @@ async function writeDetection(
   switch (outputStyle) {
     case 'class': {
       // check if each animal class subdirectory exists, otherwise create them
-      if (!fs.existsSync(EMPTY_IMAGE_CLASS)) {
-        fs.mkdirSync(EMPTY_IMAGE_CLASS);
+      const emptyClassDir = `${outputFolder}/${EMPTY_IMAGE_CLASS}`;
+      if (!fs.existsSync(emptyClassDir)) {
+        fs.mkdirSync(emptyClassDir);
       }
       classNames.forEach((animalClass) => {
         const animalClassDir = `${outputFolder}/${animalClass}`;

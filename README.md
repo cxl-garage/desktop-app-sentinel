@@ -86,54 +86,6 @@ contextBridge.exposeInMainWorld('electron', WINDOW_API);
 
 - main.ts: [ipcMain](https://www.electronjs.org/docs/latest/api/ipc-main) processes
   - recieve messages from **renderer process** and **return value**
-- **python-shell usage in main.ts**
-
-```python
-
-ipcMain.handle('run/model', async (event, args) => {
-  const result = await new Promise((resolve, reject) => {
-    const pyshell = new PythonShell('./src/py/runCli2.py', {mode: 'text'});
-    let error = '';
-    pyshell.on('stderr', function (stderr: any) {
-      console.log(stderr);
-    });
-    pyshell.on('error', function (err: any) {
-      if (err) {
-        error = err;
-        resolve(`error${err}`);
-      }
-      console.log(err);
-    });
-    pyshell.on('message', function (message: any) {
-      resolve(error + message);
-      console.log(message);
-    });
-
-    pyshell.end(function (err: any, code: any, signal: any) {
-      if (err) reject(`error${err}`);
-      console.log(`The exit code was: ${code}`);
-      console.log(`The exit signal was: ${signal}`);
-      console.log('finished');
-      resolve('finished');
-    });
-  });
-
-  return result;
-});
-```
-
-### src/provider/
-
-**Summary: Firebase auth info**
-
-- authProvider.tsx: gives Firebase currentUser information to its children
-- firebaseSetup.ts: configures **[Firebase](https://firebase.google.com/docs/auth/web/manage-users)** information and exports auth object
-
-### src/context/
-
-**Summary: [React createContext](https://reactjs.org/docs/context.html) for the current firebaseUser**
-
-- authContext.tsx: uses firebase/auth node module
 
 ### src/renderer/
 
@@ -191,30 +143,16 @@ ipcMain.handle('run/model', async (event, args) => {
   - type: FunctionComponent
   - when user is logged out
 
-### Unfinished Work
+# Download prisma binaries
 
-- State management (adding redux)
-  - keep track of results of the main python script
-  - keep track of the state of the components when switching between side nav tabs
-  - keep track of login info/user state
-- Saving results
-  - keep track of past results, saved inputs
-  - CRUD
-- Display results
-  - add way to go through the output of images
-  - within the app scroll through images (download results to the app)
-- Better setup
-  - be able to download Docker Desktop straight from the app
-  - don't go to a link
-- Reload issues (firebase can be slow)
-  - when refreshing the browser persistence takes a second to display
-  - Login page is supposed to redirect to the dashboard page
-- Better loading
-  - loading that shows progress, how many images have been processed
-- Formatting Logs
-  - logs separate line by line
-  - make it so the logs don't always display (?)
-- Adding json key to user info
-  - right now json key is apart of app
-  - make it so it is a part of user info
-- Make sure python-shell is using the right python version
+You can find the commit hashes in the prisma-engines repository and choose the release you want: https://github.com/prisma/prisma-engines/tags
+
+Then you can download them from: `https://binaries.prisma.sh/all_commits/[commit_hash]/[platform]/[engine-name].gz`
+
+The platform name can be `windows`, `darwin`, or `darwin-arm64`
+
+The engine names are `query-engine` or `schema-engine`
+
+If you're downloading from windows, then remember to add `.exe` to the engine names (e.g. `query-engine.exe.gz`)
+
+Once downloaded, copy and commit these to the `bin/` directory so they can be packaged when running `yarn package`

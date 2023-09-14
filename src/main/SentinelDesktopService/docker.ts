@@ -69,7 +69,7 @@ export async function cleanup(): Promise<void> {
   // containers too
   console.log('Stopping containers');
   const containers = await docker.listContainers();
-  console.log(JSON.stringify(containers, null, 2));
+  console.log('Found containers', JSON.stringify(containers, null, 2));
   const sentinel = containers.find((c) =>
     c.Names.some((n) => n === `/${CONTAINER_NAME}`),
   );
@@ -90,7 +90,7 @@ export async function start(tensorflow: TensorflowModel): Promise<void> {
     return;
   }
 
-  console.log(`got image: ${JSON.stringify(imageInfo, null, 2)}`);
+  console.log(`Found image: ${JSON.stringify(imageInfo, null, 2)}`);
 
   // Start the container
   const createOptions = {
@@ -106,7 +106,7 @@ export async function start(tensorflow: TensorflowModel): Promise<void> {
     Volumes: { [`/models/${tensorflow.modelName}`]: {} },
   };
 
-  console.log('starting docker...');
+  console.log('Starting docker...');
   docker.run(imageInfo.id, [], process.stdout, createOptions);
-  console.log('container started...');
+  console.log('Container started');
 }

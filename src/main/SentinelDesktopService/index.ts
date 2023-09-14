@@ -24,6 +24,7 @@ import { isSupported } from './image';
 import { MISSING_DIR_ERROR_MESSAGE } from './errors';
 import * as DockerImage from '../../models/DockerImage';
 import { getTensorflowModel, waitForStartup } from './tensorflow';
+import { DB_PATH } from '../util';
 
 function getModelRunFinalStatus(status: string): LogRecord.T['status'] {
   switch (status) {
@@ -52,11 +53,9 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       app.isPackaged
         ? {
             datasources: {
+              // override the `DATABASE_URL` included in .env
               db: {
-                url: `file:${path.join(
-                  process.resourcesPath,
-                  'prisma/dev.db',
-                )}`,
+                url: `file:${DB_PATH}`,
               },
             },
           }
@@ -104,6 +103,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     options: RunModelOptions.T,
     modelName: string,
   ): Promise<ModelRun> {
+    console.log('Registering the model run to db');
     const data = {
       modelPath: options.modelDirectory,
       modelName,
@@ -146,6 +146,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       // Parse the model directory to see if it contains a valid tensor flow
       // model
       // TODO: handle malformed model directories here.
+      console.log('Getting the tensor flow model from the given directory');
       const tensorflow = getTensorflowModel(options.modelDirectory);
 
       // Setup the logger before we start the docker container so we can

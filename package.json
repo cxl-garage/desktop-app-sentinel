@@ -11,27 +11,20 @@
     "hot",
     "reload"
   ],
-  "homepage": "https://github.com/electron-react-boilerplate/electron-react-boilerplate#readme",
+  "homepage": "https://github.com/cxl-garage/desktop-app-sentinel",
   "bugs": {
-    "url": "https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues"
+    "url": "https://github.com/cxl-garage/desktop-app-sentinel/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
+    "url": "git+https://github.com/cxl-garage/desktop-app-sentinel.git"
   },
   "license": "MIT",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://electron-react-boilerplate.js.org"
+    "name": "CXL",
+    "email": "info@conservationxlabs.org",
+    "url": "https://conservationxlabs.com"
   },
-  "contributors": [
-    {
-      "name": "Amila Welihinda",
-      "email": "amilajack@gmail.com",
-      "url": "https://github.com/amilajack"
-    }
-  ],
   "main": "./src/main/main.ts",
   "scripts": {
     "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
@@ -99,7 +92,7 @@
   "dependencies": {
     "@ant-design/cssinjs": "1.10.1",
     "@fast-csv/format": "^4.3.5",
-    "@prisma/client": "4.14.0",
+    "@prisma/client": "^5.2.0",
     "@roothub/react-split-pane": "^0.1.92",
     "@tanstack/react-query": "^4.26.1",
     "antd": "5.6.1",
@@ -119,7 +112,7 @@
     "lru-cache": "6.0.0",
     "luxon": "^3.3.0",
     "numeral": "^2.0.6",
-    "prisma": "^4.14.0",
+    "prisma": "^5.2.0",
     "python-shell": "^5.0.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.2",
@@ -231,22 +224,27 @@
     "productName": "Sentinel Desktop",
     "appId": "org.cxl.SentinelDesktop",
     "asar": true,
-    "asarUnpack": "**\\*.{node,dll}",
+    "asarUnpack": [
+      "**\\*.{node,dll}",
+      "node_modules/@prisma/engines/schema-engine*",
+      "node_modules/@prisma/engines/query*",
+      "node_modules/@prisma/engines/query*.exe"
+    ],
     "files": [
+      ".env",
       "dist",
       "node_modules",
       "package.json",
       "prisma",
       "!**/node_modules/@prisma/engines/introspection-engine*",
-      "!**/node_modules/@prisma/engines/migration-engine*",
       "!**/node_modules/@prisma/engines/prisma-fmt*",
-      "!**/node_modules/@prisma/engines/query_engine-*",
-      "!**/node_modules/@prisma/engines/libquery_engine*",
       "!**/node_modules/prisma/query_engine*",
       "!**/node_modules/prisma/libquery_engine*",
       "!**/node_modules/prisma/**/*.mjs"
     ],
     "afterSign": ".erb/scripts/notarize.js",
+    "beforeBuild": "scripts/beforeBuildWhenPackaging.js",
+    "afterPack": "scripts/afterPackaging.js",
     "mac": {
       "target": {
         "target": "default",
@@ -294,7 +292,7 @@
     "extraResources": [
       "./assets/**",
       "./prisma/**",
-      "node_modules/@prisma/engines/migration-engine*",
+      "node_modules/@prisma/engines/schema-engine*",
       "node_modules/@prisma/engines/query*",
       "node_modules/@prisma/engines/libquery*"
     ],
