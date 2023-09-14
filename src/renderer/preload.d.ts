@@ -15,6 +15,7 @@ declare global {
     SentinelDesktopService: {
       getAllLogRecords: () => Promise<LogRecord.T[]>;
       getAllCXLModelResults: (modelName?: string) => Promise<ModelRun[]>;
+      getEnv: (envKey: string) => Promise<string | undefined>;
       getFilesInDir: (dirPath: string, boolean?: string) => Promise<string[]>;
       getModelOutputs: (modelId: number) => Promise<string[]>;
       findImage: () => Promise<DockerImage.T | undefined>;

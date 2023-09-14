@@ -49,16 +49,11 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   private isPreparingForModelRun: boolean = false;
 
   constructor() {
-    console.log('user data', app.getPath('userData'));
-    // TODO:
-    //   - if app.isPackaged, run db migration to ensure db is set up and up to date
-    //      `yarn prisma migrate dev --name init`
-    //   - need to override the `DATABASE_URL` with the userData path
-    // if you need the resources path for any reason it is here: process.resourcesPath,
     this.prisma = new PrismaClient(
       app.isPackaged
         ? {
             datasources: {
+              // override the `DATABASE_URL` included in .env
               db: {
                 url: `file:${DB_PATH}`,
               },
@@ -108,6 +103,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     options: RunModelOptions.T,
     modelName: string,
   ): Promise<ModelRun> {
+    console.log('Registering the model run to db');
     const data = {
       modelPath: options.modelDirectory,
       modelName,
@@ -150,6 +146,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       // Parse the model directory to see if it contains a valid tensor flow
       // model
       // TODO: handle malformed model directories here.
+      console.log('Getting the tensor flow model from the given directory');
       const tensorflow = getTensorflowModel(options.modelDirectory);
 
       // Setup the logger before we start the docker container so we can

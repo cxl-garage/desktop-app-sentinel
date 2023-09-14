@@ -16,9 +16,10 @@ export type Channels = ['ipc-example', 'mainChannel'];
  * SentinelDesktopService.
  */
 const SentinelDesktopServiceBridge = {
-  getAllLogRecords: async () => ipcRenderer.invoke('api/logs/getAll'),
+  getAllLogRecords: () => ipcRenderer.invoke('api/logs/getAll'),
   getAllCXLModelResults: async (modelName?: string) =>
     ipcRenderer.invoke('api/cxl-model-results/getAll', modelName),
+  getEnv: (envKey: string) => ipcRenderer.invoke('api/getEnv', envKey),
   getFilesInDir: async (dirPath: string, recursive?: boolean) =>
     ipcRenderer.invoke('api/files/getDir', dirPath, recursive),
   getModelOutputs: async (modelId: string) =>

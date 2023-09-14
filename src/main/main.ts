@@ -8,6 +8,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
+import dotenv from 'dotenv';
 import { app, BrowserWindow, shell, ipcMain, dialog, protocol } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
@@ -25,6 +26,7 @@ import MenuBuilder from './menu';
 import {
   DB_PATH,
   IS_APP_PACKAGED,
+  PACKAGED_APP_ROOT,
   resolveHtmlPath,
   runPrismaCommand,
 } from './util';
@@ -39,6 +41,10 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | undefined;
+
+ipcMain.handle('api/getEnv', (_, envKey: string): string | undefined => {
+  return process.env[envKey];
+});
 
 ipcMain.handle('api/logs/getAll', async (): Promise<LogRecord.T[]> => {
   console.log('Calling api/logs/getAll');
@@ -503,6 +509,9 @@ async function setupApp(): Promise<void> {
   // - https://dev.to/awohletz/running-prisma-migrate-in-an-electron-app-1ehm
   // - https://github.com/awohletz/electron-prisma-trpc-example
   if (IS_APP_PACKAGED) {
+    // first, load in the packaged .env file
+    dotenv.config({ path: path.join(PACKAGED_APP_ROOT, '.env') });
+
     const dbExists = fs.existsSync(DB_PATH);
     console.log('Using db path', DB_PATH);
     if (!dbExists) {
@@ -519,7 +528,15 @@ async function setupApp(): Promise<void> {
         );
 
         await runPrismaCommand({
-          command: ['migrate', 'dev', '--schema', schemaPath, '--name', 'init'],
+          command: [
+            'migrate',
+            'dev',
+            '--skip-generate',
+            '--schema',
+            schemaPath,
+            '--name',
+            'init',
+          ],
           dbURL: `file:${DB_PATH}?connection_limit=1&socket_timeout=5`,
         });
       } catch (e) {
