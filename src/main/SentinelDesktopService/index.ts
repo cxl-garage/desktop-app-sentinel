@@ -217,7 +217,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     if (modelRun) {
       try {
         const fileText = await readFile(
-          `${modelRun.outputPath}/${LOG_FILE_NAME}`,
+          path.join(modelRun.outputPath, LOG_FILE_NAME),
           { encoding: 'utf8' },
         );
         const lines = fileText.split('\n').filter((txt) => !!txt);
