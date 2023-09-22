@@ -18,6 +18,7 @@ export function RunModelView(): JSX.Element {
   const { data: envVars } = useQuery({
     queryFn: async () => {
       const dbURL = await window.SentinelDesktopService.getEnv('DATABASE_URL');
+      const cwd = await window.SentinelDesktopService.getEnv('cwd');
       const cliQueryEngineType = await window.SentinelDesktopService.getEnv(
         'PRISMA_CLI_QUERY_ENGINE_TYPE',
       );
@@ -31,6 +32,7 @@ export function RunModelView(): JSX.Element {
         'PRISMA_SCHEMA_ENGINE_BINARY',
       );
       return {
+        cwd,
         dbURL,
         cliQueryEngineType,
         clientEngineType,
@@ -48,6 +50,7 @@ export function RunModelView(): JSX.Element {
       <p>Client Engine Type: {envVars?.clientEngineType}</p>
       <p>QE Binary: {envVars?.qeBinary}</p>
       <p>SE Binary: {envVars?.seBinary}</p>
+      <p>ENV: {envVars?.cwd}</p>
 
       <div className="flex h-full overflow-y-hidden">
         <div className="w-96 overflow-y-auto border-r-2 border-gray-200 p-10 dark:border-gray-600">

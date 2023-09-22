@@ -43,6 +43,9 @@ class AppUpdater {
 let mainWindow: BrowserWindow | undefined;
 
 ipcMain.handle('api/getEnv', (_, envKey: string): string | undefined => {
+  if (envKey === 'cwd') {
+    return __dirname;
+  }
   return process.env[envKey];
 });
 

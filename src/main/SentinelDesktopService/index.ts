@@ -24,7 +24,7 @@ import { isSupported } from './image';
 import { MISSING_DIR_ERROR_MESSAGE } from './errors';
 import * as DockerImage from '../../models/DockerImage';
 import { getTensorflowModel, waitForStartup } from './tensorflow';
-import { DB_PATH } from '../util';
+import { DB_PATH, getPlatformName, platformToExecutables } from '../util';
 
 function getModelRunFinalStatus(status: string): LogRecord.T['status'] {
   switch (status) {
@@ -50,12 +50,23 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
 
   constructor() {
     this.prisma = new PrismaClient(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       app.isPackaged
         ? {
             datasources: {
               // override the `DATABASE_URL` included in .env
               db: {
                 url: `file:${DB_PATH}`,
+              },
+            },
+
+            __internal: {
+              engine: {
+                binaryPath: path.join(
+                  process.resourcesPath,
+                  platformToExecutables[getPlatformName()].queryEngine,
+                ),
               },
             },
           }
