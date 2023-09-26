@@ -43,6 +43,9 @@ class AppUpdater {
 let mainWindow: BrowserWindow | undefined;
 
 ipcMain.handle('api/getEnv', (_, envKey: string): string | undefined => {
+  if (envKey === 'cwd') {
+    return __dirname;
+  }
   return process.env[envKey];
 });
 
@@ -216,7 +219,7 @@ ipcMain.on('write/user-inputs-json', async (event, data) => {
 function readModels(): Promise<any> {
   return new Promise((resolve, reject) => {
     fs.readFile(
-      path.join(__dirname, '../py/Models.json'),
+      path.join(__dirname, '..', 'py', 'Models.json'),
       'utf-8',
       (error: any, data: any) => {
         if (error) {

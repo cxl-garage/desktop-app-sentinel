@@ -32,7 +32,7 @@ type ModelConfig = z.infer<typeof ModelConfig>;
 function readAndValidateModelConfig(modelPath: string): ModelConfig {
   let json;
   try {
-    const data = fs.readFileSync(`${modelPath}/config.json`, 'utf-8');
+    const data = fs.readFileSync(path.join(modelPath, 'config.json'), 'utf-8');
     json = JSON.parse(data);
   } catch (error) {
     throw Error(
