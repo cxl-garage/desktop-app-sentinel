@@ -75,17 +75,6 @@ export async function runPrismaCommand(options: {
   console.log('Schema engine path', schemaEnginePath);
   console.log('Query engine path', queryEnginePath);
 
-  console.log('db url in ENV VAR', process.env.DATABASE_URL);
-  console.log('Client engine type', process.env.PRISMA_CLIENT_ENGINE_TYPE);
-  console.log(
-    'Schema engine path ENV VAR',
-    process.env.PRISMA_SCHEMA_ENGINE_BINARY,
-  );
-  console.log(
-    'Query engine path ENV VAR',
-    process.env.PRISMA_QUERY_ENGINE_BINARY,
-  );
-
   // There is no way to invoke prisma migrations programmatically,
   // so the best we have is to spawn a child process and call the
   // CLI directly.
@@ -104,9 +93,9 @@ export async function runPrismaCommand(options: {
         env: {
           ...process.env,
           DATABASE_URL: dbURL,
-          PRISMA_CLI_QUERY_ENGINE_TYPE: 'binary',
+          PRISMA_CLI_QUERY_ENGINE_TYPE: 'library',
           PRISMA_SCHEMA_ENGINE_BINARY: schemaEnginePath,
-          PRISMA_QUERY_ENGINE_BINARY: queryEnginePath,
+          PRISMA_QUERY_ENGINE_LIBRARY: queryEnginePath,
           PRISMA_FMT_BINARY: queryEnginePath,
           PRISMA_INTROSPECTION_ENGINE_BINARY: queryEnginePath,
         },
