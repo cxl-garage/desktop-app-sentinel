@@ -225,10 +225,7 @@
     "appId": "org.cxl.SentinelDesktop",
     "asar": true,
     "asarUnpack": [
-      "**\\*.{node,dll}",
-      "node_modules/@prisma/engines/schema-engine*",
-      "node_modules/@prisma/engines/query_engine*",
-      "node_modules/@prisma/engines/libquery_engine*"
+      "**\\*.{node,dll}"
     ],
     "files": [
       ".env",
