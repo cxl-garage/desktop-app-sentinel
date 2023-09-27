@@ -1,4 +1,4 @@
-*       text    eol=lf
+*       text
 *.exe   binary
 *.png   binary
 *.jpg   binary
