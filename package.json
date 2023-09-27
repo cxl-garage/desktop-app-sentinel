@@ -228,11 +228,11 @@
       "**\\*.{node,dll}"
     ],
     "files": [
-      ".env",
       "dist",
       "node_modules",
       "package.json",
       "prisma",
+      "!prisma/dev.db*",
       "!**/node_modules/@prisma/engines/introspection-engine*",
       "!**/node_modules/@prisma/engines/prisma-fmt*",
       "!**/node_modules/prisma/query_engine*",
@@ -240,8 +240,6 @@
       "!**/node_modules/prisma/**/*.mjs"
     ],
     "afterSign": ".erb/scripts/notarize.js",
-    "beforeBuild": "scripts/beforeBuildWhenPackaging.js",
-    "afterPack": "scripts/afterPackaging.js",
     "mac": {
       "target": {
         "target": "default",
@@ -289,6 +287,7 @@
     "extraResources": [
       "./assets/**",
       "./prisma/**",
+      "!prisma/dev.db*",
       "node_modules/@prisma/engines/schema-engine*",
       "node_modules/@prisma/engines/query_engine*",
       "node_modules/@prisma/engines/libquery_engine*"

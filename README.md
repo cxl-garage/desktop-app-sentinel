@@ -151,8 +151,6 @@ Then you can download them from: `https://binaries.prisma.sh/all_commits/[commit
 
 The platform name can be `windows`, `darwin`, or `darwin-arm64`
 
-The engine names are `query-engine` or `schema-engine`
-
-If you're downloading from windows, then remember to add `.exe` to the engine names (e.g. `query-engine.exe.gz`)
+The engine names are `libquery_engine.dylib.node` (for mac/darwin), `query_engine.dll.node` (for windows), or `schema-engine`
 
 Once downloaded, copy and commit these to the `bin/` directory so they can be packaged when running `yarn package`

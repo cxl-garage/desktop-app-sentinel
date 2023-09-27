@@ -8,7 +8,6 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import dotenv from 'dotenv';
 import { app, BrowserWindow, shell, ipcMain, dialog, protocol } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
@@ -26,7 +25,6 @@ import MenuBuilder from './menu';
 import {
   DB_PATH,
   IS_APP_PACKAGED,
-  PACKAGED_APP_ROOT,
   resolveHtmlPath,
   runPrismaCommand,
 } from './util';
@@ -515,9 +513,6 @@ async function setupApp(): Promise<void> {
   // - https://dev.to/awohletz/running-prisma-migrate-in-an-electron-app-1ehm
   // - https://github.com/awohletz/electron-prisma-trpc-example
   if (IS_APP_PACKAGED) {
-    // first, load in the packaged .env file
-    dotenv.config({ path: path.join(PACKAGED_APP_ROOT, '.env') });
-
     const dbExists = fs.existsSync(DB_PATH);
     console.log('Using db path', DB_PATH);
     if (!dbExists) {
