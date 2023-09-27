@@ -6,7 +6,7 @@ PROJECT_DIR=$SCRIPT_DIR/..
 TRGET_PRISMA_BINARY_DIR=$PROJECT_DIR/node_modules/@prisma/engines
 
 # Copying MacOS prisma engine binaries to node_modules, so it can be packaged
-cp $PROJECT_DIR/bin/libquery_engine-darwin* $TARGET_PRISMA_BINARY_DIR/libquery_engine-darwin.dylib.node
+cp $PROJECT_DIR/bin/darwin-libquery_engine* $TARGET_PRISMA_BINARY_DIR/libquery_engine-darwin.dylib.node
 cp $PROJECT_DIR/bin/darwin-schema-engine* $TARGET_PRISMA_BINARY_DIR/schema-engine-darwin
 
 # Copying Windows prisma engine binaries to node_modules, so it can be packaged
