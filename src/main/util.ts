@@ -32,14 +32,16 @@ export const platformToExecutables: Record<
 > = {
   win32: {
     schemaEngine: 'node_modules/@prisma/engines/schema-engine-windows.exe',
-    queryEngine: 'node_modules/@prisma/engines/query-engine-windows.exe',
+    queryEngine: 'node_modules/@prisma/engines/query_engine-windows.dll.node',
   },
   darwin: {
     schemaEngine: 'node_modules/@prisma/engines/schema-engine-darwin',
-    queryEngine: 'node_modules/@prisma/engines/query-engine-darwin',
+    queryEngine:
+      'node_modules/@prisma/engines/libquery_engine-darwin.dylib.node',
   },
   darwinArm64: {
     schemaEngine: 'node_modules/@prisma/engines/schema-engine-darwin-arm64',
+    // TODO: this needs to be replaced with a libquery_engine for darwin-arm64
     queryEngine: 'node_modules/@prisma/engines/query-engine-darwin-arm64',
   },
 };

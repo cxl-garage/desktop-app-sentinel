@@ -42,6 +42,9 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | undefined;
 
+// This is an API call that should only be used internally for debugging.
+// This is a helpful way to surface environment variables to the renderer
+// to view them when the app is packaged.
 ipcMain.handle('api/getEnv', (_, envKey: string): string | undefined => {
   if (envKey === 'cwd') {
     return __dirname;

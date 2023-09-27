@@ -227,8 +227,8 @@
     "asarUnpack": [
       "**\\*.{node,dll}",
       "node_modules/@prisma/engines/schema-engine*",
-      "node_modules/@prisma/engines/query*",
-      "node_modules/@prisma/engines/query*.exe"
+      "node_modules/@prisma/engines/query_engine*",
+      "node_modules/@prisma/engines/libquery_engine*"
     ],
     "files": [
       ".env",
@@ -293,8 +293,8 @@
       "./assets/**",
       "./prisma/**",
       "node_modules/@prisma/engines/schema-engine*",
-      "node_modules/@prisma/engines/query*",
-      "node_modules/@prisma/engines/libquery*"
+      "node_modules/@prisma/engines/query_engine*",
+      "node_modules/@prisma/engines/libquery_engine*"
     ],
     "publish": {
       "provider": "github",

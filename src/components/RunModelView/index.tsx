@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Alert, Modal } from 'antd';
-import { useQuery } from '@tanstack/react-query';
 import { DockerVersionPanel } from '../SettingsView/DockerVersionPanel';
 import useIsDependenciesMissing from '../SettingsView/hooks/useIsDependenciesMissing';
 import { TensorflowImagePanel } from '../SettingsView/TensorflowImagePanel/TensorflowImagePanel';
@@ -15,43 +14,8 @@ export function RunModelView(): JSX.Element {
     setIsMissingDependenciesModalDismissed,
   ] = React.useState<boolean>(false);
 
-  const { data: envVars } = useQuery({
-    queryFn: async () => {
-      const dbURL = await window.SentinelDesktopService.getEnv('DATABASE_URL');
-      const cwd = await window.SentinelDesktopService.getEnv('cwd');
-      const cliQueryEngineType = await window.SentinelDesktopService.getEnv(
-        'PRISMA_CLI_QUERY_ENGINE_TYPE',
-      );
-      const clientEngineType = await window.SentinelDesktopService.getEnv(
-        'PRISMA_CLIENT_ENGINE_TYPE',
-      );
-      const qeBinary = await window.SentinelDesktopService.getEnv(
-        'PRISMA_QUERY_ENGINE_BINARY',
-      );
-      const seBinary = await window.SentinelDesktopService.getEnv(
-        'PRISMA_SCHEMA_ENGINE_BINARY',
-      );
-      return {
-        cwd,
-        dbURL,
-        cliQueryEngineType,
-        clientEngineType,
-        qeBinary,
-        seBinary,
-      };
-    },
-    queryKey: ['getEnv'],
-  });
-
   return (
     <IsDebuggingContextProvider>
-      <p>DB URL: {envVars?.dbURL}</p>
-      <p>CLI Engine Type: {envVars?.cliQueryEngineType}</p>
-      <p>Client Engine Type: {envVars?.clientEngineType}</p>
-      <p>QE Binary: {envVars?.qeBinary}</p>
-      <p>SE Binary: {envVars?.seBinary}</p>
-      <p>ENV: {envVars?.cwd}</p>
-
       <div className="flex h-full overflow-y-hidden">
         <div className="w-96 overflow-y-auto border-r-2 border-gray-200 p-10 dark:border-gray-600">
           <RunModelInputs />

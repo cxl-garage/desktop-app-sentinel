@@ -9,17 +9,17 @@ TARGET_PRISMA_BINARY_DIR_2=$PROJECT_DIR/release/app/node_modules/@prisma/engines
 # TODO: we only need the binaries in resourcesPath. we dont need it in app.asar.unpacked.
 
 # Copying MacOS prisma engine binaries to node_modules, so it can be packaged
-cp $PROJECT_DIR/bin/darwin-query-engine* $TARGET_PRISMA_BINARY_DIR/query-engine-darwin
+cp $PROJECT_DIR/bin/libquery_engine-darwin* $TARGET_PRISMA_BINARY_DIR/libquery_engine-darwin.dylib.node
 cp $PROJECT_DIR/bin/darwin-schema-engine* $TARGET_PRISMA_BINARY_DIR/schema-engine-darwin
 
-cp $PROJECT_DIR/bin/darwin-query-engine* $TARGET_PRISMA_BINARY_DIR_2/query-engine-darwin
+cp $PROJECT_DIR/bin/libquery_engine-darwin* $TARGET_PRISMA_BINARY_DIR_2/libquery_engine-darwin.dylib.node
 cp $PROJECT_DIR/bin/darwin-schema-engine* $TARGET_PRISMA_BINARY_DIR_2/schema-engine-darwin
 
 # Copying Windows prisma engine binaries to node_modules, so it can be packaged
-cp $PROJECT_DIR/bin/windows-query-engine* $TARGET_PRISMA_BINARY_DIR/query-engine-windows.exe
+cp $PROJECT_DIR/bin/query_engine* $TARGET_PRISMA_BINARY_DIR/query_engine-windows.dll.node
 cp $PROJECT_DIR/bin/windows-schema-engine* $TARGET_PRISMA_BINARY_DIR/schema-engine-windows.exe
 
-cp $PROJECT_DIR/bin/windows-query-engine* $TARGET_PRISMA_BINARY_DIR_2/query-engine-windows.exe
+cp $PROJECT_DIR/bin/query_engine* $TARGET_PRISMA_BINARY_DIR_2/query_engine-windows.dll.node
 cp $PROJECT_DIR/bin/windows-schema-engine* $TARGET_PRISMA_BINARY_DIR_2/schema-engine-windows.exe
 
 # TODO: probably not necessary anymore
