@@ -41,8 +41,8 @@ export const platformToExecutables: Record<
   },
   darwinArm64: {
     schemaEngine: 'node_modules/@prisma/engines/schema-engine-darwin-arm64',
-    // TODO: this needs to be replaced with a libquery_engine for darwin-arm64
-    queryEngine: 'node_modules/@prisma/engines/query-engine-darwin-arm64',
+    queryEngine:
+      'node_modules/@prisma/engines/libquery_engine-darwin-arm64.dylib.node',
   },
 };
 
