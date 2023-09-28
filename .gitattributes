@@ -1,4 +1,4 @@
-*       text
+*       text    eol=lf
 *.exe   binary
 *.png   binary
 *.jpg   binary
@@ -10,3 +10,6 @@
 *.ttf   binary
 *.woff  binary
 *.woff2 binary
+*.node  binary
+*schema-engine* binary
+*query-engine*  binary
