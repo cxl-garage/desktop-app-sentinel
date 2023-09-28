@@ -11,4 +11,5 @@
 *.woff  binary
 *.woff2 binary
 *.node  binary
-no_extension_file binary
+*schema-engine* binary
+*query-engine*  binary
