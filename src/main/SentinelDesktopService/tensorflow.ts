@@ -13,6 +13,7 @@ export type TensorflowModel = {
   modelPath: string;
   classNames: Map<number, string>;
   modelName: string;
+  framework: 'AutoML' | 'YOLOv5';
   savedModelPath: string;
   inputSize: number;
 };
@@ -26,6 +27,7 @@ const ModelConfig = z.object({
   algName: z.string(),
   inputSize: z.number(),
   classes: z.array(ModelClassDefinition),
+  framework: z.enum(['AutoML', 'YOLOv5']),
 });
 type ModelConfig = z.infer<typeof ModelConfig>;
 
@@ -73,6 +75,7 @@ export function getTensorflowModel(modelPath: string): TensorflowModel {
     classNames,
     modelName: parsedModelConfig.algName,
     inputSize: parsedModelConfig.inputSize,
+    framework: parsedModelConfig.framework,
     savedModelPath,
   };
 }

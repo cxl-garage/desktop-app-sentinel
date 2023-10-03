@@ -62,17 +62,20 @@ export function isSupported(name: string): boolean {
  * @param image the input image
  * @returns an array of columns that contains arrays of pixel data
  */
-// TODO: This is supposed to correspond to the Python function
-// np.expand_dims(np.array(image), 0) which upon inspecting output
-// appears to be column-major. THIS SHOULD BE CONFIRMED!
-export function toDataArray(image: Image): number[][][] {
+export function toDataArray(image: Image, normalize?: boolean): number[][][] {
   const { data, info } = image;
   const output = new Array<number[][]>(info.height);
   let index = 0;
   for (let row = 0; row < info.height; row += 1) {
     const rowData = new Array<number[]>(info.width);
     for (let col = 0; col < info.width; col += 1) {
-      rowData[col] = [data[index], data[index + 1], data[index + 2]];
+      rowData[col] = normalize
+        ? [
+            data[index] / 255.0,
+            data[index + 1] / 255.0,
+            data[index + 2] / 255.0,
+          ]
+        : [data[index], data[index + 1], data[index + 2]];
       index += 3;
     }
     output[row] = rowData;

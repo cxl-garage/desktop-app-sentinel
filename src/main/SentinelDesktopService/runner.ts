@@ -7,13 +7,14 @@ import { PrismaClient } from '../../generated/prisma/client';
 import { RunnerState } from '../../models/ModelRunProgress';
 import ERunningImageStatus from '../../components/RunModelView/types/ERunningImageStatus';
 import {
-  detect,
   DetectionResult,
   DetectOptions,
   DetectionCountMetadata,
   getDetectionCounts,
   OutputStyle,
 } from './detect';
+import { detect as AutoMLDetect } from './automl';
+import { detect as YOLOv5Detect } from './yolo';
 import { CsvFile } from './csv';
 import { isSupported } from './image';
 
@@ -22,6 +23,7 @@ type JobTask = {
   inputPath: string;
   options: DetectOptions;
   runId: number;
+  framework: 'AutoML' | 'YOLOv5';
 };
 
 export const LOG_FILE_NAME = 'output.log';
@@ -78,6 +80,7 @@ export class ModelRunner {
     this.statusMap.set(task.inputPath, {
       status: ERunningImageStatus.IN_PROGRESS,
     });
+    const detect = task.framework === 'YOLOv5' ? YOLOv5Detect : AutoMLDetect;
     const detections = await detect(
       task.folder,
       task.inputPath,
@@ -320,6 +323,7 @@ export class ModelRunner {
     classNames,
     modelName,
     modelRunId,
+    framework,
   }: {
     inputFolder: string;
     inputSize: number;
@@ -329,6 +333,7 @@ export class ModelRunner {
     classNames: Map<number, string>;
     modelName: string;
     modelRunId: number;
+    framework: 'AutoML' | 'YOLOv5';
   }): Promise<void> {
     // log the modelRun options
     this.logger.info('Starting model run');
@@ -338,6 +343,7 @@ export class ModelRunner {
     this.logger.info(`Output Folder: ${outputFolder}`);
     this.logger.info(`Output Style: ${outputStyle}`);
     this.logger.info(`Threshold: ${threshold}`);
+    this.logger.info(`Framework: ${framework}`);
     this.logger.info(
       `Class Names: ${Array.from(classNames.entries()).toString()}`,
     );
@@ -371,6 +377,7 @@ export class ModelRunner {
               inputPath,
               options,
               runId: modelRunId,
+              framework,
             };
 
             // queue this file for processing
