@@ -150,6 +150,9 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     this.isPreparingForModelRun = true;
     this.registeredModelRunOptions = options;
     this.registeredModelRun = null;
+
+    let modelRun;
+
     try {
       await cleanup();
       this.runner.cleanup();
@@ -165,7 +168,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       this.runner.resetLogger(options.outputDirectory);
 
       await start(tensorflow);
-      const modelRun = await this.registerRun(options, tensorflow.modelName);
+      modelRun = await this.registerRun(options, tensorflow.modelName);
       this.registeredModelRun = modelRun;
 
       // It takes some time for the image to start, so wait
@@ -186,6 +189,15 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       return modelRun.id;
     } catch (error) {
       this.cleanup();
+      if (modelRun) {
+        // update the status of this modelRun to show errors
+        await this.prisma.modelRun.update({
+          where: { id: modelRun.id },
+          data: {
+            status: 'FINISHED_WITH_ERRORS',
+          },
+        });
+      }
       throw error; // rethrow
     } finally {
       this.isPreparingForModelRun = false;
