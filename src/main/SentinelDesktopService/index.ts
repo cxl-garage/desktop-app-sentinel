@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
 /* eslint-disable class-methods-use-this */
+import { DateTime } from 'luxon';
 import path from 'path';
 import * as LogRecord from 'models/LogRecord';
 import * as DockerVersion from 'models/DockerVersion';
 import type { ContainerInfo } from 'dockerode';
 import { app } from 'electron';
 import { readdir, readFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 import { ModelRun, PrismaClient } from '../../generated/prisma/client';
 import * as RunModelOptions from '../../models/RunModelOptions';
 import * as ModelRunProgress from '../../models/ModelRunProgress';
@@ -113,13 +114,14 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
   registerRun(
     options: RunModelOptions.T,
     modelName: string,
+    outputPath: string,
   ): Promise<ModelRun> {
     console.log('Registering the model run to db');
     const data = {
       modelPath: options.modelDirectory,
       modelName,
       inputPath: options.inputDirectory,
-      outputPath: options.outputDirectory,
+      outputPath,
       startTime: Math.round(Date.now() / 1000),
       outputStyle: options.outputStyle,
       confidenceThreshold: options.confidenceThreshold,
@@ -154,6 +156,8 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     let modelRun;
 
     try {
+      const currentTimestamp = DateTime.now().toFormat('yyyy-MM-dd-HH.mm.ss');
+
       await cleanup();
       this.runner.cleanup();
 
@@ -163,12 +167,19 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       console.log('Getting the tensor flow model from the given directory');
       const tensorflow = getTensorflowModel(options.modelDirectory);
 
+      const outputFolder = `${options.outputDirectory}/${tensorflow.modelName}_${currentTimestamp}`;
+      mkdirSync(outputFolder, { recursive: true });
+
       // Setup the logger before we start the docker container so we can
       // log tensorflow ready status
-      this.runner.resetLogger(options.outputDirectory);
+      this.runner.resetLogger(outputFolder);
 
       await start(tensorflow);
-      modelRun = await this.registerRun(options, tensorflow.modelName);
+      modelRun = await this.registerRun(
+        options,
+        tensorflow.modelName,
+        outputFolder,
+      );
       this.registeredModelRun = modelRun;
 
       // It takes some time for the image to start, so wait
@@ -177,7 +188,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       await this.runner.start({
         inputFolder: options.inputDirectory,
         inputSize: tensorflow.inputSize,
-        outputFolder: options.outputDirectory,
+        outputFolder,
         outputStyle: options.outputStyle,
         threshold: options.confidenceThreshold,
         classNames: tensorflow.classNames,
