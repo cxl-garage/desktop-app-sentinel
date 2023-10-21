@@ -14,6 +14,15 @@ import {
   EMPTY_IMAGE_CLASS,
   BoundingBox,
 } from './detect';
+import nms from './nms';
+
+// The default number of predictions to consider during NMS, setting this
+// value of 1 will only turn the result with the highest confidence (and
+// effectively disable the nms algorithm)
+const DEFAULT_NMS_MAX_PREDICTIONS = 20;
+
+// The intersection-over-union threshold
+const DEFAULT_IOU_THRESHOLD = 0.3;
 
 /**
  * This is the main function that calls the endpoint in the docker image that
@@ -42,6 +51,7 @@ export async function detect(
 
   // intentionally not using `logger` here because we dont want to write this
   // to the log file (it'll be too big)
+  // eslint-disable-next-line no-console
   console.log(`Detecting ${inputPath} with threshold ${options.threshold}`);
 
   const size = options.inputSize;
@@ -77,54 +87,41 @@ export async function detect(
     // from this function.
     let totalWrite = 0;
     const threshold = options.threshold ?? DEFAULT_THRESHOLD;
+    const topPredictions = nms(
+      predictions,
+      threshold,
+      DEFAULT_NMS_MAX_PREDICTIONS,
+      DEFAULT_IOU_THRESHOLD,
+    );
 
-    // Loop through all of predictions and find the one with the largest confidence
-    // that is above the threshold.
-    let topPrediction: number[] = [];
-    let topConfidence: number = 0.0;
-    predictions.forEach((prediction) => {
-      // Take the maximum confidence value over all classes
-      const confidence = prediction[4] * Math.max(...prediction.slice(5));
-      if (confidence > threshold && confidence > topConfidence) {
-        topConfidence = confidence;
-        topPrediction = prediction;
-      }
-    });
-
-    if (topPrediction.length) {
-      // Find the class with the highest value and let that be the creature
-      // detect
-      const confidence = topConfidence;
-      const classes = topPrediction.slice(5);
-      const classId = classes.indexOf(Math.max(...classes));
-      const className = options.classNames.get(classId) ?? 'unknown';
-      // x,y are centers
-      const x = topPrediction[0];
-      const y = topPrediction[1];
-      const w = topPrediction[2];
-      const h = topPrediction[3];
-
-      const detectionResult = {
-        fileName: name,
-        className,
-        classId,
-        confidence,
-        inputPath,
-        outputPath: getOutputPath(
-          folder,
-          inputPath,
-          options.outputFolder,
-          options.outputStyle,
-          className,
-        ),
-        // The bounding box is already in normalized coordinates
-        bbox: [x - w / 2, y - h / 2, x + w / 2, y + h / 2] as BoundingBox,
-      };
-      // Assume input and output size are the same to simplify bbox computations
-      detections.push(detectionResult);
-      const beforeWrite = Date.now();
-      await writeDetection(image, detectionResult, options);
-      totalWrite += Date.now() - beforeWrite;
+    if (topPredictions.length) {
+      await Promise.all(
+        topPredictions.map(async (detection) => {
+          const className =
+            options.classNames.get(detection.classId) ?? 'unknown';
+          const detectionResult = {
+            fileName: name,
+            className,
+            classId: detection.classId,
+            confidence: detection.confidence,
+            inputPath,
+            outputPath: getOutputPath(
+              folder,
+              inputPath,
+              options.outputFolder,
+              options.outputStyle,
+              className,
+            ),
+            // The bounding box is already in normalized coordinates as (x1, y1), (x2, y2)
+            bbox: detection.box as BoundingBox,
+          };
+          // Assume input and output size are the same to simplify bbox computations
+          detections.push(detectionResult);
+          const beforeWrite = Date.now();
+          await writeDetection(image, detectionResult, options);
+          totalWrite += Date.now() - beforeWrite;
+        }),
+      );
     } else {
       // If there is no result with a confidence level above the threshold
       const detectionResult = {
@@ -155,6 +152,7 @@ export async function detect(
 
     // intentionally not using `logger` here because we dont want to write this
     // to the log file (it'll be too big)
+    // eslint-disable-next-line no-console
     console.log(
       `Detecting ${inputPath} finished in ${elapsedRead} (read) + ${elapsedDetect} (detect) + ${totalWrite} write = ${elapsed} ms`,
     );
