@@ -35,7 +35,7 @@ export async function getVersion(): Promise<DockerVersion.T> {
  * Checks whether the needed image is installed in docker locally.
  * @returns the docker image info if found
  */
-export async function findImage(): Promise<DockerImage.T | undefined> {
+export async function findImage(): Promise<DockerImage.T | null> {
   // eslint-disable-next-line promise/catch-or-return
   const imageInfo = (await docker.listImages()).find((image) =>
     image.RepoTags?.some((tag) => tag === REPO_TAG),
@@ -46,11 +46,24 @@ export async function findImage(): Promise<DockerImage.T | undefined> {
         name: REPO_TAG,
         created: imageInfo?.Created,
       }
-    : undefined;
+    : null;
 }
 
 export async function pullImage(): Promise<void> {
-  await docker.pull(REPO_TAG);
+  return new Promise<void>((resolve, reject) => {
+    docker.pull(REPO_TAG, {}, (err: Error, stream: NodeJS.ReadableStream) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      stream.resume(); // Switch to "flowing mode" to avoid hanging
+
+      stream.on('end', () => {
+        console.log('Tensorflow image pulled successfully.');
+        resolve();
+      });
+    });
+  });
 }
 
 /**

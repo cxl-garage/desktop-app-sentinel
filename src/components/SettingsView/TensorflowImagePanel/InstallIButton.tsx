@@ -1,6 +1,5 @@
 import { LoadingOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
-import React from 'react';
 import useInstallTensorflowImage from '../hooks/useInstallTensorflowImage';
 
 function InstallIButton(): JSX.Element {
