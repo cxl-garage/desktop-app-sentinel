@@ -9,13 +9,13 @@ import useInstalledTensorflowImage from '../hooks/useInstalledTensorflowImage';
 export function TensorflowImagePanel(): JSX.Element {
   const { data: image, isLoading } = useInstalledTensorflowImage();
 
-  const renderImageOrButton = (): JSX.Element => {
+  const renderImageOrButton = (): JSX.Element | null => {
     if (isLoading) {
       return null;
     }
     return image ? <ImageInfo image={image} /> : <InstallIButton />;
   };
-  
+
   return (
     <Collapse
       expandIconPosition="end"
