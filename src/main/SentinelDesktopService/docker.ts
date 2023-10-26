@@ -99,7 +99,7 @@ export async function cleanup(): Promise<void> {
 export async function start(tensorflow: TensorflowModel): Promise<void> {
   // Find the right image
   const imageInfo = await findImage();
-  if (imageInfo === undefined) {
+  if (imageInfo === undefined || imageInfo === null) {
     return;
   }
 
@@ -120,6 +120,8 @@ export async function start(tensorflow: TensorflowModel): Promise<void> {
   };
 
   console.log('Starting docker...');
-  docker.run(imageInfo.id, [], process.stdout, createOptions);
+  if (imageInfo.id) {
+    docker.run(imageInfo.id, [], process.stdout, createOptions);
+  }
   console.log('Container started');
 }

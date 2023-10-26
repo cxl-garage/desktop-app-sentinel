@@ -9,6 +9,7 @@ import RunModelResultsContent from './RunModelResultsContent';
 
 function RunModelResults(): JSX.Element {
   const { data: currentModelRunProgress } = useCurrentModelRunProgress();
+  console.log('current model run', currentModelRunProgress);
   const runnerState = currentModelRunProgress?.runnerState;
   const isDebugging = useIsDebugging();
 
@@ -42,9 +43,13 @@ function RunModelResults(): JSX.Element {
     );
   }
 
+  const isModelStarting =
+    !currentModelRunProgress.runnerState ||
+    (images.length === 0 && !currentModelRunProgress.modelRun);
+
   return (
     <div>
-      {!currentModelRunProgress.runnerState || images.length === 0 ? (
+      {isModelStarting ? (
         <div className="flex h-72 items-center justify-center">
           <div>
             <Spin spinning />
