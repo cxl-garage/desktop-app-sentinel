@@ -462,12 +462,14 @@ async function createWindow(): Promise<void> {
     // that were left in IN_PROGRESS due to some bug or inconsistent state.
     // We switch them to UNKNOWN because we don't know what their true end
     // state would have been.
+    console.log('Updating many');
     await SentinelDesktopService.prisma.modelRun.updateMany({
       where: { status: 'IN_PROGRESS' },
       data: {
         status: 'UNKNOWN',
       },
     });
+    console.log('updated many');
   });
 
   mainWindow.on('closed', () => {

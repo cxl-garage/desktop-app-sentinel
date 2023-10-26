@@ -20,7 +20,16 @@ import useLocalStorageState from 'use-local-storage-state';
 import AppFrameWithSidebar from '../components/Layout/AppFrameWithSidebar';
 import './App.css';
 
-const QUERY_CLIENT = new QueryClient();
+const QUERY_CLIENT = new QueryClient({
+  defaultOptions: {
+    queries: {
+      networkMode: 'always',
+    },
+    mutations: {
+      networkMode: 'always',
+    },
+  },
+});
 
 const LIGHT_BG_COLOR = '#fafafa';
 const DARK_BG_COLOR = '#35393f';
