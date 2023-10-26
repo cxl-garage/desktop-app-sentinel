@@ -9,7 +9,6 @@ import RunModelResultsContent from './RunModelResultsContent';
 
 function RunModelResults(): JSX.Element {
   const { data: currentModelRunProgress } = useCurrentModelRunProgress();
-  console.log('current model run', currentModelRunProgress);
   const runnerState = currentModelRunProgress?.runnerState;
   const isDebugging = useIsDebugging();
 
