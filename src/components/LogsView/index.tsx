@@ -9,8 +9,6 @@ export function LogsView(): JSX.Element {
     queryKey: LogRecord.QueryKeys.allLogRecords,
   });
 
-  console.log('here we go', logs);
-
   return (
     <div className="mx-8 mt-12 pb-12">
       <div className="LogsView__log-component-wrapper">
