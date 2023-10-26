@@ -78,9 +78,14 @@ export async function detect(
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
     });
-    const json = await response.json();
+    const json: { error: string; predictions: number[][][] } =
+      await response.json();
+    if (json.error) {
+      throw new Error(`Error received from Tensorflow server:\n${json.error}`);
+    }
+
     const elapsedDetect = Date.now() - beforeDetect;
-    const predictions = json.predictions[0] as number[][];
+    const predictions = json.predictions[0];
 
     // Look through the output for all results that exceed the confidence threshold,
     // write out the image with the bounding box if detected and return the result

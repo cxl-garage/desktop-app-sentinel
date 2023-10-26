@@ -29,7 +29,7 @@ const columns: ColumnsType<LogRecord.T> = [
     dataIndex: 'timestamp',
     width: '25%',
     render: (timestamp: Date) =>
-      DateTime.fromJSDate(timestamp).toFormat('MMMM d, yyyy | HH:MM:ss'),
+      DateTime.fromJSDate(timestamp).toFormat('MMMM d, yyyy | HH:mm:ss'),
   },
   {
     title: '',
