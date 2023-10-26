@@ -32,6 +32,7 @@ function getModelRunFinalStatus(status: string): LogRecord.T['status'] {
     case 'IN_PROGRESS':
     case 'SUCCESS':
     case 'FINISHED_WITH_ERRORS':
+    case 'UNKNOWN':
       return status;
     default:
       return 'UNKNOWN';
@@ -80,7 +81,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     return getVersion();
   }
 
-  findImage(): Promise<DockerImage.T | undefined> {
+  findImage(): Promise<DockerImage.T | null> {
     return findImage();
   }
 
@@ -134,6 +135,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     if (!this.registeredModelRunOptions) {
       return null;
     }
+
     return {
       startModelOptions: this.registeredModelRunOptions,
       modelRun: this.registeredModelRun,
@@ -156,7 +158,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     let modelRun;
 
     try {
-      const currentTimestamp = DateTime.now().toFormat('yyyy-MM-dd-HH.mm.ss');
+      const currentTimestamp = DateTime.now().toFormat('yyyy-MM-dd_HH.mm.ss');
 
       await cleanup();
       this.runner.cleanup();
@@ -185,20 +187,38 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       // It takes some time for the image to start, so wait
       await waitForStartup(tensorflow.modelName, this.runner.logger);
 
-      await this.runner.start({
-        inputFolder: options.inputDirectory,
-        inputSize: tensorflow.inputSize,
-        outputFolder,
-        outputStyle: options.outputStyle,
-        threshold: options.confidenceThreshold,
-        classNames: tensorflow.classNames,
-        modelName: tensorflow.modelName,
-        modelRunId: modelRun.id,
-        framework: tensorflow.framework,
-      });
+      await this.runner.start(
+        {
+          inputFolder: options.inputDirectory,
+          inputSize: tensorflow.inputSize,
+          outputFolder,
+          outputStyle: options.outputStyle,
+          threshold: options.confidenceThreshold,
+          classNames: tensorflow.classNames,
+          modelName: tensorflow.modelName,
+          modelRunId: modelRun.id,
+          framework: tensorflow.framework,
+        },
+        {
+          // function to run when the model finishes running
+          // We don't have an `onError` callbakc because this is caught
+          // by our try/catch block below
+          onComplete: async () => {
+            // the model finished running! So update `registeredModleRun`
+            // so it shows the correct status
+            if (this.registeredModelRun) {
+              this.registeredModelRun = await this.prisma.modelRun.findUnique({
+                where: { id: this.registeredModelRun.id },
+              });
+            }
+          },
+        },
+      );
 
       return modelRun.id;
     } catch (error) {
+      // if there are any errors starting up, then we clean up and change the
+      // modelRun's status to FINISHED_WITH_ERRORS
       this.cleanup();
       if (modelRun) {
         // update the status of this modelRun to show errors

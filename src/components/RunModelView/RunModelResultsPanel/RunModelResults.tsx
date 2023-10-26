@@ -42,9 +42,13 @@ function RunModelResults(): JSX.Element {
     );
   }
 
+  const isModelStarting =
+    !currentModelRunProgress.runnerState ||
+    (images.length === 0 && !currentModelRunProgress.modelRun);
+
   return (
     <div>
-      {!currentModelRunProgress.runnerState || images.length === 0 ? (
+      {isModelStarting ? (
         <div className="flex h-72 items-center justify-center">
           <div>
             <Spin spinning />

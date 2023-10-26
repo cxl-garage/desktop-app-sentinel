@@ -11,7 +11,7 @@ export interface ISentinelDesktopService {
   getAllCXLModelResults(modelName?: string): Promise<ModelRun[]>;
   getFilesInDir: (dirPath: string, recursive?: boolean) => Promise<string[]>;
   getModelOutputs: (modelId: number) => Promise<string[]>;
-  findImage: () => Promise<DockerImage.T | undefined>;
+  findImage: () => Promise<DockerImage.T | null>;
   pullImage: () => Promise<void>;
   getContainers: () => Promise<ContainerInfo[]>;
   getVersion: () => Promise<DockerVersion.T>;

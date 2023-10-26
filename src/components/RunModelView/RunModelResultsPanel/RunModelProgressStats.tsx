@@ -21,6 +21,14 @@ function RunModelProgressStats({ processingImages }: IProps): JSX.Element {
   const completedCount = completedImages.length;
   const completedPercentage = Math.round((completedCount * 100) / totalCount);
 
+  if (totalCount === 0 && completedCount === 0) {
+    return (
+      <div>
+        <Typography.Text>There are no results to show</Typography.Text>
+      </div>
+    );
+  }
+
   return (
     <div>
       {completedPercentage !== 100 && <Spin style={{ marginRight: 12 }} />}

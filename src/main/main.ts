@@ -114,7 +114,7 @@ ipcMain.handle(
 
 ipcMain.handle(
   'api/docker/findImage',
-  async (): Promise<DockerImage.T | undefined> => {
+  async (): Promise<DockerImage.T | null> => {
     console.log('Calling api/docker/findImage');
     return SentinelDesktopService.findImage();
   },
@@ -448,7 +448,7 @@ async function createWindow(): Promise<void> {
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
-  mainWindow.on('ready-to-show', () => {
+  mainWindow.on('ready-to-show', async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
@@ -457,6 +457,17 @@ async function createWindow(): Promise<void> {
     } else {
       mainWindow.show();
     }
+
+    // the app has just started up so let's make sure there are no modelRuns
+    // that were left in IN_PROGRESS due to some bug or inconsistent state.
+    // We switch them to UNKNOWN because we don't know what their true end
+    // state would have been.
+    await SentinelDesktopService.prisma.modelRun.updateMany({
+      where: { status: 'IN_PROGRESS' },
+      data: {
+        status: 'UNKNOWN',
+      },
+    });
   });
 
   mainWindow.on('closed', () => {

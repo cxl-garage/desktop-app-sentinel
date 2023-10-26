@@ -314,27 +314,30 @@ export class ModelRunner {
     return { notStarted, inProgress, completed };
   }
 
-  async start({
-    inputFolder,
-    inputSize,
-    outputFolder,
-    outputStyle,
-    threshold,
-    classNames,
-    modelName,
-    modelRunId,
-    framework,
-  }: {
-    inputFolder: string;
-    inputSize: number;
-    outputFolder: string;
-    outputStyle: OutputStyle;
-    threshold: number;
-    classNames: Map<number, string>;
-    modelName: string;
-    modelRunId: number;
-    framework: 'AutoML' | 'YOLOv5';
-  }): Promise<void> {
+  async start(
+    {
+      inputFolder,
+      inputSize,
+      outputFolder,
+      outputStyle,
+      threshold,
+      classNames,
+      modelName,
+      modelRunId,
+      framework,
+    }: {
+      inputFolder: string;
+      inputSize: number;
+      outputFolder: string;
+      outputStyle: OutputStyle;
+      threshold: number;
+      classNames: Map<number, string>;
+      modelName: string;
+      modelRunId: number;
+      framework: 'AutoML' | 'YOLOv5';
+    },
+    { onComplete }: { onComplete: () => void },
+  ): Promise<void> {
     // log the modelRun options
     this.logger.info('Starting model run');
     this.logger.info(`Model Name: ${modelName}`);
@@ -395,6 +398,7 @@ export class ModelRunner {
       this.queue.drain(() => {
         const elapsedTimeMs = Date.now() - startTime;
         this.processAllJobsComplete(modelRunId, elapsedTimeMs);
+        onComplete();
       });
     } catch (error) {
       this.logger.error({
