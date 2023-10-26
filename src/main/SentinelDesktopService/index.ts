@@ -32,6 +32,7 @@ function getModelRunFinalStatus(status: string): LogRecord.T['status'] {
     case 'IN_PROGRESS':
     case 'SUCCESS':
     case 'FINISHED_WITH_ERRORS':
+    case 'UNKNOWN':
       return status;
     default:
       return 'UNKNOWN';
@@ -168,7 +169,7 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       console.log('Getting the tensor flow model from the given directory');
       const tensorflow = getTensorflowModel(options.modelDirectory);
 
-      const outputFolder = `${options.outputDirectory}/${tensorflow.modelName}__${currentTimestamp}`;
+      const outputFolder = `${options.outputDirectory}/${tensorflow.modelName}_${currentTimestamp}`;
       mkdirSync(outputFolder, { recursive: true });
 
       // Setup the logger before we start the docker container so we can
