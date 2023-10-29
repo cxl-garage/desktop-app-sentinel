@@ -1,6 +1,7 @@
 import { Typography } from 'antd';
 import React from 'react';
 import * as DockerVersion from '../../../models/DockerVersion';
+import getHumanFriendlyErrorMessage from './getHumanFriendlyErrorMessage';
 
 interface IProps {
   version: DockerVersion.T | undefined;
@@ -28,7 +29,9 @@ function DockerPanel({ version }: IProps): JSX.Element {
         </div>
       )}
       {DockerVersion.isDockerError(version) && (
-        <Typography.Text>{version.error}</Typography.Text>
+        <Typography.Text>
+          {getHumanFriendlyErrorMessage(version.error)}
+        </Typography.Text>
       )}
     </div>
   );
