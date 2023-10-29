@@ -1,5 +1,5 @@
 import { Typography } from 'antd';
-import { DockerVersionPanel } from './DockerVersionPanel';
+import { DockerVersionPanel } from './DockerVersionPanel/DockerVersionPanel';
 import { TensorflowImagePanel } from './TensorflowImagePanel/TensorflowImagePanel';
 
 export function SettingsView(): JSX.Element {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Alert, Modal } from 'antd';
-import { DockerVersionPanel } from '../SettingsView/DockerVersionPanel';
+import { DockerVersionPanel } from '../SettingsView/DockerVersionPanel/DockerVersionPanel';
 import useIsDependenciesMissing from '../SettingsView/hooks/useIsDependenciesMissing';
 import { TensorflowImagePanel } from '../SettingsView/TensorflowImagePanel/TensorflowImagePanel';
 import IsDebuggingContextProvider from './DebuggingContext/IsDebuggingContextProvider';
