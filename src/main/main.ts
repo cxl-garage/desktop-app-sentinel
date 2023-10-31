@@ -162,6 +162,13 @@ ipcMain.handle(
   },
 );
 
+ipcMain.handle(
+  'api/docker/getIsModelDirectoryValid',
+  async (_event, modelDirectory: string): Promise<boolean> => {
+    return SentinelDesktopService.getIsModelDirectoryValid(modelDirectory);
+  },
+);
+
 // below 2 functions handle openning and selecting a new directory, using electron's dialog.showOpenDialog
 // used in afterorg.tsx to select folder to get images from and folder to download images to
 

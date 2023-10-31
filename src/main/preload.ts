@@ -37,6 +37,8 @@ const SentinelDesktopServiceBridge = {
     ipcRenderer.invoke('api/docker/getCurrentModelRunProgress'),
   getIsModelRunInProgress: async () =>
     ipcRenderer.invoke('api/docker/getIsModelRunInProgress'),
+  getIsModelDirectoryValid: async (modelDirectory: string) =>
+    ipcRenderer.invoke('api/docker/getIsModelDirectoryValid', modelDirectory),
   selectInputFolder: async () =>
     ipcRenderer.invoke('dialog:openDirectoryInput'), // allows to select directory for input folder of user's images
   selectOutputFolder: async () =>

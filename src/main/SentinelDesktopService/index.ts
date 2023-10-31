@@ -147,6 +147,15 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
     return this.isPreparingForModelRun || !this.runner.stats().idle;
   }
 
+  async getIsModelDirectoryValid(modelDirectory: string): Promise<boolean> {
+    try {
+      getTensorflowModel(modelDirectory);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   async startModel(options: RunModelOptions.T): Promise<number> {
     if (this.isInProgress) {
       throw new Error('A model run is currently in progress');

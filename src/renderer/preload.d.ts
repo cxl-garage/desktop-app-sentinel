@@ -28,6 +28,7 @@ declare global {
       cleanup: () => Promise<void>;
       getCurrentModelRunProgress: () => Promise<ModelRunProgress.T | null>;
       getIsModelRunInProgress: () => Promise<boolean>;
+      getIsModelDirectoryValid: (modelDirectory: string) => Promise<boolean>;
       selectInputFolder: () => Promise<any>;
       selectOutputFolder: () => Promise<any>;
       openFile: (filePath: string) => Promise<void>;
