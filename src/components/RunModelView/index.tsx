@@ -13,6 +13,13 @@ export function RunModelView(): JSX.Element {
     isMissingDependenciesModalDismissed,
     setIsMissingDependenciesModalDismissed,
   ] = React.useState<boolean>(false);
+  const [showMissingDependenciesModal, setShowMissingDependenciesModal] =
+    React.useState<boolean>(false);
+  React.useEffect(() => {
+    if (isDependenciesMissing) {
+      setShowMissingDependenciesModal(true);
+    }
+  }, [isDependenciesMissing]);
 
   return (
     <IsDebuggingContextProvider>
@@ -26,7 +33,9 @@ export function RunModelView(): JSX.Element {
       </div>
       <Modal
         title="Missing dependencies"
-        open={isDependenciesMissing && !isMissingDependenciesModalDismissed}
+        open={
+          showMissingDependenciesModal && !isMissingDependenciesModalDismissed
+        }
         onOk={() => {
           setIsMissingDependenciesModalDismissed(true);
         }}
@@ -40,8 +49,12 @@ export function RunModelView(): JSX.Element {
         <div className="mb-8 mt-6 flex flex-col gap-4">
           <Alert
             showIcon
-            type="warning"
-            description="You will not be able to run a model until all the dependencies are installed. Please check the settings below."
+            type={isDependenciesMissing ? 'warning' : 'success'}
+            description={
+              isDependenciesMissing
+                ? 'You will not be able to run a model until all the dependencies are installed. Please check the settings below.'
+                : 'Dependency installation complete! Models are now able to run.'
+            }
           />
           <DockerVersionPanel />
           <TensorflowImagePanel />
