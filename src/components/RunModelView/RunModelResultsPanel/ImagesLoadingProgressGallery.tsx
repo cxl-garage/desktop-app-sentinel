@@ -7,12 +7,15 @@ import EImageGridSize from '../../ui/PaginatedImageGrid/EImageGridSize';
 import ImageGridSizeSelect from '../../ui/GridSizeSelect';
 import PaginatedImageGrid from '../../ui/PaginatedImageGrid';
 import RunModelProgressStats from './RunModelProgressStats';
+import * as ModelRunProgress from '../../../models/ModelRunProgress';
 
 interface IProps {
+  modelRun: ModelRunProgress.T['modelRun'] | null;
   processingImages: IRunningImage[];
 }
 
 function ImagesLoadingProgressGallery({
+  modelRun,
   processingImages,
 }: IProps): JSX.Element {
   const inProgressImages = useMemo(
@@ -41,7 +44,10 @@ function ImagesLoadingProgressGallery({
   return (
     <div className="flex-1">
       <div className="flex justify-between">
-        <RunModelProgressStats processingImages={processingImages} />
+        <RunModelProgressStats
+          modelRun={modelRun}
+          processingImages={processingImages}
+        />
         <div>
           <ImageGridSizeSelect gridSize={gridSize} onChange={setGridSize} />
         </div>

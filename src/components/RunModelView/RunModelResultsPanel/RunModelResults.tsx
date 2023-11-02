@@ -57,6 +57,7 @@ function RunModelResults(): JSX.Element {
         </div>
       ) : (
         <RunModelResultsContent
+          modelRun={currentModelRunProgress.modelRun}
           outputStyle={currentModelRunProgress.startModelOptions.outputStyle}
           processingImages={images}
           csvFilePath={`${currentModelRunProgress.startModelOptions.outputDirectory}/detections.csv`}

@@ -5,13 +5,16 @@ import { Button } from '../../ui/Button';
 import ERunningImageStatus from '../types/ERunningImageStatus';
 import IRunningImage from '../types/IRunningImage';
 import RunModelProgressStats from './RunModelProgressStats';
+import * as ModelRunProgress from '../../../models/ModelRunProgress';
 
 interface IProps {
+  modelRun: ModelRunProgress.T['modelRun'] | null;
   processingImages: IRunningImage[];
   csvFilePath: string;
 }
 
 function OutputStyleNoneResults({
+  modelRun,
   processingImages,
   csvFilePath,
 }: IProps): JSX.Element {
@@ -24,7 +27,10 @@ function OutputStyleNoneResults({
   return (
     <div className="flex-1">
       <div>
-        <RunModelProgressStats processingImages={processingImages} />
+        <RunModelProgressStats
+          modelRun={modelRun}
+          processingImages={processingImages}
+        />
       </div>
       {completedImagesCount === processingImages.length && (
         <div className="mt-8">

@@ -3,12 +3,24 @@ import _ from 'lodash';
 import React, { useMemo } from 'react';
 import ERunningImageStatus from '../types/ERunningImageStatus';
 import IRunningImage from '../types/IRunningImage';
+import * as ModelRunProgress from '../../../models/ModelRunProgress';
 
 interface IProps {
+  modelRun: ModelRunProgress.T['modelRun'] | null;
   processingImages: IRunningImage[];
 }
 
-function RunModelProgressStats({ processingImages }: IProps): JSX.Element {
+function isModelRunCompleted(
+  modelRun: ModelRunProgress.T['modelRun'],
+): boolean {
+  const stillRunning = modelRun === null || modelRun.status === 'IN_PROGRESS';
+  return !stillRunning;
+}
+
+function RunModelProgressStats({
+  modelRun,
+  processingImages,
+}: IProps): JSX.Element {
   const completedImages = useMemo(
     () =>
       _.filter(processingImages, {
@@ -31,9 +43,20 @@ function RunModelProgressStats({ processingImages }: IProps): JSX.Element {
 
   return (
     <div>
-      {completedPercentage !== 100 && <Spin style={{ marginRight: 12 }} />}
+      {!isModelRunCompleted(modelRun) ? (
+        <Spin style={{ marginRight: 12 }} />
+      ) : null}
       <Typography.Text className="whitespace-nowrap">
-        {completedPercentage}% Processing images ({completedCount}/{totalCount})
+        {isModelRunCompleted(modelRun) ? (
+          <>
+            Finished processing images ({completedCount}/{totalCount})
+          </>
+        ) : (
+          <>
+            {completedPercentage}% Processing images ({completedCount}/
+            {totalCount})
+          </>
+        )}
       </Typography.Text>
     </div>
   );
