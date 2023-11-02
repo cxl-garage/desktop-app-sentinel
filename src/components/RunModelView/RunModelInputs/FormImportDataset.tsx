@@ -21,7 +21,6 @@ function FormImportDataset({ control }: IProps): JSX.Element {
       required
       validateStatus={fieldState.error && 'error'}
       help={fieldState.error?.message}
-      wrapperCol={{ span: 12 }}
     >
       <DirectoryInput value={field.value} onChange={field.onChange} />
     </Form.Item>
