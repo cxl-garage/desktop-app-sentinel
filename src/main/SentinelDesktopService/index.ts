@@ -178,7 +178,10 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       console.log('Getting the tensor flow model from the given directory');
       const tensorflow = getTensorflowModel(options.modelDirectory);
 
-      const outputFolder = `${options.outputDirectory}/${tensorflow.modelName}_${currentTimestamp}`;
+      const outputFolder = path.join(
+        options.outputDirectory,
+        `${tensorflow.modelName}_${currentTimestamp}`,
+      );
       mkdirSync(outputFolder, { recursive: true });
 
       // Setup the logger before we start the docker container so we can
