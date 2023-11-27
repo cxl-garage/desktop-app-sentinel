@@ -36,15 +36,17 @@ function SunIcon(): JSX.Element {
 }
 
 interface IProps {
-  onChangeDarkMode: (darkMode: boolean) => void;
+  isDarkMode: boolean;
+  onChangeIsDarkMode: (darkMode: boolean) => void;
 }
 
-function ThemeSwitch({ onChangeDarkMode }: IProps): JSX.Element {
+function ThemeSwitch({ isDarkMode, onChangeIsDarkMode }: IProps): JSX.Element {
   return (
     <Tooltip title="Toggle dark mode">
       <Switch
         style={{ background: '#00aaff' }}
-        onChange={(checked, _) => onChangeDarkMode(checked)}
+        checked={isDarkMode}
+        onChange={(checked, _) => onChangeIsDarkMode(checked)}
         checkedChildren={<MoonIcon />}
         unCheckedChildren={<SunIcon />}
       />

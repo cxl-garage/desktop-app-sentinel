@@ -12,12 +12,14 @@ const COLLAPSED_SIDEBAR_WIDTH = 50;
 
 interface IProps {
   children: React.ReactNode;
-  onChangeDarkMode: (darkMode: boolean) => void;
+  isDarkMode: boolean;
+  onChangeIsDarkMode: (isDarkMode: boolean) => void;
 }
 
 function AppFrameWithSidebar({
   children,
-  onChangeDarkMode,
+  isDarkMode,
+  onChangeIsDarkMode,
 }: IProps): JSX.Element {
   const [isSidebarExpanded, setIsSidebarOpen] = useLocalStorageState<boolean>(
     'isSidebarExpanded',
@@ -64,7 +66,10 @@ function AppFrameWithSidebar({
         <div className="fixed bottom-4 left-3 flex flex-col">
           {isSidebarExpanded && (
             <div className="mb-4 ml-2">
-              <ThemeSwitch onChangeDarkMode={onChangeDarkMode} />
+              <ThemeSwitch
+                isDarkMode={isDarkMode}
+                onChangeIsDarkMode={onChangeIsDarkMode}
+              />
             </div>
           )}
           <Tooltip
