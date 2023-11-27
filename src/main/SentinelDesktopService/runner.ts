@@ -1,4 +1,5 @@
 import * as async from 'async';
+import path from 'path';
 import recursive from 'recursive-readdir';
 import winston from 'winston';
 import sleep from '../../util/sleep';
@@ -256,7 +257,7 @@ export class ModelRunner {
       transports: [
         new winston.transports.Console(),
         new winston.transports.File({
-          filename: `${outputDirectory}/${LOG_FILE_NAME}`,
+          filename: path.join(outputDirectory, LOG_FILE_NAME),
         }),
       ],
     });
