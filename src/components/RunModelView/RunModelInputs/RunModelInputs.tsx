@@ -62,7 +62,6 @@ function RunModelInputs(): JSX.Element {
         Math.floor(currentModelRun.confidenceThreshold * 100),
       );
       setValue('inputDirectory', currentModelRun.inputPath);
-      setValue('outputDirectory', currentModelRun.outputPath);
     }
   }, [currentModelRun, setValue]);
 
