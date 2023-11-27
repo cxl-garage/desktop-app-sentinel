@@ -90,7 +90,10 @@ export default function App(): JSX.Element {
         <QueryClientProvider client={QUERY_CLIENT}>
           <div className={`App${isDarkMode ? ' dark' : ''}`}>
             <Router>
-              <AppFrameWithSidebar onChangeDarkMode={setIsDarkMode}>
+              <AppFrameWithSidebar
+                isDarkMode={isDarkMode}
+                onChangeIsDarkMode={setIsDarkMode}
+              >
                 <Layout className="h-full min-h-screen overflow-auto">
                   <Routes>
                     <Route path="/" element={<Navigate to="/run-model" />} />
