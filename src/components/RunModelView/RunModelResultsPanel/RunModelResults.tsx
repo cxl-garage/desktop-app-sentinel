@@ -1,3 +1,4 @@
+import * as R from 'remeda';
 import { Empty, Spin, Typography } from 'antd';
 import { useMemo } from 'react';
 import ReactJson from 'react-json-view';
@@ -13,25 +14,29 @@ function RunModelResults(): JSX.Element {
   const isDebugging = useIsDebugging();
 
   const images: IRunningImage[] = useMemo(() => {
-    return runnerState
-      ? [
-          ...runnerState.completed.map(({ inputPath, outputPath }) => ({
-            id: inputPath,
-            url: `file://${outputPath}`,
-            status: ERunningImageStatus.COMPLETED,
-          })),
-          ...runnerState.inProgress.map((fileName) => ({
-            id: fileName,
-            url: '', // Not currently used
-            status: ERunningImageStatus.IN_PROGRESS,
-          })),
-          ...runnerState.notStarted.map((fileName) => ({
-            id: fileName,
-            url: '', // Not currently used
-            status: ERunningImageStatus.NOT_STARTED,
-          })),
-        ]
-      : [];
+    if (!runnerState) {
+      return [];
+    }
+    return R.uniqBy(
+      [
+        ...runnerState.completed.map(({ inputPath, outputPath }) => ({
+          id: inputPath,
+          url: `file://${outputPath}`,
+          status: ERunningImageStatus.COMPLETED,
+        })),
+        ...runnerState.inProgress.map((fileName) => ({
+          id: fileName,
+          url: '', // Not currently used
+          status: ERunningImageStatus.IN_PROGRESS,
+        })),
+        ...runnerState.notStarted.map((fileName) => ({
+          id: fileName,
+          url: '', // Not currently used
+          status: ERunningImageStatus.NOT_STARTED,
+        })),
+      ],
+      (obj) => obj.id,
+    );
   }, [runnerState]);
 
   if (!currentModelRunProgress) {
