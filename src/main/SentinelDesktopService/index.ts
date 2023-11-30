@@ -136,6 +136,14 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       return null;
     }
 
+    if (this.registeredModelRun) {
+      // Fetch the model from the database so we always get the updated
+      // status (e.g. if it's running or if it's already complete)
+      this.registeredModelRun = await this.prisma.modelRun.findUnique({
+        where: { id: this.registeredModelRun.id },
+      });
+    }
+
     return {
       startModelOptions: this.registeredModelRunOptions,
       modelRun: this.registeredModelRun,
@@ -199,33 +207,17 @@ class SentinelDesktopServiceImpl implements ISentinelDesktopService {
       // It takes some time for the image to start, so wait
       await waitForStartup(tensorflow.modelName, this.runner.logger);
 
-      await this.runner.start(
-        {
-          inputFolder: options.inputDirectory,
-          inputSize: tensorflow.inputSize,
-          outputFolder,
-          outputStyle: options.outputStyle,
-          threshold: options.confidenceThreshold,
-          classNames: tensorflow.classNames,
-          modelName: tensorflow.modelName,
-          modelRunId: modelRun.id,
-          framework: tensorflow.framework,
-        },
-        {
-          // function to run when the model finishes running
-          // We don't have an `onError` callbakc because this is caught
-          // by our try/catch block below
-          onComplete: async () => {
-            // the model finished running! So update `registeredModleRun`
-            // so it shows the correct status
-            if (this.registeredModelRun) {
-              this.registeredModelRun = await this.prisma.modelRun.findUnique({
-                where: { id: this.registeredModelRun.id },
-              });
-            }
-          },
-        },
-      );
+      await this.runner.start({
+        inputFolder: options.inputDirectory,
+        inputSize: tensorflow.inputSize,
+        outputFolder,
+        outputStyle: options.outputStyle,
+        threshold: options.confidenceThreshold,
+        classNames: tensorflow.classNames,
+        modelName: tensorflow.modelName,
+        modelRunId: modelRun.id,
+        framework: tensorflow.framework,
+      });
 
       return modelRun.id;
     } catch (error) {

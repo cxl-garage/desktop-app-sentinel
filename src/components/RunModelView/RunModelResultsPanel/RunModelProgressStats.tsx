@@ -12,12 +12,7 @@ interface IProps {
 
 function isModelRunCompleted(
   modelRun: ModelRunProgress.T['modelRun'],
-  completedCount: number,
-  totalCount: number,
 ): boolean {
-  if (completedCount >= totalCount) {
-    return true;
-  }
   const stillRunning = modelRun === null || modelRun.status === 'IN_PROGRESS';
   return !stillRunning;
 }
@@ -46,17 +41,13 @@ function RunModelProgressStats({
     );
   }
 
-  const isModelRunFinished = isModelRunCompleted(
-    modelRun,
-    completedCount,
-    totalCount,
-  );
-
   return (
     <div>
-      {!isModelRunFinished ? <Spin style={{ marginRight: 12 }} /> : null}
+      {!isModelRunCompleted(modelRun) ? (
+        <Spin style={{ marginRight: 12 }} />
+      ) : null}
       <Typography.Text className="whitespace-nowrap">
-        {isModelRunFinished ? (
+        {isModelRunCompleted(modelRun) ? (
           <>
             Finished processing images ({completedCount}/{totalCount})
           </>
