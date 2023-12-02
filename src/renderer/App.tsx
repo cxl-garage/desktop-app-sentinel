@@ -8,7 +8,6 @@ import { PastResultsView } from 'components/PastResultsView';
 import { PastResultsAllPictures } from 'components/PastResultsView/PastResultsAllPictures';
 import { RunModelView } from 'components/RunModelView';
 import { SettingsView } from 'components/SettingsView';
-import { AfterOrgInput } from 'pages-DEPRECATED/afterorg';
 import * as React from 'react';
 import {
   MemoryRouter as Router,
@@ -111,8 +110,6 @@ export default function App(): JSX.Element {
                       element={<ModelMarketplaceView />}
                     />
                     <Route path="/settings" element={<SettingsView />} />
-                    {/* TODO: this is a legacy route. Is it still needed? */}
-                    <Route path="/orgsubmitted" element={<AfterOrgInput />} />
                   </Routes>
                 </Layout>
               </AppFrameWithSidebar>

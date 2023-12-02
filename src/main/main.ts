@@ -169,30 +169,19 @@ ipcMain.handle(
   },
 );
 
-// below 2 functions handle openning and selecting a new directory, using electron's dialog.showOpenDialog
-// used in afterorg.tsx to select folder to get images from and folder to download images to
-
-ipcMain.handle('dialog:openDirectoryInput', async (): Promise<string> => {
-  invariant(mainWindow, 'Main BrowserWindow must exist');
-  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory'],
-  });
-  if (canceled) {
-    return 'cancelled'; // returns cancelled if folder finding is cancelled
-  }
-  return filePaths[0]; // returns filepath of folder
-});
-
-ipcMain.handle('dialog:openDirectoryOutput', async () => {
-  invariant(mainWindow, 'Main BrowserWindow must exist');
-  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory'],
-  });
-  if (canceled) {
-    return 'cancelled'; // returns that it is cancelled if you cancel request
-  }
-  return filePaths[0]; // return filepath of folder
-});
+ipcMain.handle(
+  'api/dialog/selectFolder',
+  async (): Promise<string | undefined> => {
+    invariant(mainWindow, 'Main BrowserWindow must exist');
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory'],
+    });
+    if (canceled) {
+      return undefined;
+    }
+    return filePaths[0]; // return filepath of folder
+  },
+);
 
 ipcMain.handle('openFile', async (_event, filepath) => {
   _event.preventDefault();
