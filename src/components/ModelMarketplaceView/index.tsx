@@ -1,11 +1,11 @@
 import { Button, Typography, Space } from 'antd';
 import { MarketPlaceImage } from './MarketPlaceImage';
-import smartAdapter from '../../../assets/marketplace/smart-adapter-placeholder.png';
-import smartCamera from '../../../assets/marketplace/smart-camera-placeholder.png';
-import outdoorSecurity from '../../../assets/marketplace/outdoor-security-placeholder.png';
-import ecologicalSurveys from '../../../assets/marketplace/ecological-surveys-placeholder.png';
-import preciseAnimalMonitoring from '../../../assets/marketplace/precise-animal-monitoring-placeholder.png';
-import recreational from '../../../assets/marketplace/recreational-placeholder.png';
+import smartAdapter from '../../../assets/marketplace/smart-adapter.png';
+import smartCamera from '../../../assets/marketplace/smart-camera.png';
+import outdoorSecurity from '../../../assets/marketplace/outdoor-security.png';
+import ecologicalSurveys from '../../../assets/marketplace/ecological-surveys.png';
+import preciseAnimalMonitoring from '../../../assets/marketplace/precise-animal-monitoring.png';
+import recreational from '../../../assets/marketplace/recreational.png';
 
 export function ModelMarketplaceView(): JSX.Element {
   return (
