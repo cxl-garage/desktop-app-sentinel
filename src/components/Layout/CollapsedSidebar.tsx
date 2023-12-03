@@ -15,7 +15,7 @@ export function CollapsedSidebar(): JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   return (
-    <Layout className="mt-8 h-full">
+    <Layout className="h-full pt-4">
       <div className="grid place-content-center">
         <img
           alt=""

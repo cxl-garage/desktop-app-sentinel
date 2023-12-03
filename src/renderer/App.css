@@ -38,9 +38,6 @@ body {
 .App.dark .Resizer {
   opacity: 0.8;
 }
-.App.dark .SplitPane {
-  background: rgba(210, 228, 252, 0.28);
-}
 
 .App .Resizer:hover {
   -webkit-transition: all 2s ease;
