@@ -1,10 +1,19 @@
-# desktop-app-cxl
+# Sentinel Desktop Application
 
-**This Desktop App was built using [Electron React Boilerplate](https://electron-react-boilerplate.js.org/) and [Python Shell](https://www.npmjs.com/package/python-shell)**. Uses [Sentinel-Cli](https://github.com/cxl-garage/sentinel-cli) python code. **Only works on Windows**. You also must download and sign in to [Docker Desktop](https://www.docker.com/products/docker-desktop/) to successfully run CXL ML models.
+An open source desktop application that allows users to execute Conservation X Lab’s image processing models locally via a user-friendly UI.
+
+## Current Status
+
+This app is currently in development and not yet production ready.
+
+## Project Description
+
+CXL produces Sentinel hardware and a Sentinel web app to allow conservation organizations to capture and process images in order to identify wildlife. To make CXL’s models accessible to conservation teams in the field, to users with limited command-line expertise, and to organizations that already possess a large host of images requiring processing, CXL has partnered with Two Sigma Data Clinic to build an open source desktop app that facilitates local imaging processing via a user-friendly UI.
 
 ## Pre-requisites
 
-Python version `3.10.2`
+- Python version `3.10.2` or above
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 ## Local setup
 
@@ -12,145 +21,44 @@ Python version `3.10.2`
 2. Initiliaze the local sqlite db by running `yarn make-db`
 3. To start the app, run `yarn start`
 
-## Helpful Resources for Electron Inter-Process Communication
+## License
 
-**Used this to communicate between main processes and renderer (frontend)**
-![ipcresponserequest](https://user-images.githubusercontent.com/59401357/185219866-92dd5e7f-f735-4d0c-bc6e-49d2a14c72f5.png)
+[Apache 2.0](LICENSE)
 
-- [Electron IPC](https://codex.so/electron-ipc)
-- [Typescript Electron IPC Response/Request](https://blog.logrocket.com/electron-ipc-response-request-architecture-with-typescript/)
+## Contributors
 
-## Higher Level App Structure
+[Conservation X Labs](https://conservationxlabs.com/)' Sentinel team. Contact: [sentinel-support@conservationxlabs.org](mailto:sentinel-support@conservationxlabs.org)
 
-Overview: the ML models are run through a python script that starts a docker container locally.
+[Data Clinic](https://www.twosigma.com/data-clinic/), the pro bono data and tech-for-good arm of Two Sigma. Contact: [dataclinic@twosigma.com](mailto:dataclinic@twosigma.com), GitHub: https://github.com/tsdataclinic
 
-**Most important folders and files in desktop-app-cxl**
+## Known Issues
 
-```mermaid
-graph TD;
-    desktop-app-cxl-->islandconservation.json;
-    desktop-app-cxl-->package.json;
-    desktop-app-cxl-->src;
-    desktop-app-cxl-->assets;
-    desktop-app-cxl-->node_modules
-    src-->components
-    src-->context
-    src-->main
-    src-->pages
-    src-->provider
-    src-->py
-    src-->renderer
-    src-->routes
-    assets-->icons/images
-    main-->main.ts
-    main-->preload.ts
-    provider-->authProvider.tsx
-    provider-->firebaseSetup.ts
-    renderer-->index.ejs
-    renderer-->App.tsx
-    renderer-->Layout.tsx
-    py-->runCli2.py
-    py-->runOrg.py
-```
+The team is aware of the following issues and is actively addressing them:
 
-## Detailed Description of Structure:
+**General Function**
 
-### src/main/
+- System warnings are expected while downloading and installing the app, these will be resolved once the app is officially released
+- When in dark mode, if the sidebar is collapsed then expanded the toggle resets and appears to be set to light mode despite still having the dark mode color scheme.
 
-**Summary: contains all the key process codes and related modules, reads, writes files and runs python-shell**
+**Run Your Model**
 
-- preload.ts: install python requirements, use [contextBridge](https://www.electronjs.org/docs/latest/api/context-bridge)
-  - functions use channel to communicate from **renderer** process to **main** process
-  - send **message to main process**
-  - electron api functions
-    - \*\*overview: functions run pythonshell, write files locally, read files locally, open browser window, and select local directories"
+- Config files are not displayed when using Windows Explorer, causing difficulty when selecting the proper model folder
+- Attempting runs without "Import dataset" or "Save results to" selected can cause errors or unexpected results
 
-```
-const WINDOW_API = {
- FindOrgModels: async (arg: any) => ipcRenderer.invoke('run/find-org-models', arg), //runs python shell with inputted org
- RunModel: async (arg: any) => ipcRenderer.invoke('run/model', arg), //runs all user inputs and outputs results of user inputted model
- WriteUserInputJson: async (arg: any)=> ipcRenderer.send('write/user-inputs-json', arg), //writes file of user input data from afterorg.tsx
- SelectInputFolder: async ()=> ipcRenderer.invoke('dialog:openDirectoryInput'), //allows to select directory for input folder of user's images
- SelectOutputFolder: async ()=> ipcRenderer.invoke('dialog:openDirectoryOutput'), //allows to select directory for output folder of the model results of user's images
- ReadLogFile: async () => ipcRenderer.invoke('read/log-file'), //read local logFile inside the app
- ReadUpdate: async () => ipcRenderer.invoke('read/update-file'), //read update.json file
- ReadResults: async () => ipcRenderer.invoke('read/results-file'), //read Results.json which has the number of objects, empty images, and the total images that the model was run over
- ReadModels: async () => ipcRenderer.invoke('read/models-file'), //read Models populated by runOrg.py for the inputed organization
- OpenWindow: async (arg: any)=> ipcRenderer.send('open/window', arg), //open new window of docker.desktop
- CountFiles: async (arg: any) => ipcRenderer.invoke('count/files', arg), //count the total number of local files
-};
+**Logs**
 
-//exposes window api to renderer
-contextBridge.exposeInMainWorld('electron', WINDOW_API);
-```
+- Downloading the logs file does not match exactly with the logs shown in the app
 
-- main.ts: [ipcMain](https://www.electronjs.org/docs/latest/api/ipc-main) processes
-  - recieve messages from **renderer process** and **return value**
+## Packaging the app
 
-### src/renderer/
+If you are a developer looking to package and publish the app, then you will need to download the Prisma binaries that need to be bundled with the app.
 
-**Summary: UI related code and modules come under the renderer process folder**
+1. Find the commit hashes in the [prisma-engines](https://github.com/prisma/prisma-engines/tags) repository and choose the release you want.
+2. Download them from: `https://binaries.prisma.sh/all_commits/[commit_hash]/[platform]/[engine-name].gz`
 
-- **\*App.tsx: has all the routes, and uses AuthProvider and AuthContext to get current **Firebase User**\***
-  - passes down user from authContext
-- preload.d.ts: declares window as global variable, which communicates with _ipcRenderer_
-  - [Inter-Process Communication](https://www.electronjs.org/docs/latest/tutorial/ipc)
-- Layout.tsx: applies Layout to all children if signed in; if not signed in, navigate to **login.tsx**
-  - imports Navigation.tsx
-- Navigation.tsx: Side-nav bar to different routes
-- index.tsx and index.ejs
-  - renders App from root
+   The platform name can be `windows`, `darwin`, or `darwin-arm64`
 
-### src/py
+   The engine names are `libquery_engine.dylib.node` (for mac/darwin), `query_engine.dll.node` (for windows), or `schema-engine`
 
-- **\*runCli2.py**: main python script, uses user info to start docker container with inputted images\*
-- **\*runOrg.py**: gets available models for given organization\*
-- inputData.json: user inputs from afterorg.tsx page
-- logfile.csv: logs most recent python script
-- Models.json: models from inputed org
-- progress.csv: for getting loading info but never got it to work
-- readFile.py: read file code
-- reqs.py: install reqs needed to run python script
-- Results.json: results from main python script of images, empty number, and objects found
-- utils.py: reused functions, used in main python scripts
-
-### src/pages
-
-**Contains different pages to navigate to**
-
-- css folder
-- dashboard.tsx: contains entry for putting in your org, runs first python script that populates models, on submit goes to afterorg.tsx
-- afterorg.tsx: populates model dropdown
-  - input output style, where to save images on computer, where to get the images on computer, confidence threshhold
-  - writes user inputs to file
-  - runs full docker container/model on images you inputed
-  - on submit goes to results.tsx
-- results.tsx: result of models
-- profile.tsx: some profile info
-- logs.tsx: python logs
-- setup: download docker container from link
-
-### src/components/
-
-**Summary: reused components**
-
-- logComponent.tsx
-  - type: FunctionComponent
-  - takes in data (log info & array) as props
-  - returns formatted log component
-- Navbar.tsx
-- loggedOutNavbar
-  - type: FunctionComponent
-  - when user is logged out
-
-# Download prisma binaries
-
-You can find the commit hashes in the prisma-engines repository and choose the release you want: https://github.com/prisma/prisma-engines/tags
-
-Then you can download them from: `https://binaries.prisma.sh/all_commits/[commit_hash]/[platform]/[engine-name].gz`
-
-The platform name can be `windows`, `darwin`, or `darwin-arm64`
-
-The engine names are `libquery_engine.dylib.node` (for mac/darwin), `query_engine.dll.node` (for windows), or `schema-engine`
-
-Once downloaded, copy and commit these to the `bin/` directory so they can be packaged when running `yarn package`
+3. Once downloaded, copy and commit these to the `bin/` directory.
+4. Run `yarn package` to generate the Windows and Mac installers.
