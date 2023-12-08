@@ -12,8 +12,8 @@ function DirectoryInput({ value, onChange }: IProps): JSX.Element {
     <div>
       <Button
         onClick={async () => {
-          const path = await window.SentinelDesktopService.selectOutputFolder();
-          if (onChange) {
+          const path = await window.SentinelDesktopService.selectFolder();
+          if (onChange && path) {
             onChange(path);
           }
         }}
