@@ -48,20 +48,6 @@ const SentinelDesktopServiceBridge = {
       modelId,
       outputDirectory,
     ),
-
-  // Legacy functions.
-  // TODO: These should be either refactored or removed.
-  findOrgModels: async (arg: any) =>
-    ipcRenderer.invoke('DEPRECATED/run/find-org-models', arg), // runs python shell with inputted org
-  runModel: async (arg?: any) => ipcRenderer.invoke('run/model', arg), // runs all user inputs and outputs results of user inputted model
-  writeUserInputJson: async (arg: any) =>
-    ipcRenderer.send('DEPRECATED/write/user-inputs-json', arg), // writes file of user input data from afterorg.tsx
-  readUpdate: async () => ipcRenderer.invoke('DEPRECATED/read/update-file'), // read update.json file
-  readModels: async () => ipcRenderer.invoke('DEPRECATED/read/models-file'), // read Models populated by runOrg.py for the inputed organization
-  openWindow: async (arg: any) =>
-    ipcRenderer.send('DEPRECATED/open/window', arg), // open new window of docker.desktop
-  countFiles: async (arg: any) =>
-    ipcRenderer.invoke('DEPRECATED/count/files', arg), // count the total number of local files
 };
 
 // Expose the bridge API to the renderer
