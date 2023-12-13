@@ -12,11 +12,13 @@ function IsDebuggingContextProvider({ children }: IProps): JSX.Element {
   return (
     <IsDebuggingContext.Provider value={isDebugging}>
       {children}
-      <div className="absolute bottom-1 right-1">
-        <Button type="text" onClick={() => setIsDebugging((v) => !v)}>
-          <span className="text-white hover:text-blue-400">&Pi;</span>
-        </Button>
-      </div>
+      {process.env.NODE_ENV === 'development' && (
+        <div className="absolute bottom-1 right-1">
+          <Button type="text" onClick={() => setIsDebugging((v) => !v)}>
+            <span className="text-white hover:text-blue-400">&Pi;</span>
+          </Button>
+        </div>
+      )}
     </IsDebuggingContext.Provider>
   );
 }
