@@ -35,15 +35,6 @@ declare global {
         modelId: number,
         outputDirectory: string,
       ) => Promise<ModelRun>;
-
-      // deprecated functions (need refactoring)
-      findOrgModels: (arg: any) => Promise<any>;
-      runModel: (arg?: any) => Promise<any>;
-      writeUserInputJson: (arg: any) => Promise<any>;
-      readUpdate: () => Promise<any>;
-      readModels: () => Promise<any>;
-      openWindow: (arg: any) => Promise<any>;
-      countFiles: (arg: any) => Promise<any>;
     };
   }
 }
