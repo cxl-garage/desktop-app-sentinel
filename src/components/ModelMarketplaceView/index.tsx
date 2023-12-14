@@ -66,7 +66,7 @@ export function ModelMarketplaceView(): JSX.Element {
         </Space>
       </div>
       <div className="mt-4 flex w-full justify-center">
-        <Button href="mailto: sentinel@conservationxlabs.org">
+        <Button href="mailto:sentinel-support@conservationxlabs.org">
           Contact Us
         </Button>
       </div>

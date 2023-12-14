@@ -19,10 +19,10 @@
     "type": "git",
     "url": "git+https://github.com/cxl-garage/desktop-app-sentinel.git"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "author": {
     "name": "CXL",
-    "email": "info@conservationxlabs.org",
+    "email": "sentinel-support@conservationxlabs.org",
     "url": "https://conservationxlabs.com"
   },
   "main": "./src/main/main.ts",

@@ -8,7 +8,7 @@ type Props = {
   logRecord: LogRecord.T;
 };
 
-const CXL_EMAIL = 'info@conservationxlabs.org';
+const CXL_EMAIL = 'sentinel-support@conservationxlabs.org';
 
 export default function LogContents({ logRecord }: Props): JSX.Element {
   const { data: logContents, isLoading } = useQuery({
