@@ -29,6 +29,8 @@ type JobTask = {
 
 export const LOG_FILE_NAME = 'output.log';
 
+const HIDDEN_DIRECTORY_NAMES = [/__MACOSX/];
+
 type JobStatus =
   | {
       status: ERunningImageStatus.NOT_STARTED | ERunningImageStatus.IN_PROGRESS;
@@ -366,7 +368,17 @@ export class ModelRunner {
       // Look for all image files recursively in all directories
       recursive(
         inputFolder,
-        [(file, stats) => !stats.isDirectory() && !isSupported(file)],
+        [
+          (file: string, stats) => {
+            // if this is a directory, ignore the __MACOSX directory
+            if (stats.isDirectory()) {
+              return HIDDEN_DIRECTORY_NAMES.some((regex) => regex.test(file));
+            }
+
+            // ignore unsupported files
+            return !isSupported(file);
+          },
+        ],
         (_error: Error, files: string[]) => {
           files.forEach((inputPath) => {
             // set the file as NOT_STARTED
