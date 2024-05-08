@@ -5,7 +5,8 @@ export type InternalModelRunStatus =
   | 'STARTING_TENSORFLOW' // first start of tensorflow
   | 'RESTARTING_MODEL' // when we restart the entire model with fewer threads
   | 'IN_PROGRESS'
-  | 'COMPLETED';
+  | 'COMPLETED'
+  | 'FAILED_TO_START';
 
 export interface RunnerState {
   internalModelRunStatus: InternalModelRunStatus;

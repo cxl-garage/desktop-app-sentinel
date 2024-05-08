@@ -531,8 +531,10 @@ export class ModelRunner {
               elapsedTimeMs: Date.now() - startTime,
               hasError: true,
             });
+
             // This is the case where we got a fatal error while testing
             // with only 1 thread.
+            this.internalModelRunStatus = 'FAILED_TO_START';
             await this.writeToDBWithRetries((prisma) =>
               prisma.modelRun.update({
                 where: { id: config.modelRunId },
