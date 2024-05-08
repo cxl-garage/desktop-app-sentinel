@@ -82,13 +82,14 @@ export async function cleanup(): Promise<void> {
   // containers too
   console.log('Stopping containers');
   const containers = await docker.listContainers();
-  console.log('Found containers', JSON.stringify(containers, null, 2));
   const sentinel = containers.find((c) =>
     c.Names.some((n) => n === `/${CONTAINER_NAME}`),
   );
-  console.log(`Container: ${JSON.stringify(sentinel, null, 2)}`);
   if (sentinel) {
-    await docker.getContainer(sentinel.Id).stop();
+    const containerInfo = await docker.getContainer(sentinel.Id).inspect();
+    if (containerInfo.State.Status === 'running') {
+      await docker.getContainer(sentinel.Id).stop();
+    }
   }
 
   console.log('pruning containers');
@@ -110,6 +111,9 @@ export async function start(tensorflow: TensorflowModel): Promise<void> {
     name: CONTAINER_NAME,
     Tty: false,
     HostConfig: {
+      // allow up to 32 GB of memory to be used. This will get limited by
+      // whatever the user has set in their global docker memory limit setting.
+      // Memory: 32 * 1024 * 1024 * 1024,
       Binds: [`${tensorflow.savedModelPath}:/models/${tensorflow.modelName}`],
       PortBindings: {
         '8501/tcp': [{ HostPort: '8501' }],

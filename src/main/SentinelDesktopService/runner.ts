@@ -18,8 +18,26 @@ import { detect as AutoMLDetect } from './automl';
 import { detect as YOLOv5Detect } from './yolo';
 import { CsvFile } from './csv';
 import { isSupported } from './image';
+import { isSystemError } from './errors';
+import { cleanup, start } from './docker';
+import { TensorflowModel, waitForStartup } from './tensorflow';
+import { type InternalModelRunStatus } from '../../models/ModelRunProgress';
+
+type ModelExecutionConfig = {
+  inputFolder: string;
+  inputSize: number;
+  outputFolder: string;
+  outputStyle: OutputStyle;
+  threshold: number;
+  classNames: Map<number, string>;
+  modelName: string;
+  modelRunId: number;
+  framework: 'AutoML' | 'YOLOv5';
+  tensorflowModel: TensorflowModel;
+};
 
 type JobTask = {
+  jobBatchId: number;
   folder: string;
   inputPath: string;
   options: DetectOptions;
@@ -33,7 +51,10 @@ const HIDDEN_DIRECTORY_NAMES = [/__MACOSX/];
 
 type JobStatus =
   | {
-      status: ERunningImageStatus.NOT_STARTED | ERunningImageStatus.IN_PROGRESS;
+      status:
+        | ERunningImageStatus.NOT_STARTED
+        | ERunningImageStatus.IN_PROGRESS
+        | ERunningImageStatus.IGNORED;
     }
   | {
       status: ERunningImageStatus.COMPLETED;
@@ -49,6 +70,12 @@ type JobResponse = {
 
 const DB_WRITE_ATTEMPT_LIMIT = 5;
 
+const INIT_NUMBER_OF_THREADS = 3;
+
+// these are the errors that, if we see them, it implies Tensorflow
+// crashed and we should just exit quickly
+const TENSORFLOW_CRASH_ERROR_CODES = ['ECONNREFUSED', 'UND_ERR_SOCKET'];
+
 export class ModelRunner {
   queue: async.QueueObject<JobTask>;
 
@@ -56,11 +83,19 @@ export class ModelRunner {
 
   private detectWorker: (task: JobTask) => Promise<JobResponse>;
 
-  statusMap: Map<string, JobStatus>;
+  statusMap: Map<string, JobStatus>; // key is the file path
 
   logger: winston.Logger = winston.createLogger();
 
   detectionsCSVFile: CsvFile | undefined;
+
+  currentJobBatchId: number = 1;
+
+  numThreads: number = INIT_NUMBER_OF_THREADS;
+
+  encounteredFatalError: boolean = false;
+
+  internalModelRunStatus: InternalModelRunStatus = 'STARTING_TENSORFLOW';
 
   constructor(prismaClient: PrismaClient) {
     this.prismaClient = prismaClient;
@@ -69,7 +104,28 @@ export class ModelRunner {
       const response = await this.processJobTask(task);
       return response;
     };
-    this.queue = async.queue(this.detectWorker, 3);
+    this.queue = async.queue(this.detectWorker, this.numThreads);
+  }
+
+  /**
+   * Check if *any* job (i.e. 'task', i.e. an image) has an error.
+   */
+  private doesSomeJobHaveAnError(): boolean {
+    // iterate through the status map to see if there are any errors
+    // intentionally use a for...of loop instead of a `forEach` because the
+    // statusMap can be very large and we want to be able to break out of the
+    // loop
+    // eslint-disable-next-line no-restricted-syntax
+    for (const jobStatus of this.statusMap.values()) {
+      if (
+        jobStatus.status === ERunningImageStatus.COMPLETED &&
+        jobStatus.hasError
+      ) {
+        return true;
+        break;
+      }
+    }
+    return false;
   }
 
   /**
@@ -84,6 +140,7 @@ export class ModelRunner {
       status: ERunningImageStatus.IN_PROGRESS,
     });
     const detect = task.framework === 'YOLOv5' ? YOLOv5Detect : AutoMLDetect;
+
     const detections = await detect(
       task.folder,
       task.inputPath,
@@ -98,6 +155,17 @@ export class ModelRunner {
     };
   }
 
+  /*
+   * If the current job batch id is not equal to this task's batch id then it
+   * means we kicked off a new batch already (due to some fatal error that had
+   * occurred with our previous batch), so we should ignore these results.
+   * These results are from jobs from the previous batch that we did
+   * not get canceled.
+   */
+  shouldWeIgnoreThisTask(task: JobTask): boolean {
+    return task.jobBatchId !== this.currentJobBatchId;
+  }
+
   /**
    * When a job has finished running (either with an error or with a
    * DetectionResult response) then update the job's status and write any
@@ -108,13 +176,27 @@ export class ModelRunner {
     error?: Error | null,
     jobResponse?: JobResponse,
   ): Promise<void> {
+    if (this.shouldWeIgnoreThisTask(task)) {
+      // ignore the results
+      return;
+    }
+
     if (error) {
       this.logger.error({
-        message: 'Error processing task',
+        message: `Error processing task.\n${error.message}`,
         task,
         stack: error.stack,
       });
-      console.error(error);
+
+      if (
+        isSystemError(error) &&
+        TENSORFLOW_CRASH_ERROR_CODES.includes(error.cause.code)
+      ) {
+        console.error(error);
+
+        // rethrow the error so we can catch this a level up
+        throw error;
+      }
 
       // update the error stats of the current model run
       await this.writeToDBWithRetries((prisma) =>
@@ -177,39 +259,36 @@ export class ModelRunner {
    * This function is called when all jobs are completed.
    */
   private async processAllJobsComplete(
-    modelRunId: number,
-    elapsedTimeMs: number,
+    modelRunConfig: ModelExecutionConfig,
+    options: { elapsedTimeMs: number; hasError: boolean },
   ): Promise<void> {
+    const { elapsedTimeMs, hasError } = options;
     this.logger.info(`All files finished processing in ${elapsedTimeMs}ms`);
 
-    // iterate through the status map to see if there are any errors
-    // intentionally use a for...of loop instead of a `forEach` because the
-    // statusMap can be very large and we want to be able to break out of the
-    // loop
-    let someJobHasAnError = false;
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const jobStatus of this.statusMap.values()) {
-      if (
-        jobStatus.status === ERunningImageStatus.COMPLETED &&
-        jobStatus.hasError
-      ) {
-        someJobHasAnError = true;
-        break;
+    // remove any jobs in memory that still say they're processing.
+    // This happens when we encountered a fatal error which ends the job,
+    // but some images staid 'in progress'. We will change their status
+    // to IGNORED
+    this.statusMap.forEach((jobStatus, filePath) => {
+      if (jobStatus.status === ERunningImageStatus.IN_PROGRESS) {
+        this.statusMap.set(filePath, {
+          status: ERunningImageStatus.IGNORED,
+        });
       }
-    }
+    });
 
     // write the final status to the model
     await this.writeToDBWithRetries((prisma) =>
       prisma.modelRun.update({
-        where: { id: modelRunId },
+        where: { id: modelRunConfig.modelRunId },
         data: {
-          status: someJobHasAnError ? 'FINISHED_WITH_ERRORS' : 'SUCCESS',
+          status: hasError ? 'FINISHED_WITH_ERRORS' : 'SUCCESS',
         },
       }),
     );
 
     this.detectionsCSVFile?.close();
+    this.internalModelRunStatus = 'COMPLETED';
   }
 
   private async writeToDBWithRetries<T>(
@@ -272,23 +351,30 @@ export class ModelRunner {
     };
   }
 
-  cleanup(): void {
+  cleanup(numThreadsToSet: number = INIT_NUMBER_OF_THREADS): void {
     this.statusMap.clear();
     this.queue.kill();
-    this.queue = async.queue(this.detectWorker, 3);
+    this.numThreads = numThreadsToSet;
+    this.queue = async.queue(this.detectWorker, this.numThreads);
     this.detectionsCSVFile?.close();
     this.detectionsCSVFile = undefined;
+    this.encounteredFatalError = false;
   }
 
   getProgress(): RunnerState {
     const notStarted: string[] = [];
     const inProgress: string[] = [];
+    const ignoredImages: string[] = [];
     const completed: Array<{
       inputPath: string;
       outputPath: string;
     }> = [];
     this.statusMap.forEach((jobStatus, file) => {
       switch (jobStatus.status) {
+        case ERunningImageStatus.IGNORED: {
+          ignoredImages.push(file);
+          break;
+        }
         case ERunningImageStatus.NOT_STARTED: {
           notStarted.push(file);
           break;
@@ -314,47 +400,34 @@ export class ModelRunner {
       }
     });
 
-    return { notStarted, inProgress, completed };
+    return {
+      internalModelRunStatus: this.internalModelRunStatus,
+      notStarted,
+      inProgress,
+      completed,
+      ignoredImages,
+    };
   }
 
-  async start({
-    inputFolder,
-    inputSize,
-    outputFolder,
-    outputStyle,
-    threshold,
-    classNames,
-    modelName,
-    modelRunId,
-    framework,
-  }: {
-    inputFolder: string;
-    inputSize: number;
-    outputFolder: string;
-    outputStyle: OutputStyle;
-    threshold: number;
-    classNames: Map<number, string>;
-    modelName: string;
-    modelRunId: number;
-    framework: 'AutoML' | 'YOLOv5';
-  }): Promise<void> {
-    // log the modelRun options
-    this.logger.info('Starting model run');
-    this.logger.info(`Model Name: ${modelName}`);
-    this.logger.info(`Input Folder: ${inputFolder}`);
-    this.logger.info(`Input Size: ${inputSize}`);
-    this.logger.info(`Output Folder: ${outputFolder}`);
-    this.logger.info(`Output Style: ${outputStyle}`);
-    this.logger.info(`Threshold: ${threshold}`);
-    this.logger.info(`Framework: ${framework}`);
-    this.logger.info(
-      `Class Names: ${Array.from(classNames.entries()).toString()}`,
-    );
+  async findFilesAndScheduleJobs(
+    startTime: number,
+    config: ModelExecutionConfig,
+  ): Promise<void> {
+    this.logger.info(`Number of threads: ${this.numThreads}`);
+    this.internalModelRunStatus = 'IN_PROGRESS';
 
-    // initialize the CSV file to write detections
-    this.detectionsCSVFile = new CsvFile(outputFolder);
-
-    const options: DetectOptions = {
+    const {
+      inputFolder,
+      inputSize,
+      outputFolder,
+      outputStyle,
+      threshold,
+      classNames,
+      modelName,
+      modelRunId,
+      framework,
+    } = config;
+    const detectionOptions: DetectOptions = {
       threshold,
       modelName,
       classNames,
@@ -363,7 +436,6 @@ export class ModelRunner {
       inputSize,
     };
 
-    const startTime = Date.now();
     try {
       // Look for all image files recursively in all directories
       recursive(
@@ -387,17 +459,40 @@ export class ModelRunner {
             });
             const task: JobTask = {
               folder: inputFolder,
+              options: detectionOptions,
               inputPath,
-              options,
               runId: modelRunId,
               framework,
+              jobBatchId: this.currentJobBatchId,
             };
 
             // queue this file for processing
             this.queue.push(
               task,
-              (err?: Error | null, jobResponse?: JobResponse) => {
-                this.processJobTaskCompletion(task, err, jobResponse);
+              async (err?: Error | null, jobResponse?: JobResponse) => {
+                if (this.shouldWeIgnoreThisTask(task)) {
+                  return;
+                }
+
+                try {
+                  await this.processJobTaskCompletion(task, err, jobResponse);
+                } catch (error) {
+                  // a system error means something went wrong with Tensorflow,
+                  // e.g. OOM (Out Of Memory) error
+                  if (isSystemError(error as Error)) {
+                    this.logger.info(
+                      `Encountered a fatal error on job batch ${task.jobBatchId}. Canceling its jobs.`,
+                    );
+
+                    if (!this.shouldWeIgnoreThisTask(task)) {
+                      this.queue.pause();
+
+                      // remove all jobs
+                      this.queue.remove(() => true);
+                      this.encounteredFatalError = true;
+                    }
+                  }
+                }
               },
             );
           });
@@ -405,9 +500,54 @@ export class ModelRunner {
       );
 
       // wait until all jobs are handled
-      this.queue.drain(() => {
-        const elapsedTimeMs = Date.now() - startTime;
-        this.processAllJobsComplete(modelRunId, elapsedTimeMs);
+      this.queue.drain(async () => {
+        if (this.encounteredFatalError) {
+          // if we are still trying to run the model with multiple threads,
+          // remove one thread and try again to see if that conserves memory,
+          // because the fatal error could have been an OOM error
+          if (this.numThreads > 1) {
+            // cleanup runner class bookkeeping
+            this.cleanup(this.numThreads - 1);
+            this.currentJobBatchId += 1;
+
+            // try again now that we reduced the thread count in order to
+            // save up on memory
+            this.logger.info(
+              'Starting the model execution all over again with one less thread.',
+            );
+            this.queue.resume();
+
+            // restart docker tensorflow
+            this.internalModelRunStatus = 'RESTARTING_MODEL';
+            this.logger.info('Restarting docker container...');
+            await cleanup(); // cleans up tensorflow and docker
+            this.logger.info('Restarting tensorflow server...');
+            await start(config.tensorflowModel);
+            await waitForStartup(config.tensorflowModel.modelName, this.logger);
+
+            this.findFilesAndScheduleJobs(startTime, config);
+          } else {
+            this.processAllJobsComplete(config, {
+              elapsedTimeMs: Date.now() - startTime,
+              hasError: true,
+            });
+            // This is the case where we got a fatal error while testing
+            // with only 1 thread.
+            await this.writeToDBWithRetries((prisma) =>
+              prisma.modelRun.update({
+                where: { id: config.modelRunId },
+                data: {
+                  status: 'FINISHED_WITH_ERRORS',
+                },
+              }),
+            );
+          }
+        } else {
+          this.processAllJobsComplete(config, {
+            elapsedTimeMs: Date.now() - startTime,
+            hasError: this.doesSomeJobHaveAnError(),
+          });
+        }
       });
     } catch (error) {
       this.logger.error({
@@ -417,5 +557,37 @@ export class ModelRunner {
       this.detectionsCSVFile?.close();
       throw error;
     }
+  }
+
+  async start(config: ModelExecutionConfig): Promise<void> {
+    const {
+      inputFolder,
+      inputSize,
+      outputFolder,
+      outputStyle,
+      threshold,
+      classNames,
+      modelName,
+      framework,
+    } = config;
+
+    // log the modelRun options
+    this.logger.info('Starting model run');
+    this.logger.info(`Model Name: ${modelName}`);
+    this.logger.info(`Input Folder: ${inputFolder}`);
+    this.logger.info(`Input Size: ${inputSize}`);
+    this.logger.info(`Output Folder: ${outputFolder}`);
+    this.logger.info(`Output Style: ${outputStyle}`);
+    this.logger.info(`Threshold: ${threshold}`);
+    this.logger.info(`Framework: ${framework}`);
+    this.logger.info(
+      `Class Names: ${Array.from(classNames.entries()).toString()}`,
+    );
+
+    // initialize the CSV file to write detections
+    this.detectionsCSVFile = new CsvFile(outputFolder);
+
+    const startTime = Date.now();
+    this.findFilesAndScheduleJobs(startTime, config);
   }
 }

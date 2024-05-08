@@ -10,6 +10,7 @@ import RunModelProgressStats from './RunModelProgressStats';
 import * as ModelRunProgress from '../../../models/ModelRunProgress';
 
 interface IProps {
+  internalRunnerStatus: ModelRunProgress.InternalModelRunStatus | undefined;
   modelRun: ModelRunProgress.T['modelRun'] | null;
   processingImages: IRunningImage[];
 }
@@ -17,6 +18,7 @@ interface IProps {
 function ImagesLoadingProgressGallery({
   modelRun,
   processingImages,
+  internalRunnerStatus,
 }: IProps): JSX.Element {
   const inProgressImages = useMemo(
     () =>
@@ -45,6 +47,7 @@ function ImagesLoadingProgressGallery({
     <div className="flex-1">
       <div className="flex justify-between">
         <RunModelProgressStats
+          internalRunnerStatus={internalRunnerStatus}
           modelRun={modelRun}
           processingImages={processingImages}
         />

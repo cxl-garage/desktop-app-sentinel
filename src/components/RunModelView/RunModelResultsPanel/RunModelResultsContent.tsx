@@ -6,6 +6,7 @@ import OutputStyleNoneResults from './OutputStyleNoneResults';
 import * as ModelRunProgress from '../../../models/ModelRunProgress';
 
 interface IProps {
+  internalRunnerStatus: ModelRunProgress.InternalModelRunStatus | undefined;
   modelRun: ModelRunProgress.T['modelRun'] | null;
   outputStyle: EOutputStyle;
   processingImages: IRunningImage[];
@@ -17,6 +18,7 @@ function RunModelResultsContent({
   outputStyle,
   processingImages,
   csvFilePath,
+  internalRunnerStatus,
 }: IProps): JSX.Element {
   return outputStyle === EOutputStyle.NONE ? (
     <OutputStyleNoneResults
@@ -26,6 +28,7 @@ function RunModelResultsContent({
     />
   ) : (
     <ProcessingImagesGallery
+      internalRunnerStatus={internalRunnerStatus}
       modelRun={modelRun}
       processingImages={processingImages}
     />

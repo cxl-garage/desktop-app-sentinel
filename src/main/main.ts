@@ -115,7 +115,9 @@ ipcMain.handle(
   'api/docker/findImage',
   async (): Promise<DockerImage.T | null> => {
     console.log('Calling api/docker/findImage');
-    return SentinelDesktopService.findImage();
+    const image = await SentinelDesktopService.findImage();
+    console.log('Found image', image);
+    return image;
   },
 );
 

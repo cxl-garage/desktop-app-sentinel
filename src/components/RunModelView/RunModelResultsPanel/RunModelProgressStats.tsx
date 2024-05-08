@@ -6,6 +6,7 @@ import IRunningImage from '../types/IRunningImage';
 import * as ModelRunProgress from '../../../models/ModelRunProgress';
 
 interface IProps {
+  internalRunnerStatus: ModelRunProgress.InternalModelRunStatus | undefined;
   modelRun: ModelRunProgress.T['modelRun'] | null;
   processingImages: IRunningImage[];
 }
@@ -20,6 +21,7 @@ function isModelRunCompleted(
 function RunModelProgressStats({
   modelRun,
   processingImages,
+  internalRunnerStatus,
 }: IProps): JSX.Element {
   const completedImages = useMemo(
     () =>
@@ -32,6 +34,32 @@ function RunModelProgressStats({
   const totalCount = processingImages.length;
   const completedCount = completedImages.length;
   const completedPercentage = Math.round((completedCount * 100) / totalCount);
+
+  if (
+    internalRunnerStatus === undefined ||
+    internalRunnerStatus === 'STARTING_TENSORFLOW'
+  ) {
+    return (
+      <div>
+        <Spin spinning style={{ marginRight: 12 }} />
+        <Typography.Text>Waiting for TensorFlow to start</Typography.Text>
+      </div>
+    );
+  }
+
+  if (internalRunnerStatus === 'RESTARTING_MODEL') {
+    return (
+      <div className="space-x-4">
+        <div>
+          <Spin spinning style={{ marginRight: 12 }} />
+          <Typography.Text>Restarting model</Typography.Text>
+        </div>
+        <Typography.Text>
+          (TensorFlow ran out of memory so we&apos;re trying again)
+        </Typography.Text>
+      </div>
+    );
+  }
 
   if (totalCount === 0 && completedCount === 0) {
     return (
@@ -49,7 +77,14 @@ function RunModelProgressStats({
       <Typography.Text className="whitespace-nowrap">
         {isModelRunCompleted(modelRun) ? (
           <>
-            Finished processing images ({completedCount}/{totalCount})
+            <p>
+              Finished processing images ({completedCount}/{totalCount})
+            </p>
+            {completedCount === 0 ? (
+              <p className="font-bold text-red-600">
+                There was an error running this model.
+              </p>
+            ) : null}
           </>
         ) : (
           <>

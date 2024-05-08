@@ -13,7 +13,7 @@ function RunModelResults(): JSX.Element {
   const runnerState = currentModelRunProgress?.runnerState;
   const isDebugging = useIsDebugging();
 
-  const images: IRunningImage[] = useMemo(() => {
+  const allImages: IRunningImage[] = useMemo(() => {
     if (!runnerState) {
       return [];
     }
@@ -34,6 +34,11 @@ function RunModelResults(): JSX.Element {
           url: '', // Not currently used
           status: ERunningImageStatus.NOT_STARTED,
         })),
+        ...runnerState.ignoredImages.map((fileName) => ({
+          id: fileName,
+          url: '', // Not currently used
+          status: ERunningImageStatus.IGNORED,
+        })),
       ],
       (obj) => obj.id,
     );
@@ -49,7 +54,7 @@ function RunModelResults(): JSX.Element {
 
   const isModelStarting =
     !currentModelRunProgress.runnerState ||
-    (images.length === 0 && !currentModelRunProgress.modelRun);
+    (allImages.length === 0 && !currentModelRunProgress.modelRun);
 
   return (
     <div>
@@ -62,9 +67,12 @@ function RunModelResults(): JSX.Element {
         </div>
       ) : (
         <RunModelResultsContent
+          internalRunnerStatus={
+            currentModelRunProgress.runnerState?.internalModelRunStatus
+          }
           modelRun={currentModelRunProgress.modelRun}
           outputStyle={currentModelRunProgress.startModelOptions.outputStyle}
-          processingImages={images}
+          processingImages={allImages}
           csvFilePath={`${currentModelRunProgress.startModelOptions.outputDirectory}/detections.csv`}
         />
       )}

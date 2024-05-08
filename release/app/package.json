@@ -1,11 +1,11 @@
 {
   "name": "sentinel-desktop",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "CXL Sentinel Desktop App",
   "license": "MIT",
   "author": {
     "name": "CXL",
-    "email": "info@conservationxlabs",
+    "email": "info@conservationxlabs.com",
     "url": "https://github.com/cxl-garage/desktop-app-sentinel"
   },
   "main": "./dist/main/main.js",
