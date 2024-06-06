@@ -43,3 +43,8 @@ release/app/prisma
 
 # Prisma-generated code
 src/generated/**
+
+
+# Credentials
+*.p12
+*.pfx
