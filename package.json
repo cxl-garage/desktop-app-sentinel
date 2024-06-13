@@ -129,7 +129,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@electron/notarize": "^1.2.3",
+    "@electron/notarize": "^2.3.2",
     "@electron/rebuild": "^3.2.10",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@svgr/webpack": "^6.5.1",
@@ -221,7 +221,7 @@
   },
   "build": {
     "productName": "Sentinel Desktop",
-    "appId": "org.cxl.SentinelDesktop",
+    "appId": "com.cxl.sentineldesktopapp",
     "asar": true,
     "asarUnpack": [
       "**\\*.{node,dll}"

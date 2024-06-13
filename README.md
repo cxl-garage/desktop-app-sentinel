@@ -51,14 +51,4 @@ The team is aware of the following issues and is actively addressing them:
 
 ## Packaging the app
 
-If you are a developer looking to package and publish the app, then you will need to download the Prisma binaries that need to be bundled with the app.
-
-1. Find the commit hashes in the [prisma-engines](https://github.com/prisma/prisma-engines/tags) repository and choose the release you want.
-2. Download them from: `https://binaries.prisma.sh/all_commits/[commit_hash]/[platform]/[engine-name].gz`
-
-   The platform name can be `windows`, `darwin`, or `darwin-arm64`
-
-   The engine names are `libquery_engine.dylib.node` (for mac/darwin), `query_engine.dll.node` (for windows), or `schema-engine`
-
-3. Once downloaded, copy and commit these to the `bin/` directory.
-4. Run `yarn package` to generate the Windows and Mac installers.
+The app can be packaged with `yarn package`. More details, such as how to manage Prisma binary versions when packaging, can be found in the [Developer Documentation](https://github.com/cxl-garage/desktop-app-sentinel/wiki/Developer-Documentation#packaging-the-app).
