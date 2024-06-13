@@ -17,9 +17,11 @@ CXL produces Sentinel hardware and a Sentinel web app to allow conservation orga
 
 ## Local setup
 
-1. After cloning and going into repo, run `yarn install`
-2. Initiliaze the local sqlite db by running `yarn make-db`
-3. To start the app, run `yarn start`
+1. Clone repo
+2. Set up `.env` file: `yarn reset-env`
+3. Install all dependencies: `yarn install`
+4. Initiliaze the local sqlite db: `yarn make-db`
+5. Start the app: `yarn start`
 
 ## License
 
