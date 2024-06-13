@@ -43,3 +43,6 @@ release/app/prisma
 
 # Prisma-generated code
 src/generated/**
+
+# Env files
+.env
