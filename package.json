@@ -271,7 +271,8 @@
     "win": {
       "target": [
         "nsis"
-      ]
+      ],
+      "sign": "scripts/customWindowsSign.js"
     },
     "linux": {
       "target": [
