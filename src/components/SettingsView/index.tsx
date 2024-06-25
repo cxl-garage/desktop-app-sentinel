@@ -6,7 +6,7 @@ export function SettingsView(): JSX.Element {
   return (
     <div>
       <div className="mx-8 mt-12">
-        <Typography.Title level={2}>Setting Up</Typography.Title>
+        <Typography.Title level={2}>Setting Up TEST 2</Typography.Title>
       </div>
       <div className="mx-8 mt-4">
         <DockerVersionPanel />

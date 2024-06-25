@@ -8,6 +8,10 @@
     "email": "info@conservationxlabs.com",
     "url": "https://github.com/cxl-garage/desktop-app-sentinel"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cxl-garage/desktop-app-sentinel.git"
+  },
   "main": "./dist/main/main.js",
   "scripts": {
     "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
