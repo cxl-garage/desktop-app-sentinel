@@ -8,8 +8,19 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, dialog, protocol } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  dialog,
+  protocol,
+  MessageBoxOptions,
+  MessageBoxReturnValue,
+} from 'electron';
+// import { autoUpdater } from 'electron-updater';
+// import { updateElectronApp, UpdateSourceType } from 'update-electron-app';
+import { autoUpdater, UpdateDownloadedEvent } from 'electron-updater';
 import log from 'electron-log';
 import fs from 'fs';
 import invariant from 'invariant';
@@ -29,13 +40,64 @@ import {
 } from './util';
 import { SentinelDesktopService } from './SentinelDesktopService';
 
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
+log.initialize();
+
+// Check for updates every 10minutes by default
+// updateElectronApp({
+//   updateSource: {
+//     type: UpdateSourceType.ElectronPublicUpdateService,
+//     repo: 'cxl-garage/desktop-app-sentinel',
+//     host: 'https://update.electronjs.org',
+//   },
+//   updateInterval: '5 minutes',
+//   logger: log,
+// });
+
+autoUpdater.logger = log;
+
+setInterval(() => {
+  autoUpdater.checkForUpdates();
+}, 30000);
+
+autoUpdater.on('update-downloaded', (event: UpdateDownloadedEvent) => {
+  const releaseNotesText = Array.isArray(event.releaseNotes)
+    ? event.releaseNotes
+        .map((note) => `Version ${note.version}: ${note.note}`)
+        .join('\n')
+    : event.releaseNotes;
+
+  const dialogOpts: MessageBoxOptions = {
+    type: 'info',
+    buttons: ['Restart', 'Later'],
+    title: 'Application Update',
+    message:
+      (process.platform === 'win32' ? releaseNotesText : event.releaseName) ||
+      'Update available',
+    detail:
+      'A new version has been downloaded. Restart the application to apply the updates.',
+  };
+
+  // eslint-disable-next-line promise/catch-or-return
+  dialog
+    .showMessageBox(dialogOpts)
+    .then((returnValue: MessageBoxReturnValue) => {
+      // eslint-disable-next-line promise/always-return
+      if (returnValue.response === 0) autoUpdater.quitAndInstall();
+    });
+});
+
+autoUpdater.on('error', (message) => {
+  console.error('There was a problem updating the application');
+  console.error(message);
+});
+
+// class AppUpdater {
+//   constructor() {
+//     log.transports.file.level = 'info';
+//     autoUpdater.logger = log;
+//     autoUpdater.checkForUpdatesAndNotify();
+//   }
+// }
 
 let mainWindow: BrowserWindow | undefined;
 
@@ -291,7 +353,7 @@ async function createWindow(): Promise<void> {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  // new AppUpdater();
 }
 
 /**

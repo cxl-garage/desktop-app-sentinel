@@ -46,3 +46,6 @@ src/generated/**
 
 # Env files
 .env
+
+# Credential files
+*.p12
