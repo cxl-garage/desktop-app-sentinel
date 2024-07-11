@@ -21,6 +21,6 @@ cp $PROJECT_DIR/bin/windows-schema-engine* $TARGET_PRISMA_BINARY_DIR/schema-engi
 rm -rf $PROJECT_DIR/release/build
 $PROJECT_DIR/node_modules/.bin/ts-node $PROJECT_DIR/.erb/scripts/clean.js dist
 npm run build
-$PROJECT_DIR/node_modules/.bin/electron-builder build --publish never --mac --win
+$PROJECT_DIR/node_modules/.bin/electron-builder build --publish always --mac  # --win
 
 echo "Finished bundling Sentinel Desktop!"
