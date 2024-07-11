@@ -8,9 +8,17 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, dialog, protocol } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  dialog,
+  protocol,
+  MessageBoxOptions,
+} from 'electron';
 import log from 'electron-log';
+import { autoUpdater, UpdateDownloadedEvent } from 'electron-updater';
 import fs from 'fs';
 import invariant from 'invariant';
 import * as LogRecord from 'models/LogRecord';
@@ -29,15 +37,11 @@ import {
 } from './util';
 import { SentinelDesktopService } from './SentinelDesktopService';
 
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
+const AUTO_UPDATE_CHECK_INTERVAL = 30 * 1000; // check ever 30 seconds
 
 let mainWindow: BrowserWindow | undefined;
+
+log.initialize();
 
 // This is an API call that should only be used internally for debugging.
 // This is a helpful way to surface environment variables to the renderer
@@ -223,6 +227,46 @@ const installExtensions = async (): Promise<any> => {
     .catch(console.log);
 };
 
+function setupAutoUpdater(): void {
+  autoUpdater.logger = log;
+  setInterval(() => {
+    autoUpdater.checkForUpdates();
+  }, AUTO_UPDATE_CHECK_INTERVAL);
+
+  autoUpdater.on('update-downloaded', async (event: UpdateDownloadedEvent) => {
+    const releaseNotesText = Array.isArray(event.releaseNotes)
+      ? event.releaseNotes
+          .map((note) => `Version ${note.version}: ${note.note}`)
+          .join('\n')
+      : event.releaseNotes;
+
+    // if windows, the `event` interface is difference so we can't use
+    // `event.releaseName`
+    const releaseName =
+      (process.platform === 'win32' ? releaseNotesText : event.releaseName) ||
+      'Update available';
+
+    const dialogOpts: MessageBoxOptions = {
+      type: 'info',
+      buttons: ['Restart', 'Later'],
+      title: 'Application Update',
+      message: releaseName,
+      detail:
+        'A new version has been downloaded. Restart the application to apply the updates.',
+    };
+
+    const msgBoxReturnValue = await dialog.showMessageBox(dialogOpts);
+    if (msgBoxReturnValue.response === 0) {
+      autoUpdater.quitAndInstall();
+    }
+  });
+
+  autoUpdater.on('error', (message) => {
+    console.error('There was a problem updating the application');
+    console.error(message);
+  });
+}
+
 async function createWindow(): Promise<void> {
   if (isDebug) {
     await installExtensions();
@@ -288,25 +332,19 @@ async function createWindow(): Promise<void> {
     shell.openExternal(edata.url);
     return { action: 'deny' };
   });
-
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater();
 }
 
-/**
- * Add event listeners...
- */
-
-app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
 async function setupApp(): Promise<void> {
+  setupAutoUpdater();
+
+  app.on('window-all-closed', () => {
+    // Respect the OSX convention of having the application in memory even
+    // after all windows have been closed
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  });
+
   // eslint-disable-next-line promise/always-return
   await app.whenReady().then(() => {
     // Out-of-box file:// protocol gets "Not allowed to load local resource" error
