@@ -21,6 +21,15 @@ cp $PROJECT_DIR/bin/windows-schema-engine* $TARGET_PRISMA_BINARY_DIR/schema-engi
 rm -rf $PROJECT_DIR/release/build
 $PROJECT_DIR/node_modules/.bin/ts-node $PROJECT_DIR/.erb/scripts/clean.js dist
 npm run build
-$PROJECT_DIR/node_modules/.bin/electron-builder build --publish never --mac --win
+
+# Check if there is exactly one argument and it is "publish"
+if [ "$#" -eq 1 ] && [ "$1" == "publish" ]; then
+    # If the argument is "publish", use "--publish always"
+    PUBLISH_FLAG="always"
+else
+    PUBLISH_FLAG="never"
+fi
+
+$PROJECT_DIR/node_modules/.bin/electron-builder build --publish $PUBLISH_FLAG --mac --win
 
 echo "Finished bundling Sentinel Desktop!"

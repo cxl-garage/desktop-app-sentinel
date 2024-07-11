@@ -34,6 +34,7 @@
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "make-db": "yarn prisma generate && yarn prisma migrate dev --name init",
     "package": "./scripts/bundleApp.sh",
+    "publish": "./scripts/bundleApp.sh publish",
     "prepare": "husky install",
     "rebuild": "electron-rebuild -f -w sharp --types prod,dev,optional --module-dir release/app",
     "reset-env": "cp .env.sample .env",
