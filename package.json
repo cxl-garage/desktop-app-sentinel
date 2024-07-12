@@ -1,5 +1,5 @@
 {
-  "description": "A foundation for scalable desktop apps",
+  "name": "sentinel-desktop",
   "keywords": [
     "electron",
     "boilerplate",
@@ -298,7 +298,8 @@
     "publish": {
       "provider": "github",
       "owner": "cxl-garage",
-      "repo": "desktop-app-sentinel"
+      "repo": "desktop-app-sentinel",
+      "releaseType": "release"
     }
   },
   "collective": {
@@ -317,5 +318,6 @@
   },
   "resolutions": {
     "styled-components": "^5"
-  }
+  },
+  "version": "0.4.0"
 }
