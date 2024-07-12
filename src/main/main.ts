@@ -25,6 +25,7 @@ import * as LogRecord from 'models/LogRecord';
 import * as DockerVersion from 'models/DockerVersion';
 import * as DockerImage from 'models/DockerImage';
 import * as urllib from 'url';
+// eslint-disable-next-line import/no-relative-packages
 import { ModelRun } from '../generated/prisma/client';
 import * as ModelRunProgress from '../models/ModelRunProgress';
 import * as RunModelOptions from '../models/RunModelOptions';
@@ -229,11 +230,15 @@ const installExtensions = async (): Promise<any> => {
 
 function setupAutoUpdater(): void {
   autoUpdater.logger = log;
-  setInterval(() => {
+  const autoUpdateInterval = setInterval(() => {
     autoUpdater.checkForUpdates();
   }, AUTO_UPDATE_CHECK_INTERVAL);
 
   autoUpdater.on('update-downloaded', async (event: UpdateDownloadedEvent) => {
+    // prevent the auto-update from firing multiple times if it
+    // already found an update
+    clearInterval(autoUpdateInterval);
+
     const releaseNotesText = Array.isArray(event.releaseNotes)
       ? event.releaseNotes
           .map((note) => `Version ${note.version}: ${note.note}`)
