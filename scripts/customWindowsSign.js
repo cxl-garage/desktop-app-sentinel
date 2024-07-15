@@ -26,10 +26,12 @@ exports.default = async function (configuration) {
     );
   }
 
+  const appPath = String(configuration.path);
+  const digicertKeyPairName = String(process.env.SM_KEYPAIR_NAME);
+  const pkcs11PropertiesFile = String(process.env.SM_PKCS11_PROPERTIES_FILE);
+
   execSync(
-    `smctl sign --keypair-alias="${
-      process.env.SM_KEYPAIR_NAME
-    }" --input "${String(configuration.path)}"`,
+    `smctl sign --input "${appPath}" --keypair-alias ${digicertKeyPairName} --config-file ${pkcs11PropertiesFile} -vvv`,
     {
       stdio: 'inherit',
     },
