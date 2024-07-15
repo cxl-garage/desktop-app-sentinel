@@ -1,5 +1,6 @@
 import {
   app,
+  dialog,
   Menu,
   shell,
   BrowserWindow,
@@ -81,22 +82,6 @@ export default class MenuBuilder {
           click: () => {
             app.quit();
           },
-        },
-      ],
-    };
-    const subMenuEdit: DarwinMenuItemConstructorOptions = {
-      label: 'Edit',
-      submenu: [
-        { label: 'Undo', accelerator: 'Command+Z', selector: 'undo:' },
-        { label: 'Redo', accelerator: 'Shift+Command+Z', selector: 'redo:' },
-        { type: 'separator' },
-        { label: 'Cut', accelerator: 'Command+X', selector: 'cut:' },
-        { label: 'Copy', accelerator: 'Command+C', selector: 'copy:' },
-        { label: 'Paste', accelerator: 'Command+V', selector: 'paste:' },
-        {
-          label: 'Select All',
-          accelerator: 'Command+A',
-          selector: 'selectAll:',
         },
       ],
     };
@@ -189,7 +174,7 @@ export default class MenuBuilder {
         ? subMenuViewDev
         : subMenuViewProd;
 
-    return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
+    return [subMenuAbout, subMenuView, subMenuWindow, subMenuHelp];
   }
 
   buildDefaultTemplate(): MenuItemConstructorOptions[] {
@@ -255,6 +240,18 @@ export default class MenuBuilder {
       {
         label: 'Help',
         submenu: [
+          {
+            label: 'About',
+            click: () => {
+              dialog.showMessageBox({
+                type: 'info',
+                title: `About ${app.getName()}`,
+                message: `About ${app.getName()}`,
+                detail: `Version ${app.getVersion()}`,
+                buttons: ['OK'],
+              });
+            },
+          },
           {
             label: 'Learn More',
             click() {
