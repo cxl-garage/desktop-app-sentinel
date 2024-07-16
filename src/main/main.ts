@@ -321,6 +321,10 @@ async function createWindow(): Promise<void> {
         status: 'UNKNOWN',
       },
     });
+
+    // set up the auto updater once we have shown the main window and handled
+    // any db migrations.
+    setupAutoUpdater();
   });
 
   mainWindow.on('closed', () => {
@@ -338,8 +342,6 @@ async function createWindow(): Promise<void> {
 }
 
 async function setupApp(): Promise<void> {
-  setupAutoUpdater();
-
   app.on('window-all-closed', () => {
     // Respect the OSX convention of having the application in memory even
     // after all windows have been closed

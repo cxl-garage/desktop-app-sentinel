@@ -126,7 +126,6 @@
     "recursive-readdir": "^2.2.3",
     "remeda": "^1.9.1",
     "styled-components": "^5.3.6",
-    "update-electron-app": "^3.0.0",
     "use-immer": "^0.8.1",
     "use-local-storage-state": "^18.3.3",
     "zod": "^3.21.4"
@@ -276,6 +275,10 @@
       ],
       "sign": "scripts/customWindowsSign.js"
     },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
     "linux": {
       "target": [
         "AppImage"
@@ -319,5 +322,5 @@
   "resolutions": {
     "styled-components": "^5"
   },
-  "version": "0.4.6"
+  "version": "0.4.7"
 }
