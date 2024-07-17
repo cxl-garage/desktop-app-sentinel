@@ -33,24 +33,6 @@ CXL produces Sentinel hardware and a Sentinel web app to allow conservation orga
 
 [Data Clinic](https://www.twosigma.com/data-clinic/), the pro bono data and tech-for-good arm of Two Sigma. Contact: [dataclinic@twosigma.com](mailto:dataclinic@twosigma.com), GitHub: https://github.com/tsdataclinic
 
-## Known Issues
-
-The team is aware of the following issues and is actively addressing them:
-
-**General Function**
-
-- System warnings are expected while downloading and installing the app, these will be resolved once the app is officially released
-- When in dark mode, if the sidebar is collapsed then expanded the toggle resets and appears to be set to light mode despite still having the dark mode color scheme.
-
-**Run Your Model**
-
-- Config files are not displayed when using Windows Explorer, causing difficulty when selecting the proper model folder
-- Attempting runs without "Import dataset" or "Save results to" selected can cause errors or unexpected results
-
-**Logs**
-
-- Downloading the logs file does not match exactly with the logs shown in the app
-
 ## Packaging the app
 
 The app can be packaged with `yarn package`. More details, such as how to manage Prisma binary versions when packaging, can be found in the [Developer Documentation](https://github.com/cxl-garage/desktop-app-sentinel/wiki/Developer-Documentation#packaging-the-app).
