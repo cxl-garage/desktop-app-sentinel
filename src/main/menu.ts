@@ -7,6 +7,9 @@ import {
   MenuItemConstructorOptions,
 } from 'electron';
 
+const USER_MANUAL_URL =
+  'https://github.com/cxl-garage/desktop-app-sentinel/wiki/User-Manual';
+
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
   submenu?: DarwinMenuItemConstructorOptions[] | Menu;
@@ -140,29 +143,9 @@ export default class MenuBuilder {
       label: 'Help',
       submenu: [
         {
-          label: 'Learn More',
+          label: 'User Manual',
           click() {
-            shell.openExternal('https://electronjs.org');
-          },
-        },
-        {
-          label: 'Documentation',
-          click() {
-            shell.openExternal(
-              'https://github.com/electron/electron/tree/main/docs#readme',
-            );
-          },
-        },
-        {
-          label: 'Community Discussions',
-          click() {
-            shell.openExternal('https://www.electronjs.org/community');
-          },
-        },
-        {
-          label: 'Search Issues',
-          click() {
-            shell.openExternal('https://github.com/electron/electron/issues');
+            shell.openExternal(USER_MANUAL_URL);
           },
         },
       ],
@@ -240,6 +223,8 @@ export default class MenuBuilder {
       {
         label: 'Help',
         submenu: [
+          // on Windows we don't have a convenient way to show the app's version
+          // so we add an 'About' section to the 'Help' menu to show it.
           {
             label: 'About',
             click: () => {
@@ -253,29 +238,9 @@ export default class MenuBuilder {
             },
           },
           {
-            label: 'Learn More',
+            label: 'User Manual',
             click() {
-              shell.openExternal('https://electronjs.org');
-            },
-          },
-          {
-            label: 'Documentation',
-            click() {
-              shell.openExternal(
-                'https://github.com/electron/electron/tree/main/docs#readme',
-              );
-            },
-          },
-          {
-            label: 'Community Discussions',
-            click() {
-              shell.openExternal('https://www.electronjs.org/community');
-            },
-          },
-          {
-            label: 'Search Issues',
-            click() {
-              shell.openExternal('https://github.com/electron/electron/issues');
+              shell.openExternal(USER_MANUAL_URL);
             },
           },
         ],
