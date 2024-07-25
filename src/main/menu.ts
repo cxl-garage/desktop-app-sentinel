@@ -8,7 +8,7 @@ import {
 } from 'electron';
 
 const USER_MANUAL_URL =
-  'https://github.com/cxl-garage/desktop-app-sentinel/wiki/User-Manual';
+  'https://github.com/cxl-garage/desktop-app-sentinel/wiki/Sentinel-Desktop-User-Manual';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
