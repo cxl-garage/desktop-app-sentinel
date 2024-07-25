@@ -13,7 +13,7 @@ CXL produces Sentinel hardware and a Sentinel web app to allow conservation orga
 ## Pre-requisites
 
 - Python version `3.10.2` or above
-- Node v20.12.2 or higher (its possible lower versions will work but this is what it was developed on)
+- Node `20.12.2` or higher (its possible lower versions will work but this is what it was developed on)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 ## Local setup
