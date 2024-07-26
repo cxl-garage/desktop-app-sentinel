@@ -21,7 +21,8 @@ CXL produces Sentinel hardware and a Sentinel web app to allow conservation orga
 1. Clone repo
 2. Set up `.env` file: `yarn reset-env`
 3. Install all dependencies: `yarn install`
-4. Initiliaze the local sqlite db: `yarn make-db`
+4. Initiliaze the local sqlite db and Prisma client: `yarn upgrade-db`
+   - This is also the command you should run if the database schema has changed and you need to migrate your db to the new schema.
 5. Start the app: `yarn start`
 
 ## License

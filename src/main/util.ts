@@ -80,6 +80,7 @@ export async function runPrismaCommand(options: {
   // CLI directly.
   // More details in this GitHub issue: https://github.com/prisma/prisma/issues/4703
   try {
+    let errorString: string | undefined;
     const exitCode = await new Promise((resolve) => {
       const prismaPath = path.join(
         PACKAGED_APP_ROOT,
@@ -113,6 +114,7 @@ export async function runPrismaCommand(options: {
       });
       child.stderr?.on('data', (data) => {
         console.log('Prisma Error: ', data.toString());
+        errorString = data.toString();
       });
       child.on('close', (code) => {
         resolve(code);
@@ -121,9 +123,15 @@ export async function runPrismaCommand(options: {
 
     if (exitCode !== 0) {
       const commandString = command.join(' ');
-      throw new Error(
-        `Prisma command '${commandString}' failed with exit code ${exitCode}`,
-      );
+      if (errorString) {
+        throw new Error(
+          `Prisma command '${commandString}' failed. ${errorString}`,
+        );
+      } else {
+        throw new Error(
+          `Prisma command '${commandString}' failed with exit code ${exitCode}`,
+        );
+      }
     }
     return exitCode;
   } catch (e) {

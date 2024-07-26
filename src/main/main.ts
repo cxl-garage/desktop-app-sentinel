@@ -341,6 +341,19 @@ async function createWindow(): Promise<void> {
   });
 }
 
+async function runPrismaDatabaseMigration(): Promise<number> {
+  const schemaPath = path.join(
+    process.resourcesPath,
+    'prisma',
+    'schema.prisma',
+  );
+  const exitCode = await runPrismaCommand({
+    command: ['migrate', 'deploy', '--schema', schemaPath],
+    dbURL: `file:${DB_PATH}?connection_limit=1&socket_timeout=5`,
+  });
+  return exitCode;
+}
+
 async function setupApp(): Promise<void> {
   app.on('window-all-closed', () => {
     // Respect the OSX convention of having the application in memory even
@@ -375,33 +388,69 @@ async function setupApp(): Promise<void> {
   if (IS_APP_PACKAGED) {
     const dbExists = fs.existsSync(DB_PATH);
     console.log('Using db path', DB_PATH);
+
     if (!dbExists) {
+      console.log('Database does not exist, so creating one.');
       // prisma for whatever reason has trouble if the database file does
       // not exist yet. So just touch it here
       fs.closeSync(fs.openSync(DB_PATH, 'w'));
+    }
 
-      // now perform the migration
-      try {
-        const schemaPath = path.join(
-          process.resourcesPath,
-          'prisma',
-          'schema.prisma',
-        );
+    // now perform the database migration
+    try {
+      console.log('Migrating database to newest version');
+      await runPrismaDatabaseMigration();
+    } catch (e) {
+      console.error(e);
+      // If we received the Prisma error that a migration cannot be applied,
+      // then we will try resetting the database
+      // Here is a list of all prisma error codes:
+      // https://www.prisma.io/docs/orm/reference/error-reference
+      if (e instanceof Error && e.message.includes('P3009')) {
+        // First, lets copy the existing database to a backup file, so that
+        // if something goes wrong we can always tell the user how to fix
+        // things.
+        const backupDBPath = `${DB_PATH}.bak`;
+        try {
+          console.log('Backing up current database file');
+          fs.copyFileSync(DB_PATH, backupDBPath);
+        } catch (backupDBError) {
+          console.error('Failed to backup the database', backupDBError);
+          process.exit(1);
+        }
 
-        await runPrismaCommand({
-          command: [
-            'migrate',
-            'dev',
-            '--skip-generate',
-            '--schema',
-            schemaPath,
-            '--name',
-            'init',
-          ],
-          dbURL: `file:${DB_PATH}?connection_limit=1&socket_timeout=5`,
-        });
-      } catch (e) {
-        console.error(e);
+        // Now, delete the original, faulty, database file
+        try {
+          console.log('Deleting database file');
+          fs.unlinkSync(DB_PATH);
+        } catch (deleteDBError) {
+          console.error('Failed to delete the database file', deleteDBError);
+          process.exit(1);
+        }
+
+        // Now create a new database file
+        try {
+          console.log('Recreating the database file');
+          fs.closeSync(fs.openSync(DB_PATH, 'w'));
+        } catch (createDBFileError) {
+          console.error(
+            'Failed to create new database file',
+            createDBFileError,
+          );
+          process.exit(1);
+        }
+
+        // Now we can finally try running the migration again
+        try {
+          await runPrismaDatabaseMigration();
+        } catch (dbMigrationError) {
+          console.error(
+            'Failed to migrate the database after reset.',
+            dbMigrationError,
+          );
+          process.exit(1);
+        }
+      } else {
         process.exit(1);
       }
     }
